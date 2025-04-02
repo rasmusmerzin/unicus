@@ -1,0 +1,41 @@
+:root {
+  --background: #fff;
+  --foreground: #000;
+  --primary: #08f;
+  --primary-foreground: #fff;
+  font-family: "Open Sans", system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+  outline-color: var(--primary);
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  background: none;
+  border: none;
+  line-height: 1;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  overscroll-behavior: contain;
+}
+
+button:not(:disabled) {
+  cursor: pointer;
+}
+
+#app {
+  max-width: 640px;
+  margin: 0 auto;
+  height: 100dvh;
+  padding-bottom: var(--keyboard-height, 0);
+}
