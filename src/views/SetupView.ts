@@ -1,6 +1,9 @@
 import "./SetupView.css";
 import { InputElement } from "../elements/InputElement";
 import { ButtonElement } from "../elements/ButtonElement";
+import { SALT, saveVault, secretCell, vaultCell } from "../vault";
+import { deriveKey } from "../crypto";
+import { updateView } from "../main";
 
 @tag("app-setup")
 export class SetupView extends HTMLElement {
@@ -19,12 +22,12 @@ export class SetupView extends HTMLElement {
       (this.passcodeInput = createElement(InputElement, {
         type: "password",
         label: "Passcode",
-        oninput: () => this.validate(),
+        oninput: () => (this.passcodeInput.error = ""),
       })),
       (this.passcodeInput2 = createElement(InputElement, {
         type: "password",
         label: "Repeat passcode",
-        oninput: () => this.validate(),
+        oninput: () => (this.passcodeInput2.error = ""),
       })),
       (this.continueButton = createElement(ButtonElement, {
         textContent: "Continue",
@@ -33,29 +36,29 @@ export class SetupView extends HTMLElement {
     );
   }
 
-  private continue() {
-    if (!this.validate(true)) return;
-    this.continueButton.loading = true;
-    setTimeout(() => {
+  private async continue() {
+    if (!this.validate()) return;
+    try {
+      this.continueButton.loading = true;
+      secretCell.value = await deriveKey(this.passcodeInput.value, SALT);
+      vaultCell.value = {};
+      await saveVault();
+      updateView();
+    } catch (error) {
+      alert(error);
+    } finally {
       this.continueButton.loading = false;
-    }, 1000);
+    }
   }
 
-  private validate(submit = false) {
+  private validate() {
     this.passcodeInput.error = "";
     this.passcodeInput2.error = "";
-    if (
-      (submit || this.passcodeInput.value) &&
-      this.passcodeInput.value.length < 8
-    )
+    if (this.passcodeInput.value.length < 8)
       this.passcodeInput.error = "Passcode must be at least 8 characters";
-    if (
-      (submit || this.passcodeInput2.value) &&
-      this.passcodeInput.value !== this.passcodeInput2.value
-    )
+    if (this.passcodeInput.value !== this.passcodeInput2.value)
       this.passcodeInput2.error = "Passcodes do not match";
     const valid = !(this.passcodeInput.error || this.passcodeInput2.error);
-    this.continueButton.disabled = !valid;
     return valid;
   }
 }

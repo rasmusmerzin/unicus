@@ -44,8 +44,11 @@ body {
   padding-bottom: var(--keyboard-height, 0);
 }
 
-button:not(:disabled) {
-  cursor: pointer;
+button {
+  user-select: none;
+  &:not(:disabled) {
+    cursor: pointer;
+  }
 }
 
 #app {
