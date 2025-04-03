@@ -1,5 +1,6 @@
 import "./ButtonElement.css";
-import { spinner } from "./icons";
+import { spinner } from "../icons";
+import { clickFeedback } from "../mixins/click-feedback";
 
 @tag("app-button")
 export class ButtonElement extends HTMLElement {
@@ -42,7 +43,7 @@ export class ButtonElement extends HTMLElement {
   constructor() {
     super();
     this.replaceChildren(
-      (this.buttonElement = createElement("button")),
+      (this.buttonElement = clickFeedback(createElement("button"))),
       createElement("div", { className: "loader", innerHTML: spinner(16) })
     );
   }

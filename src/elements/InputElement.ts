@@ -1,5 +1,5 @@
 import "./InputElement.css";
-import { visibility, visibilityOff } from "./icons";
+import { visibility, visibilityOff } from "../icons";
 
 @tag("app-input")
 export class InputElement extends HTMLElement {

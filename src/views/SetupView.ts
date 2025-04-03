@@ -1,6 +1,6 @@
 import "./SetupView.css";
-import { InputElement } from "./InputElement";
-import { ButtonElement } from "./ButtonElement";
+import { InputElement } from "../elements/InputElement";
+import { ButtonElement } from "../elements/ButtonElement";
 
 @tag("app-setup")
 export class SetupView extends HTMLElement {
