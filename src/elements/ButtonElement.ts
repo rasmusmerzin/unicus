@@ -1,6 +1,6 @@
 import "./ButtonElement.css";
 import { spinner } from "../icons";
-import { clickFeedback } from "../mixins/click-feedback";
+import { clickFeedback } from "../mixins/clickFeedback";
 
 @tag("app-button")
 export class ButtonElement extends HTMLElement {

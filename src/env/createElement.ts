@@ -10,10 +10,6 @@ export type CreateElementContent =
   | HTMLElement
   | string;
 
-export interface HTMLElementConstructor<T extends HTMLElement = HTMLElement> {
-  new (): T;
-}
-
 declare global {
   function createElement<K extends keyof HTMLElementTagNameMap>(
     tag: K,
@@ -21,7 +17,7 @@ declare global {
     ...content: CreateElementContent[]
   ): HTMLElementTagNameMap[K];
   function createElement<E extends HTMLElement>(
-    tag: HTMLElementConstructor<E>,
+    tag: Constructor<E>,
     properties?: CreateElementProperties<HTMLElement>,
     ...content: CreateElementContent[]
   ): E;
@@ -35,13 +31,13 @@ export function createElement<K extends keyof HTMLElementTagNameMap>(
   ...content: CreateElementContent[]
 ): HTMLElementTagNameMap[K];
 export function createElement<E extends HTMLElement>(
-  tag: HTMLElementConstructor<E>,
+  tag: Constructor<E>,
   properties?: CreateElementProperties<E>,
   ...content: CreateElementContent[]
 ): E;
 
 export function createElement(
-  tag: string | HTMLElementConstructor,
+  tag: string | Constructor<HTMLElement>,
   properties?: CreateElementProperties,
   ...content: CreateElementContent[]
 ): HTMLElement {

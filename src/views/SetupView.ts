@@ -3,7 +3,7 @@ import { InputElement } from "../elements/InputElement";
 import { ButtonElement } from "../elements/ButtonElement";
 import { SALT, saveVault, secretCell, vaultCell } from "../vault";
 import { deriveKey } from "../crypto";
-import { updateView } from "../main";
+import { updateView } from "../view";
 
 @tag("app-setup")
 export class SetupView extends HTMLElement {

@@ -3,7 +3,7 @@ import { ButtonElement } from "../elements/ButtonElement";
 import { InputElement } from "../elements/InputElement";
 import { openVault, SALT, secretCell } from "../vault";
 import { deriveKey } from "../crypto";
-import { updateView } from "../main";
+import { updateView } from "../view";
 
 @tag("app-unlock")
 export class UnlockView extends HTMLElement {

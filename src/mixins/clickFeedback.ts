@@ -1,4 +1,4 @@
-import "./click-feedback.css";
+import "./clickFeedback.css";
 
 export function clickFeedback<E extends HTMLElement>(
   element: E,
