@@ -3,13 +3,17 @@
   "type": "module",
   "scripts": {
     "start": "vite",
+    "test": "vitest",
     "build": "tsc && vite build",
     "format": "prettier --write .",
     "preview": "vite preview"
   },
   "devDependencies": {
+    "@vitest/browser": "3",
+    "playwright": "1",
     "prettier": "2",
     "typescript": "5.7",
-    "vite": "6"
+    "vite": "6",
+    "vitest": "3"
   }
 }

@@ -5,9 +5,15 @@ export interface Encrypted {
 
 export async function deriveKey(
   passcode: string,
-  salt: string,
-  iterations = 100000
-) {
+  salt = "",
+  {
+    iterations = 100000,
+    bytes = 256,
+  }: {
+    iterations?: number;
+    bytes?: 128 | 256;
+  } = {}
+): Promise<string> {
   const encoder = new TextEncoder();
   const keyMaterial = await crypto.subtle.importKey(
     "raw",
@@ -17,18 +23,11 @@ export async function deriveKey(
     ["deriveBits"]
   );
   const derivedBits = await crypto.subtle.deriveBits(
-    {
-      name: "PBKDF2",
-      salt: encoder.encode(salt),
-      iterations,
-      hash: "SHA-256",
-    },
+    { name: "PBKDF2", salt: encoder.encode(salt), iterations, hash: "SHA-256" },
     keyMaterial,
-    128
+    bytes
   );
-  return Array.from(new Uint8Array(derivedBits))
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
+  return bufferToBase64(derivedBits);
 }
 
 export async function encryptData(
@@ -39,7 +38,7 @@ export async function encryptData(
   const iv = crypto.getRandomValues(new Uint8Array(12));
   const key = await crypto.subtle.importKey(
     "raw",
-    encoder.encode(secretKey),
+    await base64ToBuffer(secretKey),
     { name: "AES-GCM" },
     false,
     ["encrypt"]
@@ -50,8 +49,8 @@ export async function encryptData(
     encoder.encode(data)
   );
   return {
-    iv: Array.from(iv).toString(),
-    cipher: new Uint8Array(encrypted).join(","),
+    iv: await bufferToBase64(iv),
+    cipher: await bufferToBase64(encrypted),
   };
 }
 
@@ -59,11 +58,10 @@ export async function decryptData(
   secretKey: string,
   encryptedData: Encrypted
 ): Promise<string> {
-  const encoder = new TextEncoder();
   const decoder = new TextDecoder();
   const key = await crypto.subtle.importKey(
     "raw",
-    encoder.encode(secretKey),
+    await base64ToBuffer(secretKey),
     { name: "AES-GCM" },
     false,
     ["decrypt"]
@@ -71,10 +69,28 @@ export async function decryptData(
   const decrypted = await crypto.subtle.decrypt(
     {
       name: "AES-GCM",
-      iv: new Uint8Array(encryptedData.iv.split(",").map(Number)),
+      iv: await base64ToBuffer(encryptedData.iv),
     },
     key,
-    new Uint8Array(encryptedData.cipher.split(",").map(Number))
+    await base64ToBuffer(encryptedData.cipher)
   );
   return decoder.decode(decrypted);
 }
+
+export async function bufferToBase64(buffer: ArrayBuffer): Promise<string> {
+  const base64Url = await blobToBase64Url(new Blob([buffer]));
+  return base64Url.slice(base64Url.indexOf(",") + 1);
+}
+
+export async function base64ToBuffer(base64: string): Promise<ArrayBuffer> {
+  const base64Url = `data:application/octet-stream;base64,${base64}`;
+  const response = await fetch(base64Url);
+  return response.arrayBuffer();
+}
+
+const blobToBase64Url = (blob: Blob) =>
+  new Promise<string>((resolve) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.readAsDataURL(blob);
+  });
