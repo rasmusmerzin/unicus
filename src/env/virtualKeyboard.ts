@@ -8,7 +8,3 @@ setTimeout(() => {
     document.documentElement.style.setProperty("--keyboard-height", height);
   });
 });
-
-export function getVirtualKeyboardHeight(): number {
-  return virtualKeyboard?.boundingRect.height || 0;
-}

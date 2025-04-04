@@ -5,9 +5,11 @@ export function clickFeedback<E extends HTMLElement>(
   {
     duration = 400,
     color = "#fff",
+    size = 1,
   }: {
     duration?: number;
     color?: string;
+    size?: number;
   } = {}
 ): E {
   element.addEventListener("click", onclick);
@@ -31,6 +33,7 @@ export function clickFeedback<E extends HTMLElement>(
   }
   function createFeedbackElement(event: MouseEvent) {
     const { top, left } = element.getBoundingClientRect();
+    const width = `${size * 8}px`;
     return createElement("div", {
       style: {
         zIndex: "1",
@@ -38,8 +41,8 @@ export function clickFeedback<E extends HTMLElement>(
         top: `${event.clientY - top}px`,
         left: `${event.clientX - left}px`,
         transform: "translate(-50%, -50%)",
-        width: "8px",
-        height: "8px",
+        width,
+        height: width,
         background: color,
         borderRadius: "100%",
         animation: `click-feedback ${duration}ms ease-in forwards`,

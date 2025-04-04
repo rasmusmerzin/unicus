@@ -1,3 +1,5 @@
 export * from "./createElement";
 export * from "./tag";
-export * from "./virtualKeyboard";
+import "./buttonClickBlur";
+import "./touchMode";
+import "./virtualKeyboard";

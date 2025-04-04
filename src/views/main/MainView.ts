@@ -1,9 +1,10 @@
-import { vaultCell } from "../../vault";
+import "./MainView.css";
+import { MainHeaderElement } from "./MainHeaderElement";
 
 @tag("app-main")
 export class MainView extends HTMLElement {
   constructor() {
     super();
-    this.innerText = JSON.stringify(vaultCell.value, null, 2);
+    this.replaceChildren(createElement(MainHeaderElement));
   }
 }
