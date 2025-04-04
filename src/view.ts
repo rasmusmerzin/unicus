@@ -1,6 +1,6 @@
-import { MainView } from "./views/MainView";
-import { SetupView } from "./views/SetupView";
-import { UnlockView } from "./views/UnlockView";
+import { MainView } from "./views/main/MainView";
+import { SetupView } from "./views/setup/SetupView";
+import { UnlockView } from "./views/unlock/UnlockView";
 import { getEncryptedVault, secretCell, vaultCell } from "./vault";
 
 const app = document.getElementById("app")!;

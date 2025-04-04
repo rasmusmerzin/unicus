@@ -1,8 +1,31 @@
 import { decryptData, encryptData, Encrypted } from "./crypto";
 
-export interface Vault {}
+export interface Vault {
+  entries?: VaultEntry[];
+}
 
-export const SALT = "salt";
+export type VaultEntry = VaultEntryHead &
+  (VaultEntryTotpData | VaultEntryHotpData);
+
+export interface VaultEntryHead {
+  uuid: string;
+  name: string;
+  issuer: string;
+}
+
+export interface VaultEntryTotpData {
+  type: "totp";
+  secret: string;
+  digits: number;
+  period: number;
+}
+
+export interface VaultEntryHotpData {
+  type: "hotp";
+  secret: string;
+  digits: number;
+  counter: number;
+}
 
 export const vaultCell: Cell<Vault | null> = { value: null };
 export const secretCell: Cell<string | null> = { value: null };
@@ -12,6 +35,11 @@ export async function openVault(): Promise<Vault | null> {
   if (!encryptedVault || !secretCell.value) return (vaultCell.value = null);
   const vaultData = await decryptData(secretCell.value, encryptedVault);
   return (vaultCell.value = JSON.parse(vaultData));
+}
+
+export function lockVault() {
+  vaultCell.value = null;
+  secretCell.value = null;
 }
 
 export async function saveVault() {

@@ -1,9 +1,9 @@
 import "./SetupView.css";
-import { InputElement } from "../elements/InputElement";
-import { ButtonElement } from "../elements/ButtonElement";
-import { SALT, saveVault, secretCell, vaultCell } from "../vault";
-import { deriveKey } from "../crypto";
-import { updateView } from "../view";
+import { InputElement } from "../../elements/InputElement";
+import { ButtonElement } from "../../elements/ButtonElement";
+import { saveVault, secretCell, vaultCell } from "../../vault";
+import { deriveKey } from "../../crypto";
+import { updateView } from "../../view";
 
 @tag("app-setup")
 export class SetupView extends HTMLElement {
@@ -49,7 +49,7 @@ export class SetupView extends HTMLElement {
     if (!this.validate()) return;
     try {
       this.continueButton.loading = true;
-      secretCell.value = await deriveKey(this.passcodeInput.value, SALT);
+      secretCell.value = await deriveKey(this.passcodeInput.value);
       vaultCell.value = {};
       await saveVault();
       updateView();

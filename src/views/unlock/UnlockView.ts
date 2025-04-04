@@ -1,9 +1,9 @@
 import "./UnlockView.css";
-import { ButtonElement } from "../elements/ButtonElement";
-import { InputElement } from "../elements/InputElement";
-import { openVault, SALT, secretCell } from "../vault";
-import { deriveKey } from "../crypto";
-import { updateView } from "../view";
+import { ButtonElement } from "../../elements/ButtonElement";
+import { InputElement } from "../../elements/InputElement";
+import { openVault, secretCell } from "../../vault";
+import { deriveKey } from "../../crypto";
+import { updateView } from "../../view";
 
 @tag("app-unlock")
 export class UnlockView extends HTMLElement {
@@ -17,11 +17,11 @@ export class UnlockView extends HTMLElement {
       (this.passcodeInput = createElement(InputElement, {
         type: "password",
         label: "Passcode",
+        onenter: this.continue.bind(this),
         oninput: () => {
           this.continueButton.disabled = false;
           this.passcodeInput.error = "";
         },
-        onenter: this.continue.bind(this),
       })),
       (this.continueButton = createElement(ButtonElement, {
         textContent: "Continue",
@@ -37,7 +37,7 @@ export class UnlockView extends HTMLElement {
   async continue() {
     try {
       this.continueButton.loading = true;
-      secretCell.value = await deriveKey(this.passcodeInput.value, SALT);
+      secretCell.value = await deriveKey(this.passcodeInput.value);
       await openVault();
       updateView();
     } catch (error) {

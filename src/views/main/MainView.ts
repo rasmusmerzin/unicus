@@ -1,4 +1,4 @@
-import { vaultCell } from "../vault";
+import { vaultCell } from "../../vault";
 
 @tag("app-main")
 export class MainView extends HTMLElement {

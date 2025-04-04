@@ -37,8 +37,10 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  overscroll-behavior: contain;
   height: 100dvh;
+  margin: 0 auto;
+  max-width: 640px;
+  overscroll-behavior: contain;
   padding-bottom: var(--keyboard-height, 0);
 }
 
