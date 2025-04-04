@@ -30,11 +30,17 @@ export class InputElement extends HTMLElement {
     if (value) this.classList.add("placeholder");
     else this.classList.remove("placeholder");
   }
+  #oninput?: (event: Event) => void;
   set oninput(value: (event: Event) => void) {
-    this.inputElement.oninput = (event) => {
-      this.onInput();
-      value(event);
-    };
+    this.#oninput = value;
+  }
+  #onenter?: (event: KeyboardEvent) => void;
+  set onenter(value: (event: KeyboardEvent) => void) {
+    this.#onenter = value;
+  }
+  #onescape?: (event: KeyboardEvent) => void;
+  set onescape(value: (event: KeyboardEvent) => void) {
+    this.#onescape = value;
   }
   get error(): string {
     return this.errorElement.innerText;
@@ -63,23 +69,40 @@ export class InputElement extends HTMLElement {
     this.replaceChildren(
       (this.labelElement = createElement("label")),
       (this.inputElement = createElement("input", {
-        oninput: () => this.onInput(),
-        onfocus: () => this.onFocus(),
-        onblur: () => this.onBlur(),
+        oninput: this.onInput.bind(this),
+        onfocus: this.onFocus.bind(this),
+        onblur: this.onBlur.bind(this),
+        onkeydown: this.onKeydown.bind(this),
       })),
       (this.errorElement = createElement("div", { className: "error" })),
       (this.eyeElement = createElement("button", {
         tabindex: "-1",
         className: "eye",
         innerHTML: visibility(20),
-        onclick: () => this.onEyeClick(),
+        onclick: this.onEyeClick.bind(this),
       }))
     );
   }
 
-  private onInput() {
+  focus() {
+    this.inputElement.focus();
+  }
+  blur() {
+    this.inputElement.blur();
+  }
+
+  private onKeydown(event: KeyboardEvent) {
+    if (event.key === "Enter") {
+      if (this.#onenter) this.#onenter(event);
+    } else if (event.key === "Escape") {
+      this.blur();
+      if (this.#onescape) this.#onescape(event);
+    }
+  }
+  private onInput(event: Event) {
     if (this.inputElement.value) this.classList.remove("empty");
     else this.classList.add("empty");
+    if (this.#oninput) this.#oninput(event);
   }
   private onFocus() {
     this.classList.add("focus");

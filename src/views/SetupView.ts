@@ -22,16 +22,25 @@ export class SetupView extends HTMLElement {
       (this.passcodeInput = createElement(InputElement, {
         type: "password",
         label: "Passcode",
-        oninput: () => (this.passcodeInput.error = ""),
+        onenter: this.continue.bind(this),
+        oninput: () => {
+          this.passcodeInput.error = "";
+          this.passcodeInput2.error = "";
+          this.continueButton.disabled = false;
+        },
       })),
       (this.passcodeInput2 = createElement(InputElement, {
         type: "password",
         label: "Repeat passcode",
-        oninput: () => (this.passcodeInput2.error = ""),
+        onenter: this.continue.bind(this),
+        oninput: () => {
+          this.passcodeInput2.error = "";
+          this.continueButton.disabled = false;
+        },
       })),
       (this.continueButton = createElement(ButtonElement, {
         textContent: "Continue",
-        onclick: () => this.continue(),
+        onclick: this.continue.bind(this),
       }))
     );
   }
@@ -59,6 +68,7 @@ export class SetupView extends HTMLElement {
     if (this.passcodeInput.value !== this.passcodeInput2.value)
       this.passcodeInput2.error = "Passcodes do not match";
     const valid = !(this.passcodeInput.error || this.passcodeInput2.error);
+    this.continueButton.disabled = !valid;
     return valid;
   }
 }

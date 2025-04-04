@@ -17,12 +17,21 @@ export class UnlockView extends HTMLElement {
       (this.passcodeInput = createElement(InputElement, {
         type: "password",
         label: "Passcode",
+        oninput: () => {
+          this.continueButton.disabled = false;
+          this.passcodeInput.error = "";
+        },
+        onenter: this.continue.bind(this),
       })),
       (this.continueButton = createElement(ButtonElement, {
         textContent: "Continue",
-        onclick: () => this.continue(),
+        onclick: this.continue.bind(this),
       }))
     );
+  }
+
+  connectedCallback() {
+    this.passcodeInput.focus();
   }
 
   async continue() {
@@ -32,7 +41,8 @@ export class UnlockView extends HTMLElement {
       await openVault();
       updateView();
     } catch (error) {
-      alert(error);
+      this.continueButton.disabled = true;
+      this.passcodeInput.error = "Invalid passcode";
     } finally {
       this.continueButton.loading = false;
     }
