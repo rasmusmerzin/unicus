@@ -59,8 +59,13 @@ export class InputElement extends HTMLElement {
     if (this.#type === value) return;
     this.#type = value;
     this.inputElement.type = value;
-    if (value === "password") this.classList.add("password");
-    else this.classList.remove("password");
+    if (value === "password") {
+      this.classList.add("password");
+      this.append(this.eyeElement);
+    } else {
+      this.classList.remove("password");
+      this.eyeElement.remove();
+    }
   }
 
   constructor() {
@@ -74,14 +79,14 @@ export class InputElement extends HTMLElement {
         onblur: this.onBlur.bind(this),
         onkeydown: this.onKeydown.bind(this),
       })),
-      (this.errorElement = createElement("div", { className: "error" })),
-      (this.eyeElement = createElement("button", {
-        tabindex: "-1",
-        className: "eye",
-        innerHTML: visibility(20),
-        onclick: this.onEyeClick.bind(this),
-      }))
+      (this.errorElement = createElement("div", { className: "error" }))
     );
+    this.eyeElement = createElement("button", {
+      tabindex: "-1",
+      className: "eye",
+      innerHTML: visibility(20),
+      onclick: this.onEyeClick.bind(this),
+    });
   }
 
   focus() {

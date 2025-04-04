@@ -39,8 +39,7 @@ app-input {
     height: 20px;
   }
   .eye {
-    outline: none;
-    display: none;
+    display: flex;
     position: absolute;
     top: calc(6px + 20px);
     transform: translateY(-50%);
@@ -68,6 +67,7 @@ app-input.empty:not(.placeholder):not(.focus) {
 app-input.focus {
   label {
     color: var(--primary);
+    font-weight: bold;
   }
   input {
     border-color: var(--primary);
@@ -88,8 +88,5 @@ app-input.error {
 app-input.password {
   input {
     padding-right: 36px;
-  }
-  .eye {
-    display: block;
   }
 }

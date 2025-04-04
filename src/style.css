@@ -38,8 +38,6 @@ body {
   background: var(--background);
   color: var(--foreground);
   overscroll-behavior: contain;
-  max-width: 640px;
-  margin: 0 auto;
   height: 100dvh;
   padding-bottom: var(--keyboard-height, 0);
 }
