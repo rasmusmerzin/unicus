@@ -1,9 +1,16 @@
 import "./UnlockView.css";
 import { ButtonElement } from "../../elements/ButtonElement";
 import { InputElement } from "../../elements/InputElement";
-import { openVault, secretCell } from "../../vault";
+import {
+  getFingerprintEncryptedSecret,
+  openSecretWithFingerprint,
+  openVault,
+  secretCell,
+} from "../../vault";
 import { deriveKey } from "../../crypto";
 import { updateView } from "../../view";
+import { clickFeedback } from "../../mixins/clickFeedback";
+import { fingerprint } from "../../icons";
 
 @tag("app-unlock")
 export class UnlockView extends HTMLElement {
@@ -28,13 +35,32 @@ export class UnlockView extends HTMLElement {
         onclick: this.continue.bind(this),
       }))
     );
+    if (getFingerprintEncryptedSecret())
+      this.append(
+        clickFeedback(
+          createElement("button", {
+            className: "fingerprint",
+            innerHTML: fingerprint(32),
+            onclick: this.promptFingerprint.bind(this),
+          })
+        )
+      );
   }
 
   connectedCallback() {
     this.passcodeInput.focus();
+    this.promptFingerprint();
   }
 
-  async continue() {
+  private async promptFingerprint() {
+    if (!getFingerprintEncryptedSecret()) return;
+    const secret = await openSecretWithFingerprint();
+    if (!secret) return;
+    await openVault();
+    updateView();
+  }
+
+  private async continue() {
     try {
       this.continueButton.loading = true;
       secretCell.value = await deriveKey(this.passcodeInput.value);

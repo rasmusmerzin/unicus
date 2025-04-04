@@ -12,6 +12,13 @@ export class ButtonElement extends HTMLElement {
   set textContent(value: string | null) {
     this.buttonElement.textContent = value;
   }
+  get color(): string {
+    const style = getComputedStyle(this);
+    return style.getPropertyValue("--primary");
+  }
+  set color(value: string) {
+    this.style.setProperty("--primary", value);
+  }
   set onclick(value: (event: MouseEvent) => void) {
     this.buttonElement.onclick = value;
   }

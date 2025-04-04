@@ -1,4 +1,5 @@
-import { decryptData, encryptData, Encrypted } from "./crypto";
+import { decryptData, deriveKey, encryptData, Encrypted } from "./crypto";
+import { fingerprint } from "./fingerprint";
 
 export interface Vault {
   entries?: VaultEntry[];
@@ -52,11 +53,45 @@ export async function saveVault() {
   setEncryptedVault(encryptedVault);
 }
 
+export async function openSecretWithFingerprint(): Promise<string | null> {
+  const encryptedSecret = getFingerprintEncryptedSecret();
+  if (!encryptedSecret) return null;
+  const fingerprintData = await fingerprint();
+  if (!fingerprintData) return null;
+  const fingerprintKey = await deriveKey(fingerprintData);
+  return (secretCell.value = await decryptData(
+    fingerprintKey,
+    encryptedSecret
+  ));
+}
+
+export async function saveSecretWithFingerprint() {
+  if (!secretCell.value) throw new Error("Secret key is not set");
+  const fingerprintData = await fingerprint();
+  if (!fingerprintData) throw new Error("Fingerprint data is not available");
+  const fingerprintKey = await deriveKey(fingerprintData);
+  const encryptedSecret = await encryptData(fingerprintKey, secretCell.value);
+  setFingerprintEncryptedSecret(encryptedSecret);
+}
+
 export function getEncryptedVault(): Encrypted | null {
   const data = localStorage.getItem("vault");
   return data ? JSON.parse(data) : null;
 }
 
+export function getFingerprintEncryptedSecret(): Encrypted | null {
+  const data = localStorage.getItem("fingerprint");
+  return data ? JSON.parse(data) : null;
+}
+
+export function removeFingerprintEncryptedSecret() {
+  localStorage.removeItem("fingerprint");
+}
+
 function setEncryptedVault(vault: Encrypted) {
   localStorage.setItem("vault", JSON.stringify(vault));
+}
+
+function setFingerprintEncryptedSecret(secret: Encrypted) {
+  localStorage.setItem("fingerprint", JSON.stringify(secret));
 }
