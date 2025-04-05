@@ -1,3 +1,4 @@
+import "./FingerprintView.css";
 import { ButtonElement } from "../../elements/ButtonElement";
 import { fingerprint } from "../../icons";
 import {
@@ -5,10 +6,9 @@ import {
   removeFingerprintEncryptedSecret,
   saveSecretWithFingerprint,
 } from "../../vault";
-import "./FingerprintModal.css";
 
 @tag("app-fingerprint")
-export class FingerprintModal extends HTMLElement {
+export class FingerprintView extends HTMLElement {
   connectedCallback() {
     if (getFingerprintEncryptedSecret()) this.renderManageView();
     else this.renderSetupView();

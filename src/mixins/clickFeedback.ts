@@ -1,3 +1,4 @@
+import { captureStyle } from "../captureStyle";
 import "./clickFeedback.css";
 
 export function clickFeedback<E extends HTMLElement>(
@@ -12,25 +13,23 @@ export function clickFeedback<E extends HTMLElement>(
     size?: number;
   } = {}
 ): E {
-  element.addEventListener("click", onclick);
-  let activated = false;
-  let originalPosition = "";
-  let originalOverflow = "";
+  let resetStyle: (() => void) | null = null;
   let feedbackElement: HTMLElement | null = null;
   let timeout: any;
+
+  element.addEventListener("click", onclick);
+
   function onclick(event: MouseEvent) {
-    if (activated) cleanup();
-    clearTimeout(timeout);
-    activated = true;
-    originalPosition = element.style.position;
-    originalOverflow = element.style.overflow;
+    cleanup();
+    resetStyle = captureStyle(element);
     const style = getComputedStyle(element);
     if (style.position === "static") element.style.position = "relative";
     element.style.overflow = "hidden";
     feedbackElement = createFeedbackElement(event);
     element.appendChild(feedbackElement);
-    setTimeout(cleanup, duration);
+    timeout = setTimeout(cleanup, duration);
   }
+
   function createFeedbackElement(event: MouseEvent) {
     const { top, left } = element.getBoundingClientRect();
     const width = `${size * 8}px`;
@@ -50,14 +49,18 @@ export function clickFeedback<E extends HTMLElement>(
       },
     });
   }
+
   function cleanup() {
-    activated = false;
-    element.style.position = originalPosition;
-    element.style.overflow = originalOverflow;
+    clearTimeout(timeout);
+    if (resetStyle) {
+      resetStyle();
+      resetStyle = null;
+    }
     if (feedbackElement) {
       feedbackElement.remove();
       feedbackElement = null;
     }
   }
+
   return element;
 }

@@ -1,5 +1,7 @@
 import { add, lock, settings } from "../../icons";
 import { clickFeedback } from "../../mixins/clickFeedback";
+import { lockVault } from "../../vault";
+import { updateView } from "../../view";
 import "./MainHeaderElement.css";
 
 @tag("app-main-header")
@@ -10,7 +12,7 @@ export class MainHeaderElement extends HTMLElement {
   constructor() {
     super();
     this.replaceChildren(
-      createElement("h1", { textContent: document.title }),
+      createElement("h2", { textContent: document.title }),
       createElement("div", { className: "actions" }, [
         clickFeedback(
           createElement("button", {
@@ -23,6 +25,7 @@ export class MainHeaderElement extends HTMLElement {
           createElement("button", {
             className: "lock",
             innerHTML: lock(24),
+            onclick: this.lock.bind(this),
           }),
           { size: 0.5 }
         ),
@@ -47,6 +50,11 @@ export class MainHeaderElement extends HTMLElement {
 
   disconnectedCallback() {
     cancelAnimationFrame(this.animationFrame!);
+  }
+
+  private lock() {
+    lockVault();
+    updateView({ direction: "backwards" });
   }
 
   private animateFrame() {

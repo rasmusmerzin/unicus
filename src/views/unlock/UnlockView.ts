@@ -8,12 +8,13 @@ import {
   secretCell,
 } from "../../vault";
 import { deriveKey } from "../../crypto";
-import { updateView } from "../../view";
+import { OnMountedAsFirst, updateView } from "../../view";
 import { clickFeedback } from "../../mixins/clickFeedback";
 import { fingerprint } from "../../icons";
+import { isTouchMode } from "../../env/touchMode";
 
 @tag("app-unlock")
-export class UnlockView extends HTMLElement {
+export class UnlockView extends HTMLElement implements OnMountedAsFirst {
   private passcodeInput: InputElement;
   private continueButton: ButtonElement;
 
@@ -48,6 +49,10 @@ export class UnlockView extends HTMLElement {
   }
 
   connectedCallback() {
+    if (!isTouchMode()) this.passcodeInput.focus();
+  }
+
+  onMountedAsFirst() {
     this.passcodeInput.focus();
     this.promptFingerprint();
   }
@@ -57,7 +62,7 @@ export class UnlockView extends HTMLElement {
     const secret = await openSecretWithFingerprint();
     if (!secret) return;
     await openVault();
-    updateView();
+    await updateView();
   }
 
   private async continue() {
@@ -65,7 +70,7 @@ export class UnlockView extends HTMLElement {
       this.continueButton.loading = true;
       secretCell.value = await deriveKey(this.passcodeInput.value);
       await openVault();
-      updateView();
+      await updateView();
     } catch (error) {
       this.continueButton.disabled = true;
       this.passcodeInput.error = "Invalid passcode";

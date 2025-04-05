@@ -4,7 +4,7 @@ import { ButtonElement } from "../../elements/ButtonElement";
 import { saveVault, secretCell, vaultCell } from "../../vault";
 import { deriveKey } from "../../crypto";
 import { openModal, updateView } from "../../view";
-import { FingerprintModal } from "../../modals/fingerprint/FingerprintModal";
+import { FingerprintView } from "../fingerprint/FingerprintView";
 
 @tag("app-setup")
 export class SetupView extends HTMLElement {
@@ -53,8 +53,8 @@ export class SetupView extends HTMLElement {
       secretCell.value = await deriveKey(this.passcodeInput.value);
       vaultCell.value = {};
       await saveVault();
-      updateView();
-      openModal(FingerprintModal);
+      await updateView();
+      openModal(FingerprintView);
     } catch (error) {
       alert(error);
     } finally {
