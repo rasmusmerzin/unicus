@@ -7,7 +7,7 @@ app-fingerprint {
   background: var(--background);
   display: flex;
   flex-direction: column;
-  padding: 48px 32px;
+  padding: 96px 32px;
   overflow: auto;
   align-items: center;
   > * {

@@ -1,0 +1,45 @@
+app-fingerprint-modal {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--background);
+  display: flex;
+  flex-direction: column;
+  main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 48px 32px;
+    overflow: auto;
+    align-items: center;
+    > * {
+      max-width: 400px;
+    }
+    > .icon {
+      fill: var(--foreground);
+    }
+    > h1 {
+      font-weight: 800;
+      margin-top: 48px;
+    }
+    > p {
+      line-height: 1.3;
+      text-align: center;
+      margin: 48px 0;
+    }
+    > app-button {
+      width: 100%;
+      margin-bottom: 32px;
+    }
+    > button {
+      opacity: 0.5;
+      transition: opacity 100ms;
+      padding: 8px;
+      &:hover {
+        opacity: 1;
+      }
+    }
+  }
+}

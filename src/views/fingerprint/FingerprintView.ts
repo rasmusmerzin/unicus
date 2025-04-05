@@ -1,20 +1,13 @@
 import "./FingerprintView.css";
 import { ButtonElement } from "../../elements/ButtonElement";
 import { fingerprint } from "../../icons";
-import {
-  getFingerprintEncryptedSecret,
-  removeFingerprintEncryptedSecret,
-  saveSecretWithFingerprint,
-} from "../../vault";
+import { saveSecretWithFingerprint } from "../../vault";
+import { updateView } from "../../view";
 
 @tag("app-fingerprint")
 export class FingerprintView extends HTMLElement {
-  connectedCallback() {
-    if (getFingerprintEncryptedSecret()) this.renderManageView();
-    else this.renderSetupView();
-  }
-
-  private renderSetupView() {
+  constructor() {
+    super();
     this.replaceChildren(
       createElement("div", { className: "icon", innerHTML: fingerprint(64) }),
       createElement("h1", { textContent: "Setup Fingerprint" }),
@@ -27,28 +20,8 @@ export class FingerprintView extends HTMLElement {
         onclick: this.setupFingerprint.bind(this),
       }),
       createElement("button", {
-        textContent: "Cancel",
-        onclick: () => history.back(),
-      })
-    );
-  }
-
-  private renderManageView() {
-    this.replaceChildren(
-      createElement("div", { className: "icon", innerHTML: fingerprint(64) }),
-      createElement("h1", { textContent: "Fingerprint Configured" }),
-      createElement("p", {
-        textContent:
-          "Fingerprint has been configured. You can now use it to unlock your vault.",
-      }),
-      createElement(ButtonElement, {
-        textContent: "Remove Fingerprint",
-        color: "var(--error)",
-        onclick: this.removeFingerprint.bind(this),
-      }),
-      createElement("button", {
-        textContent: "Close",
-        onclick: () => history.back(),
+        textContent: "Skip",
+        onclick: () => updateView(),
       })
     );
   }
@@ -56,14 +29,9 @@ export class FingerprintView extends HTMLElement {
   private async setupFingerprint() {
     try {
       await saveSecretWithFingerprint();
-      this.renderManageView();
+      updateView();
     } catch (error) {
       alert(error);
     }
-  }
-
-  private removeFingerprint() {
-    removeFingerprintEncryptedSecret();
-    this.renderSetupView();
   }
 }
