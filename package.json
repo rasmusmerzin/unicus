@@ -8,6 +8,9 @@
     "format": "prettier --write .",
     "preview": "vite preview"
   },
+  "dependencies": {
+    "otp": "1"
+  },
   "devDependencies": {
     "@merzin/inject-sw": "1",
     "@vitest/browser": "3",

@@ -78,7 +78,6 @@ export class ManualAddModal extends HTMLElement {
             label: "Period",
             type: "number",
             value: "30",
-            disabled: true,
             onenter: this.submit.bind(this),
           })),
           (this.counterInput = createElement(InputElement, {
@@ -86,14 +85,12 @@ export class ManualAddModal extends HTMLElement {
             label: "Counter",
             type: "number",
             value: "0",
-            disabled: true,
             onenter: this.submit.bind(this),
           })),
           (this.digitsInput = createElement(InputElement, {
             label: "Digits",
             type: "number",
             value: "6",
-            disabled: true,
             onenter: this.submit.bind(this),
           })),
         ]),

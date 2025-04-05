@@ -1,0 +1,5 @@
+app-main-content {
+  display: block;
+  flex: 1;
+  overflow: auto;
+}
