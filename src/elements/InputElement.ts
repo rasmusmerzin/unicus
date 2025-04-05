@@ -14,6 +14,14 @@ export class InputElement extends HTMLElement {
   set label(value: string) {
     this.labelElement.innerText = value;
   }
+  get disabled(): boolean {
+    return this.inputElement.disabled;
+  }
+  set disabled(value: boolean) {
+    this.inputElement.disabled = value;
+    if (value) this.classList.add("disabled");
+    else this.classList.remove("disabled");
+  }
   get value(): string {
     return this.inputElement.value;
   }
@@ -50,6 +58,13 @@ export class InputElement extends HTMLElement {
     if (value) this.classList.add("error");
     else this.classList.remove("error");
   }
+  #transformer?: (value: string) => string;
+  get transformer(): ((value: string) => string) | void {
+    return this.#transformer;
+  }
+  set transformer(value: ((value: string) => string) | void) {
+    this.#transformer = value || undefined;
+  }
 
   #type = "";
   get type(): string {
@@ -74,6 +89,7 @@ export class InputElement extends HTMLElement {
     this.replaceChildren(
       (this.labelElement = createElement("label")),
       (this.inputElement = createElement("input", {
+        spellcheck: false,
         oninput: this.onInput.bind(this),
         onfocus: this.onFocus.bind(this),
         onblur: this.onBlur.bind(this),
@@ -105,9 +121,19 @@ export class InputElement extends HTMLElement {
     }
   }
   private onInput(event: Event) {
+    if (this.#transformer) {
+      const { selectionStart, selectionEnd, value } = this.inputElement;
+      const newValue = this.#transformer(value);
+      this.inputElement.value = newValue;
+      const shift = newValue.length - value.length;
+      this.inputElement.setSelectionRange(
+        (selectionStart || 0) + shift,
+        (selectionEnd || 0) + shift
+      );
+    }
+    if (this.#oninput) this.#oninput(event);
     if (this.inputElement.value) this.classList.remove("empty");
     else this.classList.add("empty");
-    if (this.#oninput) this.#oninput(event);
   }
   private onFocus() {
     this.classList.add("focus");

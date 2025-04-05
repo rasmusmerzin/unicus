@@ -21,3 +21,6 @@ export const fingerprint = (size = 24) =>
 
 export const backArrow = (size = 24) =>
   `<svg width="${size}px" height="${size}px" viewBox="0 -960 960 960"><path d="m313-440 224 224-57 56-320-320 320-320 57 56-224 224h487v80H313Z"/></svg>`;
+
+export const check = (size = 24) =>
+  `<svg width="${size}px" height="${size}px" viewBox="0 -960 960 960"><path d="M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z"/></svg>`;

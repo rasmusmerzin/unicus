@@ -5,14 +5,18 @@ export interface Vault {
   entries?: VaultEntry[];
 }
 
-export interface VaultEntry {
+export type VaultEntry = VaultEntryExt & {
   uuid: string;
   name: string;
   issuer: string;
   secret: string;
+  hash: "SHA1" | "SHA256" | "SHA512";
   digits: number;
-  period: number;
-}
+};
+
+export type VaultEntryExt =
+  | { type: "TOTP"; period: number }
+  | { type: "HOTP"; counter: number };
 
 let vault: Vault | null = null;
 let secret: string | null = null;
@@ -33,16 +37,31 @@ export function setVault(value: Vault | null) {
   return (vault = value);
 }
 
+export async function addVaultEntry(entry: VaultEntry) {
+  if (!vault) throw new Error("Vault is not initialized");
+  const current = vault;
+  const updated = { ...current };
+  if (!updated.entries) updated.entries = [entry];
+  else updated.entries = [...updated.entries, entry];
+  try {
+    setVault(updated);
+    await saveVault();
+  } catch (error) {
+    setVault(current);
+    throw error;
+  }
+}
+
 export async function openVault(): Promise<Vault | null> {
   const encryptedVault = getEncryptedVault();
-  if (!encryptedVault || !secret) return (vault = null);
+  if (!encryptedVault || !secret) return setVault(vault);
   const vaultData = await decryptData(secret, encryptedVault);
-  return (vault = JSON.parse(vaultData));
+  return setVault(JSON.parse(vaultData));
 }
 
 export function lockVault() {
-  vault = null;
-  secret = null;
+  setVault(null);
+  setSecret(null);
 }
 
 export async function saveVault() {
@@ -58,7 +77,7 @@ export async function openSecretWithFingerprint(): Promise<string | null> {
   const fingerprintData = await fingerprint();
   if (!fingerprintData) return null;
   const fingerprintKey = await deriveKey(fingerprintData);
-  return (secret = await decryptData(fingerprintKey, encryptedSecret));
+  return setSecret(await decryptData(fingerprintKey, encryptedSecret));
 }
 
 export async function saveSecretWithFingerprint() {

@@ -36,7 +36,7 @@ export class SetupView extends HTMLElement {
         onenter: this.continue.bind(this),
         oninput: () => {
           this.passcodeInput2.error = "";
-          this.continueButton.disabled = false;
+          this.continueButton.disabled = !!this.passcodeInput.error;
         },
       })),
       (this.continueButton = createElement(ButtonElement, {

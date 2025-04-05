@@ -7,7 +7,7 @@ app-input {
   label {
     position: absolute;
     top: 0;
-    left: 8px;
+    left: 12px;
     font-size: 12px;
     padding: 0 2px;
     background: var(--background);
@@ -18,8 +18,8 @@ app-input {
   }
   input {
     width: 100%;
-    height: 40px;
-    padding: 0 8px;
+    height: 48px;
+    padding: 0 12px;
     background: var(--background);
     font-size: 16px;
     border: 1px solid #8888;
@@ -28,7 +28,7 @@ app-input {
     &::placeholder {
       color: #8888;
     }
-    &:hover {
+    &:not(:disabled):hover {
       border-color: #888;
     }
   }
@@ -41,13 +41,16 @@ app-input {
   .eye {
     display: flex;
     position: absolute;
-    top: calc(6px + 20px);
+    top: calc(6px + 24px);
     transform: translateY(-50%);
     right: 8px;
     fill: #8888;
-    width: 20px;
-    height: 20px;
-    border-radius: 10px;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 100%;
     transition: fill 100ms;
     &:hover {
       fill: var(--foreground);
@@ -57,7 +60,7 @@ app-input {
 
 app-input.empty:not(.placeholder):not(.focus) {
   label {
-    top: calc(6px + 20px);
+    top: calc(6px + 24px);
     transform: translateY(-50%);
     font-size: 16px;
     background: none;
@@ -75,6 +78,24 @@ app-input.focus {
   }
 }
 
+app-input.disabled {
+  input {
+    color: #888;
+  }
+  &::after {
+    content: "";
+    position: absolute;
+    top: 7px;
+    left: 1px;
+    right: 1px;
+    bottom: 21px;
+    pointer-events: none;
+    background: var(--foreground);
+    border-radius: 8px;
+    opacity: 0.1;
+  }
+}
+
 app-input.error {
   label {
     color: var(--error);
@@ -87,6 +108,6 @@ app-input.error {
 
 app-input.password {
   input {
-    padding-right: 36px;
+    padding-right: 40px;
   }
 }

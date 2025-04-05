@@ -23,5 +23,8 @@ app-modal-header {
     border-radius: 100%;
     justify-content: center;
     align-items: center;
+    &:disabled {
+      opacity: 0.5;
+    }
   }
 }

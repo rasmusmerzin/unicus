@@ -1,6 +1,7 @@
 import { add, fingerprint, lock } from "../../icons";
 import { clickFeedback } from "../../mixins/clickFeedback";
 import { FingerprintModal } from "../../modals/fingerprint/FingerprintModal";
+import { ManualAddModal } from "../../modals/manual-add/ManualAddModal";
 import { lockVault } from "../../vault";
 import { openModal, updateView } from "../../view";
 import "./MainHeaderElement.css";
@@ -18,6 +19,7 @@ export class MainHeaderElement extends HTMLElement {
         clickFeedback(
           createElement("button", {
             innerHTML: add(32),
+            onclick: () => openModal(ManualAddModal),
           }),
           { size: 0.5 }
         ),
