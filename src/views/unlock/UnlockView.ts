@@ -5,7 +5,7 @@ import {
   getFingerprintEncryptedSecret,
   openSecretWithFingerprint,
   openVault,
-  secretCell,
+  setSecret,
 } from "../../vault";
 import { deriveKey } from "../../crypto";
 import { OnMountedAsFirst, updateView } from "../../view";
@@ -68,7 +68,7 @@ export class UnlockView extends HTMLElement implements OnMountedAsFirst {
   private async continue() {
     try {
       this.continueButton.loading = true;
-      secretCell.value = await deriveKey(this.passcodeInput.value);
+      setSecret(await deriveKey(this.passcodeInput.value));
       await openVault();
       await updateView();
     } catch (error) {

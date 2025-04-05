@@ -1,7 +1,7 @@
 import "./SetupView.css";
 import { InputElement } from "../../elements/InputElement";
 import { ButtonElement } from "../../elements/ButtonElement";
-import { saveVault, secretCell, vaultCell } from "../../vault";
+import { saveVault, setSecret, setVault } from "../../vault";
 import { deriveKey } from "../../crypto";
 import { updateView } from "../../view";
 import { FingerprintView } from "../fingerprint/FingerprintView";
@@ -50,8 +50,8 @@ export class SetupView extends HTMLElement {
     if (!this.validate()) return;
     try {
       this.continueButton.loading = true;
-      secretCell.value = await deriveKey(this.passcodeInput.value);
-      vaultCell.value = {};
+      setSecret(await deriveKey(this.passcodeInput.value));
+      setVault({});
       await saveVault();
       await updateView({ viewConstructor: FingerprintView });
     } catch (error) {

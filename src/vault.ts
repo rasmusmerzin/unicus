@@ -5,51 +5,50 @@ export interface Vault {
   entries?: VaultEntry[];
 }
 
-export type VaultEntry = VaultEntryHead &
-  (VaultEntryTotpData | VaultEntryHotpData);
-
-export interface VaultEntryHead {
+export interface VaultEntry {
   uuid: string;
   name: string;
   issuer: string;
-}
-
-export interface VaultEntryTotpData {
-  type: "totp";
   secret: string;
   digits: number;
   period: number;
 }
 
-export interface VaultEntryHotpData {
-  type: "hotp";
-  secret: string;
-  digits: number;
-  counter: number;
+let vault: Vault | null = null;
+let secret: string | null = null;
+
+export function getSecret(): string | null {
+  return secret;
 }
 
-export const vaultCell: Cell<Vault | null> = { value: null };
-export const secretCell: Cell<string | null> = { value: null };
+export function setSecret(value: string | null) {
+  return (secret = value);
+}
+
+export function getVault(): Vault | null {
+  return vault;
+}
+
+export function setVault(value: Vault | null) {
+  return (vault = value);
+}
 
 export async function openVault(): Promise<Vault | null> {
   const encryptedVault = getEncryptedVault();
-  if (!encryptedVault || !secretCell.value) return (vaultCell.value = null);
-  const vaultData = await decryptData(secretCell.value, encryptedVault);
-  return (vaultCell.value = JSON.parse(vaultData));
+  if (!encryptedVault || !secret) return (vault = null);
+  const vaultData = await decryptData(secret, encryptedVault);
+  return (vault = JSON.parse(vaultData));
 }
 
 export function lockVault() {
-  vaultCell.value = null;
-  secretCell.value = null;
+  vault = null;
+  secret = null;
 }
 
 export async function saveVault() {
-  if (!secretCell.value) throw new Error("Secret key is not set");
-  if (!vaultCell.value) throw new Error("Vault is empty");
-  const encryptedVault = await encryptData(
-    secretCell.value,
-    JSON.stringify(vaultCell.value)
-  );
+  if (!secret) throw new Error("Secret key is not set");
+  if (!vault) throw new Error("Vault is empty");
+  const encryptedVault = await encryptData(secret, JSON.stringify(vault));
   setEncryptedVault(encryptedVault);
 }
 
@@ -59,18 +58,15 @@ export async function openSecretWithFingerprint(): Promise<string | null> {
   const fingerprintData = await fingerprint();
   if (!fingerprintData) return null;
   const fingerprintKey = await deriveKey(fingerprintData);
-  return (secretCell.value = await decryptData(
-    fingerprintKey,
-    encryptedSecret
-  ));
+  return (secret = await decryptData(fingerprintKey, encryptedSecret));
 }
 
 export async function saveSecretWithFingerprint() {
-  if (!secretCell.value) throw new Error("Secret key is not set");
+  if (!secret) throw new Error("Secret key is not set");
   const fingerprintData = await fingerprint();
   if (!fingerprintData) throw new Error("Fingerprint data is not available");
   const fingerprintKey = await deriveKey(fingerprintData);
-  const encryptedSecret = await encryptData(fingerprintKey, secretCell.value);
+  const encryptedSecret = await encryptData(fingerprintKey, secret);
   setFingerprintEncryptedSecret(encryptedSecret);
 }
 

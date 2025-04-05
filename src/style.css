@@ -51,8 +51,11 @@ button {
   }
 }
 
-[touch] button {
-  outline: none !important;
+[touch] {
+  user-select: none;
+  button {
+    outline: none !important;
+  }
 }
 
 #app {
