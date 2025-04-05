@@ -3,6 +3,7 @@ import { ButtonElement } from "../../elements/ButtonElement";
 import { InputElement } from "../../elements/InputElement";
 import {
   getFingerprintEncryptedSecret,
+  lockVault,
   openSecretWithFingerprint,
   openVault,
   setSecret,
@@ -61,8 +62,15 @@ export class UnlockView extends HTMLElement implements OnMountedAsFirst {
     if (!getFingerprintEncryptedSecret()) return;
     const secret = await openSecretWithFingerprint();
     if (!secret) return;
-    await openVault();
-    await updateView();
+    try {
+      this.continueButton.loading = true;
+      await openVault();
+      await updateView();
+    } catch (error) {
+      lockVault();
+    } finally {
+      this.continueButton.loading = false;
+    }
   }
 
   private async continue() {
@@ -72,6 +80,7 @@ export class UnlockView extends HTMLElement implements OnMountedAsFirst {
       await openVault();
       await updateView();
     } catch (error) {
+      lockVault();
       this.continueButton.disabled = true;
       this.passcodeInput.error = "Invalid passcode";
     } finally {
