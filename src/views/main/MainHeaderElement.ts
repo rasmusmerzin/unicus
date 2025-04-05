@@ -1,7 +1,8 @@
-import { add, lock, settings } from "../../icons";
+import { add, fingerprint, lock } from "../../icons";
 import { clickFeedback } from "../../mixins/clickFeedback";
 import { lockVault } from "../../vault";
-import { updateView } from "../../view";
+import { openModal, updateView } from "../../view";
+import { FingerprintView } from "../fingerprint/FingerprintView";
 import "./MainHeaderElement.css";
 
 @tag("app-main-header")
@@ -16,23 +17,21 @@ export class MainHeaderElement extends HTMLElement {
       createElement("div", { className: "actions" }, [
         clickFeedback(
           createElement("button", {
-            className: "add",
             innerHTML: add(32),
           }),
           { size: 0.5 }
         ),
         clickFeedback(
           createElement("button", {
-            className: "lock",
-            innerHTML: lock(24),
+            innerHTML: lock(),
             onclick: this.lock.bind(this),
           }),
           { size: 0.5 }
         ),
         clickFeedback(
           createElement("button", {
-            className: "settings",
-            innerHTML: settings(24),
+            innerHTML: fingerprint(),
+            onclick: () => openModal(FingerprintView),
           }),
           { size: 0.5 }
         ),

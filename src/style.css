@@ -144,3 +144,23 @@ button {
     opacity: 0;
   }
 }
+
+@keyframes modal-in {
+  from {
+    border-radius: 32px;
+    transform: scale(0.8);
+    opacity: 0;
+    box-shadow: 0 0 64px #8884;
+    border: 1px solid var(--foreground);
+  }
+}
+
+@keyframes modal-out {
+  to {
+    border-radius: 32px;
+    transform: scale(0.8);
+    opacity: 0;
+    box-shadow: 0 0 64px #8884;
+    border: 1px solid var(--foreground);
+  }
+}

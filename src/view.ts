@@ -19,13 +19,62 @@ setTimeout(() => {
     sessionStorage.removeItem("level");
     history.go(-level);
   }
-  addEventListener("popstate", (event) => {
+  addEventListener("popstate", async (event) => {
     const level = event.state?.level || 0;
-    if (level > modalStack.length) history.go(modalStack.length - level);
-    while (modalStack.length > level) modalStack.pop()!.remove();
     sessionStorage.setItem("level", level.toString());
+    if (level > modalStack.length) history.go(modalStack.length - level);
+    const resetBodyStyle = captureStyle(document.body);
+    document.body.style.pointerEvents = "none";
+    while (modalStack.length > level) {
+      const modal = modalStack.pop()!;
+      modal.classList.add("closing");
+      if (!elementHasAnimation(modal))
+        modal.style.animation = "modal-out 200ms ease-in-out forwards";
+      else {
+        modal.style.animationDelay = "0";
+        modal.style.animationDuration = `200ms`;
+      }
+      setTimeout(() => modal.remove(), 200);
+    }
+    await new Promise((resolve) => setTimeout(resolve, 200));
+    resetBodyStyle();
   });
 });
+
+export async function openModal(
+  constructor: Constructor<HTMLElement>,
+  { duration = 200 }: { duration?: number } = {}
+) {
+  const resetBodyStyle = captureStyle(document.body);
+  document.body.style.pointerEvents = "none";
+  const modal = new constructor();
+  modalStack.push(modal);
+  const level = modalStack.length;
+  modal.style.zIndex = `${1000 * level}`;
+  modal.classList.add("opening");
+  const resetModalStyle = captureStyle(modal);
+  if (!elementHasAnimation(modal))
+    modal.style.animation = `modal-in ${duration}ms ease-in-out`;
+  else {
+    modal.style.animationDelay = "0";
+    modal.style.animationDuration = `${duration}ms`;
+  }
+  app.append(modal);
+  history.pushState({ level }, "", "");
+  sessionStorage.setItem("level", level.toString());
+  await new Promise((resolve) => setTimeout(resolve, duration));
+  modal.classList.remove("opening");
+  resetBodyStyle();
+  resetModalStyle();
+}
+
+export async function closeAllModals() {
+  const level = modalStack.length;
+  if (level) {
+    history.go(-level);
+    await new Promise((resolve) => setTimeout(resolve, 200));
+  }
+}
 
 export async function updateView({
   force = true,
@@ -40,7 +89,7 @@ export async function updateView({
   duration?: number;
   direction?: "forwards" | "backwards";
 } = {}): Promise<HTMLElement> {
-  if (hideModals) closeAllModals();
+  if (hideModals) await closeAllModals();
   const current = app.firstElementChild as HTMLElement;
   if (current instanceof viewConstructor && !force) return current;
   const next = new viewConstructor();
@@ -52,19 +101,8 @@ export async function updateView({
   return next;
 }
 
-export function openModal(constructor: Constructor<HTMLElement>) {
-  const element = new constructor();
-  modalStack.push(element);
-  const level = modalStack.length;
-  element.style.zIndex = `${1000 + level}`;
-  app.append(element);
-  history.pushState({ level }, "", "");
-  sessionStorage.setItem("level", level.toString());
-}
-
-export function closeAllModals() {
-  const level = modalStack.length;
-  if (level) history.go(-level);
+function elementHasAnimation(element: HTMLElement): boolean {
+  return !["", "none"].includes(getComputedStyle(element).animationName);
 }
 
 function getViewConstructor(): Constructor<HTMLElement> {
@@ -86,8 +124,9 @@ async function transitionView({
 }) {
   const resetBodyStyle = captureStyle(document.body);
   const resetNextStyle = captureStyle(next);
-  const backgroundColor = userPrefersDarkMode() ? "#222" : "#ccc";
+  const backgroundColor = userPrefersDarkMode() ? "#333" : "#ccc";
   document.body.style.pointerEvents = "none";
+  document.body.style.overflow = "hidden";
   document.body.style.transition = `background 100ms`;
   document.body.style.background = backgroundColor;
   updateTheme(backgroundColor);

@@ -54,7 +54,7 @@ export class SetupView extends HTMLElement {
       vaultCell.value = {};
       await saveVault();
       await updateView();
-      openModal(FingerprintView);
+      await openModal(FingerprintView);
     } catch (error) {
       alert(error);
     } finally {
