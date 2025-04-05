@@ -3,7 +3,7 @@ import { SetupView } from "./views/setup/SetupView";
 import { UnlockView } from "./views/unlock/UnlockView";
 import { getEncryptedVault, secretCell, vaultCell } from "./vault";
 import { captureStyle } from "./captureStyle";
-import { userPrefersDarkMode } from "./env/theme";
+import { userPrefersDarkMode } from "./theme";
 import { updateTheme } from "./theme";
 
 export interface OnMountedAsFirst {

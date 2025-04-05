@@ -6,3 +6,7 @@ const media = document.head.querySelector<HTMLMetaElement>(
 export function updateTheme(content = darkMode.matches ? "#000" : "#fff") {
   media.content = content;
 }
+
+export function userPrefersDarkMode(): boolean {
+  return darkMode.matches;
+}
