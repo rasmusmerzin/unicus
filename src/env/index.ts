@@ -3,3 +3,6 @@ export * from "./tag";
 import "./buttonClickBlur";
 import "./touchMode";
 import "./virtualKeyboard";
+import "./theme";
+
+navigator.serviceWorker.register("/sw.js");
