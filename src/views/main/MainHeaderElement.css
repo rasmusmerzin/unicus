@@ -6,24 +6,27 @@ app-main-header {
   align-items: center;
   justify-content: space-between;
   position: relative;
+  button {
+    fill: var(--foreground);
+    display: flex;
+    width: 40px;
+    height: 40px;
+    box-sizing: content-box;
+    padding: 4px;
+    margin: -4px;
+    border-radius: 100%;
+    justify-content: center;
+    align-items: center;
+    &:disabled {
+      opacity: 0.5;
+    }
+  }
   .actions {
     display: flex;
     align-items: center;
     grid-gap: 8px;
-    button {
-      fill: var(--foreground);
-      display: flex;
-      width: 40px;
-      height: 40px;
-      box-sizing: content-box;
-      padding: 4px;
-      margin: -4px;
-      border-radius: 100%;
-      justify-content: center;
-      align-items: center;
-    }
   }
-  .timer-bar {
+  > .timer-bar {
     position: absolute;
     left: 0;
     bottom: 0;
@@ -31,5 +34,36 @@ app-main-header {
     width: 100%;
     border-radius: calc(var(--bar-height) / 2);
     background: var(--primary);
+  }
+  > .selection {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: var(--bar-height);
+    padding: 12px;
+    background: var(--background);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: opacity 100ms;
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+app-main-header.selected {
+  > .selection {
+    opacity: 1;
+    pointer-events: all;
+  }
+}
+
+app-main-header.selected.multiple {
+  > .selection {
+    .edit,
+    .copy {
+      display: none;
+    }
   }
 }

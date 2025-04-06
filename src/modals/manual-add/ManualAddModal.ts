@@ -29,7 +29,8 @@ export class ManualAddModal extends HTMLElement {
           (this.submitButton = createElement("button", {
             innerHTML: check(28),
             onclick: this.submit.bind(this),
-          }))
+          })),
+          { size: 0.5 }
         )
       ),
       createElement("main", {}, [

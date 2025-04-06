@@ -21,7 +21,8 @@ export class ModalHeader extends HTMLElement {
         createElement("button", {
           innerHTML: backArrow(),
           onclick: () => history.back(),
-        })
+        }),
+        { size: 0.5 }
       ),
       (this.titleElement = createElement("h2")),
       (this.niche = createElement("div"))

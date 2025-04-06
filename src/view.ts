@@ -57,12 +57,13 @@ export function onback(handler: () => any): () => void {
 }
 
 export async function openModal(
-  constructor: Constructor<HTMLElement>,
+  constructor: HTMLElement | Constructor<HTMLElement>,
   { duration = 200 }: { duration?: number } = {}
 ) {
   document.body.style.pointerEvents = "none";
   document.body.style.overflow = "hidden";
-  const modal = new constructor();
+  const modal =
+    constructor instanceof HTMLElement ? constructor : new constructor();
   historyStack.push(modal);
   const level = historyStack.length;
   modal.style.zIndex = `${1000 * level}`;
