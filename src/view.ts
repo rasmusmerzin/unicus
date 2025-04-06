@@ -1,7 +1,7 @@
 import { MainView } from "./views/main/MainView";
 import { SetupView } from "./views/setup/SetupView";
 import { UnlockView } from "./views/unlock/UnlockView";
-import { getEncryptedVault, getSecret, getVault } from "./vault";
+import { getEncryptedVault, secret$, vault$ } from "./vault";
 import { captureStyle } from "./captureStyle";
 import { userPrefersDarkMode } from "./theme";
 import { updateTheme } from "./theme";
@@ -109,7 +109,7 @@ function elementHasAnimation(element: HTMLElement): boolean {
 
 function getViewConstructor(): Constructor<HTMLElement> {
   if (!getEncryptedVault()) return SetupView;
-  if (!getSecret() || !getVault()) return UnlockView;
+  if (!secret$.current() || !vault$.current()) return UnlockView;
   return MainView;
 }
 

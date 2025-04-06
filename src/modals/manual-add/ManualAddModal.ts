@@ -107,7 +107,7 @@ export class ManualAddModal extends HTMLElement {
     if (!this.validate()) return;
     try {
       await addVaultEntry(this.getVaultEntry());
-      await updateView({ force: true, duration: 0 });
+      history.back();
     } catch (error) {
       alert(error);
     }
