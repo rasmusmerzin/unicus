@@ -89,8 +89,9 @@ export async function base64ToBuffer(base64: string): Promise<ArrayBuffer> {
 }
 
 const blobToBase64Url = (blob: Blob) =>
-  new Promise<string>((resolve) => {
+  new Promise<string>((resolve, reject) => {
     const reader = new FileReader();
+    reader.onabort = reader.onerror = reject;
     reader.onload = () => resolve(reader.result as string);
     reader.readAsDataURL(blob);
   });

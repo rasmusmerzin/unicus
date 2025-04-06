@@ -1,10 +1,9 @@
+import "./ManualAddModal.css";
 import { InputElement } from "../../elements/InputElement";
 import { ModalHeader } from "../../elements/ModalHeader";
+import { addVaultEntry, VaultEntry } from "../../vault";
 import { check } from "../../icons";
 import { clickFeedback } from "../../mixins/clickFeedback";
-import { addVaultEntry, VaultEntry } from "../../vault";
-import { updateView } from "../../view";
-import "./ManualAddModal.css";
 
 const BASE32 = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
 

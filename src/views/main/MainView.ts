@@ -26,7 +26,6 @@ export class MainView extends HTMLElement {
     this.control?.abort();
     this.control = new AbortController();
     this.selected$.subscribe((current, previous) => {
-      console.log({ current, previous });
       if (current.length && !previous?.length)
         this.cancelBack = onback(() => this.selected$.next([]));
       else if (previous?.length && !current.length && this.cancelBack)

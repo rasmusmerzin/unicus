@@ -42,6 +42,7 @@ body {
   max-width: 640px;
   overscroll-behavior: contain;
   padding-bottom: var(--keyboard-height, 0);
+  transition: padding 100ms;
 }
 
 button {
@@ -155,12 +156,14 @@ button {
   }
   50% {
     opacity: 1;
+    box-shadow: 0 0 64px #8884;
   }
 }
 
 @keyframes modal-out {
   50% {
     opacity: 1;
+    box-shadow: 0 0 64px #8884;
   }
   100% {
     transform: translateX(100%);

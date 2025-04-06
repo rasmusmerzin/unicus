@@ -1,0 +1,42 @@
+app-settings-entry {
+  display: block;
+  height: 80px;
+  padding: 0 2px;
+  button {
+    width: 100%;
+    height: 100%;
+    padding: 0 22px 0 14px;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    grid-gap: 12px;
+    &:disabled {
+      opacity: 0.5;
+      app-switch {
+        opacity: 1 !important;
+      }
+    }
+    &:has(app-switch) {
+      padding-right: 14px;
+    }
+    .info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      grid-gap: 4px;
+      .name {
+        font-size: 14px;
+        font-weight: bold;
+      }
+      .description {
+        font-size: 10px;
+        line-height: 14px;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+      }
+    }
+  }
+}

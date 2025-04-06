@@ -65,7 +65,8 @@ export class MainEntryElement extends HTMLElement {
               (this.codeElement = createElement("div", { className: "code" })),
             ]),
           ]
-        )
+        ),
+        { size: 2 }
       )
     );
   }

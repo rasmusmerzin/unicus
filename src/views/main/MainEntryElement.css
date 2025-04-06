@@ -75,9 +75,16 @@ app-main-entry {
       justify-content: center;
       grid-gap: 4px;
       > .name {
-        font-size: 14px;
+        font-size: 12px;
         font-weight: bold;
-        height: 14px;
+        line-height: 16px;
+        height: 16px;
+        word-break: break-all;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 1;
+        line-clamp: 1;
       }
       > .code {
         font-size: 28px;

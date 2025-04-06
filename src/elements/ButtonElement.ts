@@ -47,22 +47,8 @@ export class ButtonElement extends HTMLElement {
   constructor() {
     super();
     this.replaceChildren(
-      (this.buttonElement = clickFeedback(
-        createElement("button", { onclick: this.onClick.bind(this) })
-      )),
+      (this.buttonElement = clickFeedback(createElement("button"))),
       createElement("div", { className: "loader", innerHTML: spinner(16) })
     );
-  }
-
-  private onClick(event: MouseEvent) {
-    event.stopPropagation();
-    this.dispatchEvent(this.ownEvent(event));
-  }
-  private ownEvent(event: Event) {
-    const { constructor } = Object.getPrototypeOf(event);
-    return Object.defineProperties(new constructor(event.type), {
-      ...Object.getOwnPropertyDescriptors(event),
-      target: { get: () => this },
-    });
   }
 }

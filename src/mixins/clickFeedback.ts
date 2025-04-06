@@ -18,6 +18,7 @@ export function clickFeedback<E extends HTMLElement>(
   let timeout: any;
 
   element.addEventListener("click", onclick);
+  element.addEventListener("contextmenu", onclick);
 
   function onclick(event: MouseEvent) {
     cleanup();
