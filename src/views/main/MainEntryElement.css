@@ -20,8 +20,11 @@ app-main-entry {
       right: 0;
       bottom: 0;
       background: var(--foreground);
-      opacity: 0.025;
       transition: opacity 100ms;
+      opacity: 0.025;
+      @media (prefers-color-scheme: dark) {
+        opacity: 0.075;
+      }
     }
     > * {
       z-index: 1;
@@ -48,16 +51,21 @@ app-main-entry {
         right: 0;
         bottom: 0;
         border-radius: 100%;
-        background: var(--primary);
-        fill: var(--primary-foreground);
         display: flex;
         justify-content: center;
         align-items: center;
         opacity: 0;
-        transition: transform 150ms, opacity 150ms;
+      }
+      > .copy {
+        background: #888;
+        fill: #fff;
+        transition: opacity 150ms;
       }
       > .check {
+        background: var(--primary);
+        fill: var(--primary-foreground);
         transform: scale(0);
+        transition: transform 150ms, opacity 150ms;
       }
     }
     > .content {
@@ -89,6 +97,9 @@ app-main-entry.selected {
   > button {
     &::before {
       opacity: 0.1;
+      @media (prefers-color-scheme: dark) {
+        opacity: 0.2;
+      }
     }
     > .icon > .check {
       opacity: 1;
@@ -98,9 +109,7 @@ app-main-entry.selected {
 }
 
 app-main-entry.active {
-  > button {
-    > .icon > .copy {
-      opacity: 1;
-    }
+  > button > .icon > .copy {
+    opacity: 1;
   }
 }

@@ -21,19 +21,31 @@ export class Subject<T> extends EventTarget {
   }
 
   next(value: T) {
+    const previous = this.value;
     this.value = value;
-    this.dispatchEvent(new SubjectChangeEvent(value));
+    this.dispatchEvent(new SubjectChangeEvent(value, previous));
     return this.value;
   }
 
-  subscribe(listener: (value: T) => any, control: AbortController) {
-    this.addEventListener("change", (e) => listener(e.value), control);
+  update(predicate: (value: T) => T) {
+    return this.next(predicate(this.value));
+  }
+
+  subscribe(
+    listener: (value: T, previous?: T) => any,
+    control: AbortController
+  ) {
+    this.addEventListener(
+      "change",
+      (e) => listener(e.current, e.previous),
+      control
+    );
     listener(this.value);
   }
 }
 
 export class SubjectChangeEvent<T> extends Event {
-  constructor(readonly value: T) {
+  constructor(readonly current: T, readonly previous: T) {
     super("change");
   }
 }

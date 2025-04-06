@@ -3,6 +3,7 @@ import { clickFeedback } from "../../mixins/clickFeedback";
 import { VaultEntry } from "../../vault";
 import "./MainEntryElement.css";
 import { check, copy } from "../../icons";
+import { MainView } from "./MainView";
 
 @tag("app-main-entry")
 export class MainEntryElement extends HTMLElement {
@@ -13,6 +14,7 @@ export class MainEntryElement extends HTMLElement {
   private timeout: any;
   private otp?: OTP;
   private code = "";
+  private control?: AbortController;
 
   #entry?: VaultEntry;
   get entry(): VaultEntry | undefined {
@@ -69,24 +71,42 @@ export class MainEntryElement extends HTMLElement {
   }
 
   connectedCallback() {
+    this.control?.abort();
+    this.control = new AbortController();
+    MainView.instance!.selected$.subscribe((selected) => {
+      if (selected.includes(this.entry?.uuid!)) this.classList.add("selected");
+      else this.classList.remove("selected");
+    }, this.control);
     this.syncCode();
   }
 
   disconnectedCallback() {
     clearTimeout(this.timeout);
+    this.control?.abort();
+    delete this.control;
   }
 
   private onClick() {
-    if (!this.code || this.classList.contains("active")) return;
-    this.classList.add("active");
-    setTimeout(() => this.classList.remove("active"), 1000);
-    navigator.clipboard.writeText(this.code);
+    if (MainView.instance?.selected$.current().length) this.toggle();
+    else {
+      if (!this.code || this.classList.contains("active")) return;
+      this.classList.add("active");
+      setTimeout(() => this.classList.remove("active"), 600);
+      navigator.clipboard.writeText(this.code);
+    }
   }
 
   private onContextmenu(event: Event) {
     event.preventDefault();
-    if (this.classList.contains("selected")) this.classList.remove("selected");
-    else this.classList.add("selected");
+    this.toggle();
+  }
+
+  private toggle() {
+    MainView.instance!.selected$.update((selected) => {
+      if (selected.includes(this.entry?.uuid!))
+        return selected.filter((uuid) => uuid !== this.entry?.uuid);
+      else return [...selected, this.entry?.uuid!];
+    });
   }
 
   private syncCode() {
