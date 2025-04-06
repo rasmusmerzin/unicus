@@ -1,7 +1,15 @@
 import "./style.css";
 import "./env";
 import { updateView } from "./view";
-import { updateTheme } from "./theme";
+import { updateIconColors, updateTheme } from "./theme";
+import { secret$ } from "./vault";
 
-updateView();
-updateTheme();
+setTimeout(updateView);
+setTimeout(updateTheme);
+
+setTimeout(() =>
+  secret$.subscribe((secret) => {
+    if (secret) updateIconColors();
+    else updateIconColors("#888", "#fff");
+  }, new AbortController())
+);
