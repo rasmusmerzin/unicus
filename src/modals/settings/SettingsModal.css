@@ -41,7 +41,8 @@ app-settings-modal {
           font-weight: bold;
         }
         .description {
-          font-size: 10px;
+          font-size: 12px;
+          font-weight: 300;
           line-height: 14px;
           overflow: hidden;
           display: -webkit-box;

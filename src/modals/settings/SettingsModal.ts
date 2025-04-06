@@ -1,9 +1,10 @@
+import "./SettingsModal.css";
+import { ImportExportModal } from "./ImportExportModal";
 import { ModalHeader } from "../../elements/ModalHeader";
+import { SecuritySettingsModal } from "./SecuritySettingsModal";
 import { brush, construction, key, receipt, touch } from "../../icons";
 import { clickFeedback } from "../../mixins/clickFeedback";
 import { openModal } from "../../view";
-import { SecuritySettingsModal } from "./SecuritySettingsModal";
-import "./SettingsModal.css";
 
 @tag("app-settings-modal")
 export class SettingsModal extends HTMLElement {
@@ -36,9 +37,9 @@ export class SettingsModal extends HTMLElement {
         Entry({
           icon: construction(),
           name: "Import & Export",
-          disabled: true,
           description:
             "Import backups of Unicus or other authentication apps. Create manual exports of your Unicus vault.",
+          modalConstructor: ImportExportModal,
         }),
         Entry({
           icon: receipt(),
