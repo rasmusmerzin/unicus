@@ -149,21 +149,21 @@ button {
 }
 
 @keyframes modal-in {
-  from {
-    border-radius: 32px;
-    transform: scale(0.8);
+  0% {
+    transform: translateX(100%);
     opacity: 0;
-    box-shadow: 0 0 64px #8884;
-    border: 1px solid var(--foreground);
+  }
+  50% {
+    opacity: 1;
   }
 }
 
 @keyframes modal-out {
-  to {
-    border-radius: 32px;
-    transform: scale(0.8);
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(100%);
     opacity: 0;
-    box-shadow: 0 0 64px #8884;
-    border: 1px solid var(--foreground);
   }
 }

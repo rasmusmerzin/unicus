@@ -20,7 +20,8 @@ app-main-entry {
       right: 0;
       bottom: 0;
       background: var(--foreground);
-      opacity: 0.05;
+      opacity: 0.025;
+      transition: opacity 100ms;
     }
     > * {
       z-index: 1;
@@ -29,14 +30,35 @@ app-main-entry {
       height: 64px;
       width: 64px;
       border-radius: 100%;
-      background: var(--primary);
-      color: var(--primary-foreground);
+      background: var(--background);
+      color: var(--foreground);
       display: flex;
       justify-content: center;
       align-items: center;
       font-size: 36px;
       font-weight: 500;
       text-transform: uppercase;
+      position: relative;
+      overflow: hidden;
+      > .check,
+      > .copy {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        border-radius: 100%;
+        background: var(--primary);
+        fill: var(--primary-foreground);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        opacity: 0;
+        transition: transform 150ms, opacity 150ms;
+      }
+      > .check {
+        transform: scale(0);
+      }
     }
     > .content {
       flex: 1;
@@ -54,8 +76,31 @@ app-main-entry {
         height: 28px;
         font-weight: bold;
         color: var(--primary);
-        filter: saturate(0.25) brightness(1.5);
+        filter: saturate(0.25);
+        @media (prefers-color-scheme: dark) {
+          filter: saturate(0.25) brightness(1.5);
+        }
       }
+    }
+  }
+}
+
+app-main-entry.selected {
+  > button {
+    &::before {
+      opacity: 0.1;
+    }
+    > .icon > .check {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+}
+
+app-main-entry.active {
+  > button {
+    > .icon > .copy {
+      opacity: 1;
     }
   }
 }

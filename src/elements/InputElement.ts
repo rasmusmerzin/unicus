@@ -8,6 +8,8 @@ export class InputElement extends HTMLElement {
   private errorElement: HTMLElement;
   private eyeElement: HTMLElement;
 
+  transformer: ((value: string) => string) | null = null;
+
   get label(): string {
     return this.labelElement.innerText;
   }
@@ -38,18 +40,6 @@ export class InputElement extends HTMLElement {
     if (value) this.classList.add("placeholder");
     else this.classList.remove("placeholder");
   }
-  #oninput?: (event: Event) => void;
-  set oninput(value: (event: Event) => void) {
-    this.#oninput = value;
-  }
-  #onenter?: (event: KeyboardEvent) => void;
-  set onenter(value: (event: KeyboardEvent) => void) {
-    this.#onenter = value;
-  }
-  #onescape?: (event: KeyboardEvent) => void;
-  set onescape(value: (event: KeyboardEvent) => void) {
-    this.#onescape = value;
-  }
   get error(): string {
     return this.errorElement.innerText;
   }
@@ -57,13 +47,6 @@ export class InputElement extends HTMLElement {
     this.errorElement.innerText = value;
     if (value) this.classList.add("error");
     else this.classList.remove("error");
-  }
-  #transformer?: (value: string) => string;
-  get transformer(): ((value: string) => string) | void {
-    return this.#transformer;
-  }
-  set transformer(value: ((value: string) => string) | void) {
-    this.#transformer = value || undefined;
   }
 
   #type = "";
@@ -113,17 +96,15 @@ export class InputElement extends HTMLElement {
   }
 
   private onKeydown(event: KeyboardEvent) {
-    if (event.key === "Enter") {
-      if (this.#onenter) this.#onenter(event);
-    } else if (event.key === "Escape") {
-      this.blur();
-      if (this.#onescape) this.#onescape(event);
-    }
+    if (event.key === "Enter") this.dispatchEvent(new SubmitEvent("submit"));
+    else if (event.key === "Escape") this.blur();
   }
   private onInput(event: Event) {
-    if (this.#transformer) {
+    event.stopPropagation();
+    this.dispatchEvent(this.ownEvent(event));
+    if (this.transformer) {
       const { selectionStart, selectionEnd, value } = this.inputElement;
-      const newValue = this.#transformer(value);
+      const newValue = this.transformer(value);
       this.inputElement.value = newValue;
       const shift = newValue.length - value.length;
       this.inputElement.setSelectionRange(
@@ -131,14 +112,15 @@ export class InputElement extends HTMLElement {
         (selectionEnd || 0) + shift
       );
     }
-    if (this.#oninput) this.#oninput(event);
     if (this.inputElement.value) this.classList.remove("empty");
     else this.classList.add("empty");
   }
-  private onFocus() {
+  private onFocus(event: FocusEvent) {
+    this.dispatchEvent(this.ownEvent(event));
     this.classList.add("focus");
   }
-  private onBlur() {
+  private onBlur(event: Event) {
+    this.dispatchEvent(this.ownEvent(event));
     this.classList.remove("focus");
   }
   private onEyeClick() {
@@ -149,5 +131,12 @@ export class InputElement extends HTMLElement {
       this.inputElement.type === "password"
         ? visibility(20)
         : visibilityOff(20);
+  }
+  private ownEvent(event: Event) {
+    const { constructor } = Object.getPrototypeOf(event);
+    return Object.defineProperties(new constructor(event.type), {
+      ...Object.getOwnPropertyDescriptors(event),
+      target: { get: () => this },
+    });
   }
 }

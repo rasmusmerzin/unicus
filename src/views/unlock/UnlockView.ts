@@ -26,7 +26,7 @@ export class UnlockView extends HTMLElement implements OnMountedAsFirst {
       (this.passcodeInput = createElement(InputElement, {
         type: "password",
         label: "Passcode",
-        onenter: this.continue.bind(this),
+        onsubmit: this.continue.bind(this),
         oninput: () => {
           this.continueButton.disabled = false;
           this.passcodeInput.error = "";

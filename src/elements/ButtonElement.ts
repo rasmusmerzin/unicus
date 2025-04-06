@@ -19,9 +19,6 @@ export class ButtonElement extends HTMLElement {
   set color(value: string) {
     this.style.setProperty("--primary", value);
   }
-  set onclick(value: (event: MouseEvent) => void) {
-    this.buttonElement.onclick = value;
-  }
 
   #loading = false;
   get loading(): boolean {
@@ -50,8 +47,22 @@ export class ButtonElement extends HTMLElement {
   constructor() {
     super();
     this.replaceChildren(
-      (this.buttonElement = clickFeedback(createElement("button"))),
+      (this.buttonElement = clickFeedback(
+        createElement("button", { onclick: this.onClick.bind(this) })
+      )),
       createElement("div", { className: "loader", innerHTML: spinner(16) })
     );
+  }
+
+  private onClick(event: MouseEvent) {
+    event.stopPropagation();
+    this.dispatchEvent(this.ownEvent(event));
+  }
+  private ownEvent(event: Event) {
+    const { constructor } = Object.getPrototypeOf(event);
+    return Object.defineProperties(new constructor(event.type), {
+      ...Object.getOwnPropertyDescriptors(event),
+      target: { get: () => this },
+    });
   }
 }

@@ -34,7 +34,9 @@ export function getVault(): Vault | null {
 }
 
 export function setVault(value: Vault | null) {
-  return (vault = value);
+  vault = value;
+  if (import.meta.env.DEV) Object.assign(globalThis, { vault });
+  return vault;
 }
 
 export async function addVaultEntry(entry: VaultEntry) {

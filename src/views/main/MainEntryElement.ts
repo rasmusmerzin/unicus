@@ -2,16 +2,18 @@ import OTP from "otp";
 import { clickFeedback } from "../../mixins/clickFeedback";
 import { VaultEntry } from "../../vault";
 import "./MainEntryElement.css";
+import { check, copy } from "../../icons";
 
 @tag("app-main-entry")
 export class MainEntryElement extends HTMLElement {
-  private iconElement: HTMLElement;
+  private iconSpanElement: HTMLElement;
   private nameElement: HTMLElement;
   private codeElement: HTMLElement;
 
   private timeout: any;
   private otp?: OTP;
   private code = "";
+
   #entry?: VaultEntry;
   get entry(): VaultEntry | undefined {
     return this.#entry;
@@ -21,16 +23,16 @@ export class MainEntryElement extends HTMLElement {
     this.otp =
       entry &&
       new OTP({
-        name: this.getName(),
+        name: this.getEntrySerializedName(),
         keySize: entry.secret.length * 2,
         codeLength: entry.digits,
         secret: entry.secret,
         timeSlice: entry.type === "TOTP" ? entry.period : 0,
       });
-    this.iconElement.innerText = entry
-      ? this.getName().charAt(0).toUpperCase()
+    this.iconSpanElement.innerText = entry
+      ? this.getEntryDisplayName().charAt(0).toUpperCase()
       : "";
-    this.nameElement.textContent = this.getName(true);
+    this.nameElement.textContent = this.getEntryDisplayName();
     if (document.contains(this)) this.syncCode();
   }
 
@@ -38,13 +40,30 @@ export class MainEntryElement extends HTMLElement {
     super();
     this.replaceChildren(
       clickFeedback(
-        createElement("button", {}, [
-          (this.iconElement = createElement("div", { className: "icon" })),
-          createElement("div", { className: "content" }, [
-            (this.nameElement = createElement("div", { className: "name" })),
-            (this.codeElement = createElement("div", { className: "code" })),
-          ]),
-        ])
+        createElement(
+          "button",
+          {
+            onclick: this.onClick.bind(this),
+            oncontextmenu: this.onContextmenu.bind(this),
+          },
+          [
+            createElement("div", { className: "icon" }, [
+              (this.iconSpanElement = createElement("span")),
+              createElement("div", {
+                className: "check",
+                innerHTML: check(40),
+              }),
+              createElement("div", {
+                className: "copy",
+                innerHTML: copy(32),
+              }),
+            ]),
+            createElement("div", { className: "content" }, [
+              (this.nameElement = createElement("div", { className: "name" })),
+              (this.codeElement = createElement("div", { className: "code" })),
+            ]),
+          ]
+        )
       )
     );
   }
@@ -55,6 +74,19 @@ export class MainEntryElement extends HTMLElement {
 
   disconnectedCallback() {
     clearTimeout(this.timeout);
+  }
+
+  private onClick() {
+    if (!this.code || this.classList.contains("active")) return;
+    this.classList.add("active");
+    setTimeout(() => this.classList.remove("active"), 1000);
+    navigator.clipboard.writeText(this.code);
+  }
+
+  private onContextmenu(event: Event) {
+    event.preventDefault();
+    if (this.classList.contains("selected")) this.classList.remove("selected");
+    else this.classList.add("selected");
   }
 
   private syncCode() {
@@ -75,14 +107,18 @@ export class MainEntryElement extends HTMLElement {
       this.code.substring(breakpoint);
   }
 
-  private getName(display = false): string {
+  private getEntrySerializedName(): string {
     if (!this.entry) return "";
-    let name = this.entry.issuer;
-    if (this.entry.name) {
-      if (name)
-        name += display ? ` (${this.entry.name})` : `:${this.entry.name}`;
-      else name = this.entry.name;
-    }
-    return name;
+    const name = this.entry.name.trim();
+    const issuer = this.entry.issuer.trim();
+    return `${issuer}:${name}`;
+  }
+
+  private getEntryDisplayName(): string {
+    if (!this.entry) return "";
+    const name = this.entry.name.trim();
+    const issuer = this.entry.issuer.trim();
+    if (issuer && name) return `${issuer} (${name})`;
+    else return issuer || name;
   }
 }

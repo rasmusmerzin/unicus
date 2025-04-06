@@ -36,20 +36,17 @@ export class ManualAddModal extends HTMLElement {
       createElement("main", {}, [
         (this.nameInput = createElement(InputElement, {
           label: "Name",
-          onenter: this.submit.bind(this),
+          onsubmit: this.submit.bind(this),
         })),
         (this.issuerInput = createElement(InputElement, {
           label: "Issuer",
-          onenter: this.submit.bind(this),
+          onsubmit: this.submit.bind(this),
         })),
         (this.secretInput = createElement(InputElement, {
           label: "Secret",
           type: "password",
-          onenter: this.submit.bind(this),
-          oninput: () => {
-            this.secretInput.error = "";
-            this.submitButton.disabled = false;
-          },
+          onsubmit: this.submit.bind(this),
+          oninput: this.onInputClearError.bind(this),
           transformer: (value: string) =>
             value
               .toUpperCase()
@@ -78,20 +75,23 @@ export class ManualAddModal extends HTMLElement {
             label: "Period",
             type: "number",
             value: "30",
-            onenter: this.submit.bind(this),
+            onsubmit: this.submit.bind(this),
+            oninput: this.onInputClearError.bind(this),
           })),
           (this.counterInput = createElement(InputElement, {
             className: "counter",
             label: "Counter",
             type: "number",
             value: "0",
-            onenter: this.submit.bind(this),
+            onsubmit: this.submit.bind(this),
+            oninput: this.onInputClearError.bind(this),
           })),
           (this.digitsInput = createElement(InputElement, {
             label: "Digits",
             type: "number",
             value: "6",
-            onenter: this.submit.bind(this),
+            onsubmit: this.submit.bind(this),
+            oninput: this.onInputClearError.bind(this),
           })),
         ]),
       ])
@@ -115,8 +115,8 @@ export class ManualAddModal extends HTMLElement {
 
   private getVaultEntry(): VaultEntry {
     const uuid = crypto.randomUUID();
-    const name = this.nameInput.value;
-    const issuer = this.issuerInput.value;
+    const name = this.nameInput.value.trim();
+    const issuer = this.issuerInput.value.trim();
     const secret = this.secretInput.value;
     const hash = this.hashInput.value as VaultEntry["hash"];
     const digits = parseInt(this.digitsInput.value);
@@ -130,12 +130,41 @@ export class ManualAddModal extends HTMLElement {
     else throw new Error("Invalid type");
   }
 
+  private onInputClearError(event: Event) {
+    if (event.target instanceof InputElement) event.target.error = "";
+    this.submitButton.disabled = this.hasErrors();
+  }
+
   private validate() {
+    this.secretInput.error =
+      this.digitsInput.error =
+      this.periodInput.error =
+      this.counterInput.error =
+        "";
     if (!this.secretInput.value) this.secretInput.error = "Secret is required";
     else if (![16, 32].includes(this.secretInput.value.length))
       this.secretInput.error = "Secret must be 16 or 32 characters";
-    const valid = !this.secretInput.error;
-    this.submitButton.disabled = !valid;
-    return valid;
+    if (!this.digitsInput.value) this.digitsInput.error = "Digits is required";
+    if (this.typeInput.value === "TOTP") {
+      if (!this.periodInput.value)
+        this.periodInput.error = "Period is required";
+      else if (!(parseInt(this.periodInput.value) > 0))
+        this.periodInput.error = "Period must be greater than 0";
+    } else if (this.typeInput.value === "HOTP") {
+      if (!this.counterInput.value)
+        this.counterInput.error = "Counter is required";
+      else if (!(parseInt(this.counterInput.value) >= 0))
+        this.counterInput.error = "Counter must be not negative";
+    }
+    return !(this.submitButton.disabled = this.hasErrors());
+  }
+
+  private hasErrors() {
+    return !!(
+      this.secretInput.error ||
+      this.digitsInput.error ||
+      this.periodInput.error ||
+      this.counterInput.error
+    );
   }
 }

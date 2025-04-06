@@ -25,6 +25,7 @@ setTimeout(() => {
     if (level > modalStack.length) history.go(modalStack.length - level);
     const resetBodyStyle = captureStyle(document.body);
     document.body.style.pointerEvents = "none";
+    document.body.style.overflow = "hidden";
     while (modalStack.length > level) {
       const modal = modalStack.pop()!;
       modal.classList.add("closing");
@@ -47,6 +48,7 @@ export async function openModal(
 ) {
   const resetBodyStyle = captureStyle(document.body);
   document.body.style.pointerEvents = "none";
+  document.body.style.overflow = "hidden";
   const modal = new constructor();
   modalStack.push(modal);
   const level = modalStack.length;

@@ -1,5 +1,6 @@
 setTimeout(() => {
   addEventListener("click", blurActiveButton);
+  addEventListener("contextmenu", blurActiveButton);
 });
 
 function blurActiveButton() {

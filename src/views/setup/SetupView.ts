@@ -23,7 +23,7 @@ export class SetupView extends HTMLElement {
       (this.passcodeInput = createElement(InputElement, {
         type: "password",
         label: "Passcode",
-        onenter: this.continue.bind(this),
+        onsubmit: this.continue.bind(this),
         oninput: () => {
           this.passcodeInput.error = "";
           this.passcodeInput2.error = "";
@@ -33,7 +33,7 @@ export class SetupView extends HTMLElement {
       (this.passcodeInput2 = createElement(InputElement, {
         type: "password",
         label: "Repeat passcode",
-        onenter: this.continue.bind(this),
+        onsubmit: this.continue.bind(this),
         oninput: () => {
           this.passcodeInput2.error = "";
           this.continueButton.disabled = !!this.passcodeInput.error;
