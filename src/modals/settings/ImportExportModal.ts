@@ -43,8 +43,16 @@ export class ImportExportModal extends HTMLElement {
           .then(async ({ accepted, rejected }) => {
             await closeAllModals();
             alert(
-              `Successfully imported ${accepted.length} entries.` +
-                ` Failed to import ${rejected.length} entries.`
+              [
+                accepted.length
+                  ? `Successfully imported ${accepted.length} entries.`
+                  : "",
+                rejected.length
+                  ? `Failed to import ${rejected.length} entries.`
+                  : "",
+              ]
+                .filter((s) => s)
+                .join("\n")
             );
           })
           .catch(alert);

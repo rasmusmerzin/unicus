@@ -67,10 +67,7 @@ export class FloatingModal extends HTMLElement {
     super();
     this.replaceChildren(
       (this.mainElement = createElement("main", {}, [
-        (this.headerElement = createElement("h2", {
-          className: "header",
-          innerText: "Confirmation",
-        })),
+        (this.headerElement = createElement("h2", { className: "header" })),
         (this.contentElement = createElement("div", { className: "content" })),
         (this.actionsElement = createElement("div", { className: "actions" })),
       ]))
