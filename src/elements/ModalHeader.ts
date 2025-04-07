@@ -4,9 +4,12 @@ import { clickFeedback } from "../mixins/clickFeedback";
 
 @tag("app-modal-header")
 export class ModalHeader extends HTMLElement {
-  niche: HTMLElement;
+  private actionsElement: HTMLElement;
   private titleElement: HTMLElement;
 
+  get niche(): HTMLElement {
+    return this.actionsElement;
+  }
   get title(): string {
     return this.titleElement.innerText;
   }
@@ -25,7 +28,7 @@ export class ModalHeader extends HTMLElement {
         { size: 0.5 }
       ),
       (this.titleElement = createElement("h2")),
-      (this.niche = createElement("div"))
+      (this.actionsElement = createElement("div"))
     );
   }
 }

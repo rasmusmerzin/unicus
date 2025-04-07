@@ -1,9 +1,11 @@
 import "./UpsertModal.css";
+import { FloatingModal } from "../../elements/FloatingModal";
 import { InputElement } from "../../elements/InputElement";
 import { ModalHeader } from "../../elements/ModalHeader";
-import { deleteVaultEntry, upsertVaultEntry, VaultEntry } from "../../vault";
 import { check, trash } from "../../icons";
 import { clickFeedback } from "../../mixins/clickFeedback";
+import { deleteVaultEntry, upsertVaultEntry, VaultEntry } from "../../vault";
+import { openModal } from "../../view";
 
 const BASE32 = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
 
@@ -36,13 +38,13 @@ export class UpsertModal extends HTMLElement {
 
   uuid = crypto.randomUUID();
   get name(): string {
-    return this.nameInput.value;
+    return this.nameInput.value.trim();
   }
   set name(value: string) {
     this.nameInput.value = value;
   }
   get issuer(): string {
-    return this.issuerInput.value;
+    return this.issuerInput.value.trim();
   }
   set issuer(value: string) {
     this.issuerInput.value = value;
@@ -176,23 +178,31 @@ export class UpsertModal extends HTMLElement {
     this.setAttribute("type", this.typeInput.value);
   }
 
-  private async trash() {
-    try {
-      await deleteVaultEntry(this.uuid);
-      history.back();
-    } catch (error) {
-      alert(error);
-    }
+  private trash() {
+    const modal = createElement(FloatingModal, {
+      title: "Delete entry",
+      innerHTML:
+        "<p>Are you sure you want to delete this entry?</p>" +
+        "<p><i>Note: This action does not disable 2FA.</i></p>",
+      actions: [
+        { name: "Cancel" },
+        {
+          name: "OK",
+          onclick: () =>
+            deleteVaultEntry(this.uuid)
+              .then(() => history.back())
+              .catch(alert),
+        },
+      ],
+    });
+    openModal(modal);
   }
 
-  private async submit() {
+  private submit() {
     if (!this.validate()) return;
-    try {
-      await upsertVaultEntry(this.getVaultEntry());
-      history.back();
-    } catch (error) {
-      alert(error);
-    }
+    upsertVaultEntry(this.getVaultEntry())
+      .then(() => history.back())
+      .catch(alert);
   }
 
   private getVaultEntry(): VaultEntry {

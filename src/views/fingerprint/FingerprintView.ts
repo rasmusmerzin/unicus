@@ -26,12 +26,9 @@ export class FingerprintView extends HTMLElement {
     );
   }
 
-  private async setupFingerprint() {
-    try {
-      await saveSecretWithFingerprint();
-      updateView();
-    } catch (error) {
-      alert(error);
-    }
+  private setupFingerprint() {
+    saveSecretWithFingerprint()
+      .then(() => updateView())
+      .catch(alert);
   }
 }

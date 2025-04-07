@@ -28,6 +28,11 @@ if (import.meta.env.DEV)
     new AbortController()
   );
 
+export function getVaultEntry(uuid: string): VaultEntry | null {
+  const vault = vault$.current();
+  return vault?.entries?.find((entry) => entry.uuid === uuid) || null;
+}
+
 export async function upsertVaultEntry(entry: VaultEntry) {
   if (!vault$.current()) throw new Error("Vault is not initialized");
   const current = vault$.current();

@@ -1,11 +1,12 @@
 import "./MainHeaderElement.css";
+import { FloatingModal } from "../../elements/FloatingModal";
 import { MainView } from "./MainView";
 import { SettingsModal } from "../../modals/settings/SettingsModal";
 import { UpsertModal } from "../../modals/upsert/UpsertModal";
 import { add, close, copy, edit, lock, qr, settings, trash } from "../../icons";
 import { clickFeedback } from "../../mixins/clickFeedback";
-import { generateOtp } from "../../otp";
-import { deleteVaultEntry, lockVault, vault$ } from "../../vault";
+import { deleteVaultEntry, getVaultEntry, lockVault } from "../../vault";
+import { entryDisplayName, generateOtp } from "../../otp";
 import { openModal, updateView } from "../../view";
 
 @tag("app-main-header")
@@ -107,18 +108,39 @@ export class MainHeaderElement extends HTMLElement {
     cancelAnimationFrame(this.animationFrame!);
   }
 
-  private async trash() {
+  private trash() {
     const uuids = MainView.instance!.selected$.current();
-    await deleteVaultEntry(...uuids);
-    MainView.instance!.selected$.next([]);
+    const entries = uuids.map((entry) => getVaultEntry(entry)!);
+    const question =
+      uuids.length > 1
+        ? `<p>Are you sure you want to delete ${uuids.length} entries?</p>`
+        : `<p>Are you sure you want to delete this entry?</p>`;
+    const listItems = entries.map(
+      (entry) => `<li>${entryDisplayName(entry)}</li>`
+    );
+    const list = `<ul>${listItems.join("")}</ul>`;
+    const note = `<p><i>Note: This action does not disable 2FA.</i></p>`;
+    const modal = createElement(FloatingModal, {
+      title: uuids.length > 1 ? "Delete entries" : "Delete entry",
+      innerHTML: question + list + note,
+      actions: [
+        { name: "Cancel" },
+        {
+          name: "OK",
+          onclick: () =>
+            deleteVaultEntry(...uuids)
+              .then(() => MainView.instance!.selected$.next([]))
+              .catch(alert),
+        },
+      ],
+    });
+    openModal(modal);
   }
 
   private edit() {
-    const vault = vault$.current();
     const [uuid] = MainView.instance!.selected$.current();
-    const entry = vault!.entries!.find((entry) => entry.uuid === uuid);
     const modal = createElement(UpsertModal, {
-      ...entry,
+      ...getVaultEntry(uuid),
       title: "Edit entry",
       deletable: true,
     });
@@ -126,10 +148,8 @@ export class MainHeaderElement extends HTMLElement {
   }
 
   private copy() {
-    const vault = vault$.current();
     const [uuid] = MainView.instance!.selected$.current();
-    const entry = vault!.entries!.find((entry) => entry.uuid === uuid);
-    const code = generateOtp(entry!);
+    const code = generateOtp(getVaultEntry(uuid)!);
     if (code) navigator.clipboard.writeText(code);
   }
 

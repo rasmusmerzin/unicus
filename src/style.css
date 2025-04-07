@@ -45,6 +45,14 @@ body {
   transition: padding 100ms;
 }
 
+ul {
+  margin: 0 0 0 16px;
+}
+
+p {
+  margin: 8px 0;
+}
+
 button {
   user-select: none;
   &:not(:disabled) {

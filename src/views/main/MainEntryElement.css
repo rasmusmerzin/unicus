@@ -22,9 +22,6 @@ app-main-entry {
       background: var(--foreground);
       transition: opacity 100ms;
       opacity: 0.025;
-      @media (prefers-color-scheme: dark) {
-        opacity: 0.075;
-      }
     }
     > * {
       z-index: 1;
@@ -92,9 +89,6 @@ app-main-entry {
         font-weight: bold;
         color: var(--primary);
         filter: saturate(0.25);
-        @media (prefers-color-scheme: dark) {
-          filter: saturate(0.25) brightness(1.5);
-        }
       }
     }
   }
@@ -104,9 +98,6 @@ app-main-entry.selected {
   > button {
     &::before {
       opacity: 0.1;
-      @media (prefers-color-scheme: dark) {
-        opacity: 0.2;
-      }
     }
     > .icon > .check {
       opacity: 1;

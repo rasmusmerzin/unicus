@@ -19,32 +19,45 @@ setTimeout(() => {
     sessionStorage.removeItem("level");
     history.go(-level);
   }
+  let navigationSymbol = Symbol();
+  addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      if (historyStack.length) history.back();
+    }
+  });
   addEventListener("popstate", async (event) => {
     const level = event.state?.level || 0;
     sessionStorage.setItem("level", level.toString());
     if (level > historyStack.length) history.go(historyStack.length - level);
+    const symbol = (navigationSymbol = Symbol());
     document.body.style.pointerEvents = "none";
     document.body.style.overflow = "hidden";
     let animating = false;
     while (historyStack.length > level) {
       const entry = historyStack.pop()!;
       if (typeof entry === "function") {
-        entry();
-        continue;
+        try {
+          await Promise.resolve(entry()).catch(console.error);
+        } catch (error) {
+          console.error(error);
+        }
+      } else {
+        entry.classList.add("closing");
+        if (!elementHasAnimation(entry))
+          entry.style.animation = "modal-out 200ms ease-in-out forwards";
+        else {
+          entry.style.animationDelay = "0";
+          entry.style.animationDuration = `200ms`;
+        }
+        setTimeout(() => entry.remove(), 200);
+        animating = true;
       }
-      entry.classList.add("closing");
-      if (!elementHasAnimation(entry))
-        entry.style.animation = "modal-out 200ms ease-in-out forwards";
-      else {
-        entry.style.animationDelay = "0";
-        entry.style.animationDuration = `200ms`;
-      }
-      setTimeout(() => entry.remove(), 200);
-      animating = true;
     }
     if (animating) await new Promise((resolve) => setTimeout(resolve, 200));
-    document.body.style.pointerEvents = "";
-    document.body.style.overflow = "";
+    if (navigationSymbol === symbol) {
+      document.body.style.pointerEvents = "";
+      document.body.style.overflow = "";
+    }
   });
 });
 
@@ -69,13 +82,13 @@ export async function openModal(
   modal.style.zIndex = `${1000 * level}`;
   modal.classList.add("opening");
   const resetModalStyle = captureStyle(modal);
+  app.append(modal);
   if (!elementHasAnimation(modal))
     modal.style.animation = `modal-in ${duration}ms ease-in-out`;
   else {
     modal.style.animationDelay = "0";
     modal.style.animationDuration = `${duration}ms`;
   }
-  app.append(modal);
   history.pushState({ level }, "", "");
   sessionStorage.setItem("level", level.toString());
   await new Promise((resolve) => setTimeout(resolve, duration));
