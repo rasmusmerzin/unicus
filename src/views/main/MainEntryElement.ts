@@ -4,6 +4,7 @@ import { VaultEntry } from "../../vault";
 import { check, copy } from "../../icons";
 import { clickFeedback } from "../../mixins/clickFeedback";
 import { entryDisplayName, generateOtp } from "../../otp";
+import { touchHoldFeedback } from "../../mixins/touchHoldFeedback";
 
 @tag("app-main-entry")
 export class MainEntryElement extends HTMLElement {
@@ -27,35 +28,35 @@ export class MainEntryElement extends HTMLElement {
 
   constructor() {
     super();
+    let button;
     this.replaceChildren(
-      clickFeedback(
-        createElement(
-          "button",
-          {
-            onclick: this.onClick.bind(this),
-            oncontextmenu: this.onContextmenu.bind(this),
-          },
-          [
-            createElement("div", { className: "icon" }, [
-              (this.iconSpanElement = createElement("span")),
-              createElement("div", {
-                className: "check",
-                innerHTML: check(40),
-              }),
-              createElement("div", {
-                className: "copy",
-                innerHTML: copy(32),
-              }),
-            ]),
-            createElement("div", { className: "content" }, [
-              (this.nameElement = createElement("div", { className: "name" })),
-              (this.codeElement = createElement("div", { className: "code" })),
-            ]),
-          ]
-        ),
-        { size: 2 }
-      )
+      (button = createElement(
+        "button",
+        {
+          onclick: this.onClick.bind(this),
+          oncontextmenu: this.onContextmenu.bind(this),
+        },
+        [
+          createElement("div", { className: "icon" }, [
+            (this.iconSpanElement = createElement("span")),
+            createElement("div", {
+              className: "check",
+              innerHTML: check(40),
+            }),
+            createElement("div", {
+              className: "copy",
+              innerHTML: copy(32),
+            }),
+          ]),
+          createElement("div", { className: "content" }, [
+            (this.nameElement = createElement("div", { className: "name" })),
+            (this.codeElement = createElement("div", { className: "code" })),
+          ]),
+        ]
+      ))
     );
+    clickFeedback(button, { size: 2, contextmenu: true });
+    touchHoldFeedback(button, { size: 2 });
   }
 
   connectedCallback() {

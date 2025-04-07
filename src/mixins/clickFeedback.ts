@@ -1,5 +1,5 @@
-import { captureStyle } from "../captureStyle";
 import "./clickFeedback.css";
+import { captureStyle } from "../captureStyle";
 
 export function clickFeedback<E extends HTMLElement>(
   element: E,
@@ -7,10 +7,12 @@ export function clickFeedback<E extends HTMLElement>(
     duration = 400,
     color = "#fff",
     size = 1,
+    contextmenu = false,
   }: {
     duration?: number;
     color?: string;
     size?: number;
+    contextmenu?: boolean;
   } = {}
 ): E {
   let resetStyle: (() => void) | null = null;
@@ -18,7 +20,7 @@ export function clickFeedback<E extends HTMLElement>(
   let timeout: any;
 
   element.addEventListener("click", onclick);
-  element.addEventListener("contextmenu", onclick);
+  if (contextmenu) element.addEventListener("contextmenu", onclick);
 
   function onclick(event: MouseEvent) {
     cleanup();
