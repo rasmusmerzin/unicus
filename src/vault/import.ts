@@ -114,16 +114,15 @@ function entryFromUnicusObject(entry: any): VaultEntry | null {
 
 function decryptUnicusVault(encryptedVault: Encrypted): Promise<any> {
   return new Promise((resolve, reject) => {
+    let modal: FloatingModal;
     const input = createElement(InputElement, {
       label: "Passcode",
       type: "password",
-      oninput: () => (input.error = ""),
-      onsubmit: onclick,
-      style: {
-        width: "calc(100% - 4px)",
-        paddingLeft: "2px",
-        paddingRight: "2px",
+      oninput: () => {
+        input.error = "";
+        modal.getActionButton("OK")!.disabled = false;
       },
+      onsubmit: onclick,
     });
     async function onclick() {
       try {
@@ -132,19 +131,20 @@ function decryptUnicusVault(encryptedVault: Encrypted): Promise<any> {
         resolve(JSON.parse(vault));
       } catch (error) {
         input.error = "Wrong passcode";
+        modal.getActionButton("OK")!.disabled = true;
         throw new Error("Wrong passcode");
       }
     }
     openModal(
-      createElement(
+      (modal = createElement(
         FloatingModal,
         {
           title: "Enter vault passcode",
-          actions: [{ name: "Ok", onclick }],
+          actions: [{ name: "OK", onclick }],
           ondisconnect: () => reject(new Error("Couldn't decrypt vault")),
         },
         input
-      )
+      ))
     );
   });
 }

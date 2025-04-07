@@ -8,6 +8,7 @@ input[type="checkbox"] {
   height: 20px;
   border-radius: 6px;
   position: relative;
+  border-radius: 6px;
   &::before {
     content: "";
     position: absolute;

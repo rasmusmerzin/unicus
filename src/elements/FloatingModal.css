@@ -37,6 +37,8 @@ app-floating-modal {
     }
     > .content {
       flex: 1;
+      padding: 8px;
+      margin: -8px;
       overflow: auto;
       > *:first-child {
         margin-top: 0;
@@ -52,7 +54,12 @@ app-floating-modal {
         padding: 16px 24px;
         margin: -8px 0;
         font-size: 14px;
+        font-weight: 500;
         color: var(--primary);
+        &:disabled {
+          color: var(--foreground);
+          opacity: 0.5;
+        }
       }
     }
     &::before {

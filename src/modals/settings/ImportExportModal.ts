@@ -32,18 +32,17 @@ function ExportToFileModal() {
   const state: Record<string, boolean> = {};
   let confirmationContainer: HTMLElement;
   let confirmationButton: HTMLButtonElement;
+  let modal: FloatingModal;
   function onclick() {
-    if (!state["confirmation"] && !state["encrypt"]) {
-      alert("Please confirm you understand the risks.");
-      throw new Error("User did not confirm");
-    }
     exportToFile(state["encrypt"]).catch(alert);
   }
   function onchange() {
     confirmationContainer.style.display = state["encrypt"] ? "none" : "";
     if (state["encrypt"] && state["confirmation"]) confirmationButton.click();
+    modal.getActionButton("OK")!.disabled =
+      !state["encrypt"] && !state["confirmation"];
   }
-  return createElement(
+  return (modal = createElement(
     FloatingModal,
     {
       title: "Export to file",
@@ -81,7 +80,7 @@ function ExportToFileModal() {
         ]
       )),
     ]
-  );
+  ));
 }
 
 function ImportFromFileModal() {

@@ -21,46 +21,12 @@ setTimeout(() => {
     sessionStorage.removeItem("level");
     history.go(-level);
   }
-  let navigationSymbol = Symbol();
   addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
       if (historyStack.length) history.back();
     }
   });
-  addEventListener("popstate", async (event) => {
-    const level = event.state?.level || 0;
-    sessionStorage.setItem("level", level.toString());
-    if (level > historyStack.length) history.go(historyStack.length - level);
-    const symbol = (navigationSymbol = Symbol());
-    document.body.style.pointerEvents = "none";
-    document.body.style.overflow = "hidden";
-    let animating = false;
-    while (historyStack.length > level) {
-      const entry = historyStack.pop()!;
-      if (typeof entry === "function") {
-        try {
-          await Promise.resolve(entry()).catch(console.error);
-        } catch (error) {
-          console.error(error);
-        }
-      } else {
-        entry.classList.add("closing");
-        if (!elementHasAnimation(entry))
-          entry.style.animation = "modal-out 200ms ease-in-out forwards";
-        else {
-          entry.style.animationDelay = "0";
-          entry.style.animationDuration = `200ms`;
-        }
-        setTimeout(() => entry.remove(), 200);
-        animating = true;
-      }
-    }
-    if (animating) await new Promise((resolve) => setTimeout(resolve, 200));
-    if (navigationSymbol === symbol) {
-      document.body.style.pointerEvents = "";
-      document.body.style.overflow = "";
-    }
-  });
+  addEventListener("popstate", onpopstate);
 });
 
 export function onback(handler: () => any): () => void {
@@ -130,6 +96,42 @@ export async function updateView({
     if (typeof next.onMountedAsFirst === "function") next.onMountedAsFirst();
   }
   return next;
+}
+
+let popstateSymbol = Symbol();
+async function onpopstate(event: PopStateEvent) {
+  const level = event.state?.level || 0;
+  sessionStorage.setItem("level", level.toString());
+  if (level > historyStack.length) history.go(historyStack.length - level);
+  const symbol = (popstateSymbol = Symbol());
+  document.body.style.pointerEvents = "none";
+  document.body.style.overflow = "hidden";
+  let animating = false;
+  while (historyStack.length > level) {
+    const entry = historyStack.pop()!;
+    if (typeof entry === "function") {
+      try {
+        await Promise.resolve(entry()).catch(console.error);
+      } catch (error) {
+        console.error(error);
+      }
+    } else {
+      entry.classList.add("closing");
+      if (!elementHasAnimation(entry))
+        entry.style.animation = "modal-out 200ms ease-in-out forwards";
+      else {
+        entry.style.animationDelay = "0";
+        entry.style.animationDuration = "200ms";
+      }
+      setTimeout(() => entry.remove(), 200);
+      animating = true;
+    }
+  }
+  if (animating) await new Promise((resolve) => setTimeout(resolve, 200));
+  if (popstateSymbol === symbol) {
+    document.body.style.pointerEvents = "";
+    document.body.style.overflow = "";
+  }
 }
 
 function elementHasAnimation(element: HTMLElement): boolean {

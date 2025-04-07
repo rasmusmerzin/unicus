@@ -52,6 +52,7 @@ export class FloatingModal extends HTMLElement {
       ...value.map((action) =>
         clickFeedback(
           createElement("button", {
+            className: action.name.toLowerCase().replace(/\s+/g, "-"),
             innerText: action.name,
             async onclick(event: MouseEvent) {
               await action.onclick?.(event);
@@ -80,6 +81,11 @@ export class FloatingModal extends HTMLElement {
       ]))
     );
     this.actions = [{ name: "OK" }];
+  }
+
+  getActionButton(name: string): HTMLButtonElement | null {
+    const className = `button.${name.toLowerCase().replace(/\s+/g, "-")}`;
+    return this.actionsElement.querySelector(className);
   }
 
   connectedCallback() {
