@@ -4,15 +4,15 @@ import { captureStyle } from "../captureStyle";
 export function touchHoldFeedback<E extends HTMLElement>(
   element: E,
   {
-    duration = 1000,
     color = "#fff",
-    size = 1,
+    duration = 1000,
     moveCutoff = 8,
+    size = 1,
   }: {
-    duration?: number;
     color?: string;
-    size?: number;
+    duration?: number;
     moveCutoff?: number;
+    size?: number;
   } = {}
 ): E {
   let resetStyle: (() => void) | null = null;
@@ -71,7 +71,7 @@ export function touchHoldFeedback<E extends HTMLElement>(
         height: width,
         background: color,
         borderRadius: "100%",
-        animation: `click-feedback ${duration}ms ease-in forwards 100ms`,
+        animation: `touch-hold-feedback ${duration}ms ease-in forwards`,
         pointerEvents: "none",
       },
     });
