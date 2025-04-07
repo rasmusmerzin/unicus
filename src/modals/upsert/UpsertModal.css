@@ -1,4 +1,4 @@
-app-manual-add-modal {
+app-upsert-modal {
   position: absolute;
   top: 0;
   left: 0;
@@ -7,6 +7,9 @@ app-manual-add-modal {
   background: var(--background);
   display: flex;
   flex-direction: column;
+  app-modal-header .trash {
+    display: none;
+  }
   main {
     flex: 1;
     display: flex;
@@ -30,6 +33,12 @@ app-manual-add-modal {
     display: block;
   }
   &[type="HOTP"] .counter {
+    display: block;
+  }
+}
+
+app-upsert-modal.deletable {
+  app-modal-header .trash {
     display: block;
   }
 }

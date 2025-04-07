@@ -43,19 +43,15 @@ app-main-header {
     bottom: var(--bar-height);
     padding: 12px;
     background: var(--background);
-    display: flex;
+    display: none;
     align-items: center;
     justify-content: space-between;
-    transition: opacity 100ms;
-    opacity: 0;
-    pointer-events: none;
   }
 }
 
 app-main-header.selected {
   > .selection {
-    opacity: 1;
-    pointer-events: all;
+    display: flex;
   }
 }
 

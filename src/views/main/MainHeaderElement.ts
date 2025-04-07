@@ -1,11 +1,11 @@
 import "./MainHeaderElement.css";
 import { MainView } from "./MainView";
-import { ManualAddModal } from "../../modals/manual-add/ManualAddModal";
 import { SettingsModal } from "../../modals/settings/SettingsModal";
+import { UpsertModal } from "../../modals/upsert/UpsertModal";
 import { add, close, copy, edit, lock, qr, settings, trash } from "../../icons";
 import { clickFeedback } from "../../mixins/clickFeedback";
 import { generateOtp } from "../../otp";
-import { lockVault, vault$ } from "../../vault";
+import { deleteVaultEntry, lockVault, vault$ } from "../../vault";
 import { openModal, updateView } from "../../view";
 
 @tag("app-main-header")
@@ -22,7 +22,7 @@ export class MainHeaderElement extends HTMLElement {
         clickFeedback(
           createElement("button", {
             innerHTML: add(32),
-            onclick: () => openModal(ManualAddModal),
+            onclick: () => openModal(UpsertModal),
           }),
           { size: 0.5 }
         ),
@@ -54,7 +54,7 @@ export class MainHeaderElement extends HTMLElement {
             createElement("button", {
               className: "edit",
               innerHTML: edit(),
-              disabled: true,
+              onclick: this.edit.bind(this),
             }),
             { size: 0.5 }
           ),
@@ -69,7 +69,7 @@ export class MainHeaderElement extends HTMLElement {
           clickFeedback(
             createElement("button", {
               innerHTML: trash(),
-              disabled: true,
+              onclick: this.trash.bind(this),
             }),
             { size: 0.5 }
           ),
@@ -105,6 +105,24 @@ export class MainHeaderElement extends HTMLElement {
     this.control?.abort();
     delete this.control;
     cancelAnimationFrame(this.animationFrame!);
+  }
+
+  private async trash() {
+    const uuids = MainView.instance!.selected$.current();
+    await deleteVaultEntry(...uuids);
+    MainView.instance!.selected$.next([]);
+  }
+
+  private edit() {
+    const vault = vault$.current();
+    const [uuid] = MainView.instance!.selected$.current();
+    const entry = vault!.entries!.find((entry) => entry.uuid === uuid);
+    const modal = createElement(UpsertModal, {
+      ...entry,
+      title: "Edit entry",
+      deletable: true,
+    });
+    openModal(modal);
   }
 
   private copy() {

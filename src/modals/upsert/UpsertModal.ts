@@ -1,14 +1,15 @@
-import "./ManualAddModal.css";
+import "./UpsertModal.css";
 import { InputElement } from "../../elements/InputElement";
 import { ModalHeader } from "../../elements/ModalHeader";
-import { addVaultEntry, VaultEntry } from "../../vault";
-import { check } from "../../icons";
+import { deleteVaultEntry, upsertVaultEntry, VaultEntry } from "../../vault";
+import { check, trash } from "../../icons";
 import { clickFeedback } from "../../mixins/clickFeedback";
 
 const BASE32 = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
 
-@tag("app-manual-add-modal")
-export class ManualAddModal extends HTMLElement {
+@tag("app-upsert-modal")
+export class UpsertModal extends HTMLElement {
+  private headerElement: ModalHeader;
   private nameInput: InputElement;
   private issuerInput: InputElement;
   private secretInput: InputElement;
@@ -19,12 +20,84 @@ export class ManualAddModal extends HTMLElement {
   private counterInput: InputElement;
   private submitButton: HTMLButtonElement;
 
+  get title(): string {
+    return this.headerElement.title;
+  }
+  set title(value: string) {
+    this.headerElement.title = value;
+  }
+  get deletable(): boolean {
+    return this.classList.contains("deletable");
+  }
+  set deletable(value: boolean) {
+    if (value) this.classList.add("deletable");
+    else this.classList.remove("deletable");
+  }
+
+  uuid = crypto.randomUUID();
+  get name(): string {
+    return this.nameInput.value;
+  }
+  set name(value: string) {
+    this.nameInput.value = value;
+  }
+  get issuer(): string {
+    return this.issuerInput.value;
+  }
+  set issuer(value: string) {
+    this.issuerInput.value = value;
+  }
+  get secret(): string {
+    return this.secretInput.value;
+  }
+  set secret(value: string) {
+    this.secretInput.value = value;
+  }
+  get type(): VaultEntry["type"] {
+    return this.typeInput.value as VaultEntry["type"];
+  }
+  set type(value: VaultEntry["type"]) {
+    this.typeInput.value = value;
+  }
+  get hash(): VaultEntry["hash"] {
+    return this.hashInput.value as VaultEntry["hash"];
+  }
+  set hash(value: VaultEntry["hash"]) {
+    this.hashInput.value = value;
+  }
+  get digits(): number {
+    return parseInt(this.digitsInput.value);
+  }
+  set digits(value: number) {
+    this.digitsInput.value = value.toString();
+  }
+  get period(): number {
+    return parseInt(this.periodInput.value);
+  }
+  set period(value: number) {
+    this.periodInput.value = value.toString();
+  }
+  get counter(): number {
+    return parseInt(this.counterInput.value);
+  }
+  set counter(value: number) {
+    this.counterInput.value = value.toString();
+  }
+
   constructor() {
     super();
     this.replaceChildren(
-      createElement(
+      (this.headerElement = createElement(
         ModalHeader,
         { title: "Add new entry" },
+        clickFeedback(
+          (this.submitButton = createElement("button", {
+            className: "trash",
+            innerHTML: trash(),
+            onclick: this.trash.bind(this),
+          })),
+          { size: 0.5 }
+        ),
         clickFeedback(
           (this.submitButton = createElement("button", {
             innerHTML: check(28),
@@ -32,7 +105,7 @@ export class ManualAddModal extends HTMLElement {
           })),
           { size: 0.5 }
         )
-      ),
+      )),
       createElement("main", {}, [
         (this.nameInput = createElement(InputElement, {
           label: "Name",
@@ -103,10 +176,19 @@ export class ManualAddModal extends HTMLElement {
     this.setAttribute("type", this.typeInput.value);
   }
 
+  private async trash() {
+    try {
+      await deleteVaultEntry(this.uuid);
+      history.back();
+    } catch (error) {
+      alert(error);
+    }
+  }
+
   private async submit() {
     if (!this.validate()) return;
     try {
-      await addVaultEntry(this.getVaultEntry());
+      await upsertVaultEntry(this.getVaultEntry());
       history.back();
     } catch (error) {
       alert(error);
@@ -114,15 +196,8 @@ export class ManualAddModal extends HTMLElement {
   }
 
   private getVaultEntry(): VaultEntry {
-    const uuid = crypto.randomUUID();
-    const name = this.nameInput.value.trim();
-    const issuer = this.issuerInput.value.trim();
-    const secret = this.secretInput.value;
-    const hash = this.hashInput.value as VaultEntry["hash"];
-    const digits = parseInt(this.digitsInput.value);
-    const type = this.typeInput.value as VaultEntry["type"];
-    const period = parseInt(this.periodInput.value);
-    const counter = parseInt(this.counterInput.value);
+    const { uuid, name, issuer, secret, type, hash, digits, period, counter } =
+      this;
     if (type === "TOTP")
       return { uuid, name, issuer, secret, hash, digits, type, period };
     else if (type === "HOTP")

@@ -11,7 +11,7 @@ export type VaultEntry = VaultEntryExt & {
   name: string;
   issuer: string;
   secret: string;
-  hash: "SHA1" | "SHA256" | "SHA512";
+  hash: "SHA1";
   digits: number;
 };
 
@@ -28,12 +28,35 @@ if (import.meta.env.DEV)
     new AbortController()
   );
 
-export async function addVaultEntry(entry: VaultEntry) {
+export async function upsertVaultEntry(entry: VaultEntry) {
   if (!vault$.current()) throw new Error("Vault is not initialized");
   const current = vault$.current();
-  const updated = { ...current };
+  const updated: Vault = JSON.parse(JSON.stringify(current));
   if (!updated.entries) updated.entries = [entry];
-  else updated.entries = [...updated.entries, entry];
+  else {
+    const existingIndex = updated.entries.findIndex(
+      (e) => e.uuid == entry.uuid
+    );
+    if (existingIndex < 0) updated.entries.push(entry);
+    else updated.entries[existingIndex] = entry;
+  }
+  try {
+    vault$.next(updated);
+    await saveVault();
+  } catch (error) {
+    vault$.next(current);
+    throw error;
+  }
+}
+
+export async function deleteVaultEntry(...uuids: string[]) {
+  if (!vault$.current()) throw new Error("Vault is not initialized");
+  const current = vault$.current();
+  const updated: Vault = JSON.parse(JSON.stringify(current));
+  if (!updated.entries) return;
+  updated.entries = updated.entries.filter(
+    (entry) => !uuids.includes(entry.uuid)
+  );
   try {
     vault$.next(updated);
     await saveVault();
