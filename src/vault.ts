@@ -99,7 +99,7 @@ export async function importEntries(
       });
     }
   } else throw new Error("Unsupported source type");
-  for (const entry of accepted) await upsertVaultEntry(entry);
+  await upsertVaultEntry(...accepted);
   return { accepted, rejected };
 }
 
@@ -108,17 +108,19 @@ export function getVaultEntry(uuid: string): VaultEntry | null {
   return vault?.entries?.find((entry) => entry.uuid === uuid) || null;
 }
 
-export async function upsertVaultEntry(entry: VaultEntry) {
+export async function upsertVaultEntry(...entries: VaultEntry[]) {
   if (!vault$.current()) throw new Error("Vault is not initialized");
   const current = vault$.current();
   const updated: Vault = JSON.parse(JSON.stringify(current));
-  if (!updated.entries) updated.entries = [entry];
+  if (!updated.entries) updated.entries = [...entries];
   else {
-    const existingIndex = updated.entries.findIndex(
-      (e) => e.uuid == entry.uuid
-    );
-    if (existingIndex < 0) updated.entries.push(entry);
-    else updated.entries[existingIndex] = entry;
+    for (const entry of entries) {
+      const existingIndex = updated.entries.findIndex(
+        (e) => e.uuid == entry.uuid
+      );
+      if (existingIndex < 0) updated.entries.push(entry);
+      else updated.entries[existingIndex] = entry;
+    }
   }
   try {
     vault$.next(updated);
