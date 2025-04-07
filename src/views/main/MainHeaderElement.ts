@@ -3,15 +3,31 @@ import { FloatingModal } from "../../elements/FloatingModal";
 import { MainView } from "./MainView";
 import { SettingsModal } from "../../modals/settings/SettingsModal";
 import { UpsertModal } from "../../modals/upsert/UpsertModal";
-import { add, close, copy, edit, lock, qr, settings, trash } from "../../icons";
+import {
+  add,
+  close,
+  copy,
+  edit,
+  lock,
+  qr,
+  selectAll,
+  settings,
+  trash,
+} from "../../icons";
 import { clickFeedback } from "../../mixins/clickFeedback";
-import { deleteVaultEntry, getVaultEntry, lockVault } from "../../vault";
+import {
+  deleteVaultEntry,
+  getVaultEntry,
+  lockVault,
+  vault$,
+} from "../../vault";
 import { entryDisplayName, generateOtp } from "../../otp";
 import { openModal, updateView } from "../../view";
 
 @tag("app-main-header")
 export class MainHeaderElement extends HTMLElement {
   private timerBarElement: HTMLElement;
+  private selectAllButton: HTMLButtonElement;
   private animationFrame?: number;
   private control?: AbortController;
 
@@ -81,6 +97,13 @@ export class MainHeaderElement extends HTMLElement {
             }),
             { size: 0.5 }
           ),
+          (this.selectAllButton = clickFeedback(
+            createElement("button", {
+              innerHTML: selectAll(),
+              onclick: this.selectAll.bind(this),
+            }),
+            { size: 0.5 }
+          )),
         ]),
       ]),
       (this.timerBarElement = createElement("div", {
@@ -97,6 +120,10 @@ export class MainHeaderElement extends HTMLElement {
       else this.classList.remove("selected");
       if (selected.length > 1) this.classList.add("multiple");
       else this.classList.remove("multiple");
+      const allSelected = selected.length === vault$.current()?.entries?.length;
+      if (allSelected) this.classList.add("all");
+      else this.classList.remove("all");
+      this.selectAllButton.disabled = allSelected;
     }, this.control);
     cancelAnimationFrame(this.animationFrame!);
     this.animateFrame();
@@ -106,6 +133,11 @@ export class MainHeaderElement extends HTMLElement {
     this.control?.abort();
     delete this.control;
     cancelAnimationFrame(this.animationFrame!);
+  }
+
+  private selectAll() {
+    const uuids = vault$.current()!.entries!.map((entry) => entry.uuid);
+    MainView.instance!.selected$.next(uuids);
   }
 
   private trash() {

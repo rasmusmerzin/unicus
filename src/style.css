@@ -29,6 +29,7 @@
   margin: 0;
   min-width: 0;
   padding: 0;
+  scrollbar-width: none;
   &:focus {
     outline: 2px solid var(--primary);
   }

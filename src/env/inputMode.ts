@@ -2,6 +2,7 @@ export type InputMode = "keyboard" | "mouse" | "touch";
 
 setTimeout(() => {
   addEventListener("keydown", enterKeyboardMode);
+  addEventListener("mousedown", enterMouseMode);
   addEventListener("mousemove", enterMouseMode);
   addEventListener("touchstart", enterTouchMode);
   addEventListener("touchmove", enterTouchMode);
@@ -18,6 +19,7 @@ function enterKeyboardMode() {
 }
 
 function enterMouseMode() {
+  if (getInputMode() === "touch") return;
   document.documentElement.setAttribute("input-mode", "mouse");
 }
 
