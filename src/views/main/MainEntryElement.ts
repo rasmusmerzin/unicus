@@ -3,12 +3,13 @@ import { MainView } from "./MainView";
 import { VaultEntry } from "../../vault";
 import { check, copy } from "../../icons";
 import { clickFeedback } from "../../mixins/clickFeedback";
-import { entryDisplayName, generateOtp } from "../../otp";
+import { entryColor, entryDisplayName, generateOtp } from "../../otp";
 import { touchHoldFeedback } from "../../mixins/touchHoldFeedback";
 
 @tag("app-main-entry")
 export class MainEntryElement extends HTMLElement {
   private iconSpanElement: HTMLElement;
+  private iconElement: HTMLElement;
   private nameElement: HTMLElement;
   private codeElement: HTMLElement;
   private timeout: any;
@@ -21,6 +22,7 @@ export class MainEntryElement extends HTMLElement {
   set entry(entry: VaultEntry | undefined) {
     this.#entry = entry;
     const displayName = entry ? entryDisplayName(entry) : "";
+    this.iconElement.style.background = entry ? entryColor(entry) : "";
     this.iconSpanElement.innerText = entry ? displayName.charAt(0) : "";
     this.nameElement.textContent = displayName;
     if (document.contains(this)) this.syncCode();
@@ -37,7 +39,7 @@ export class MainEntryElement extends HTMLElement {
           oncontextmenu: this.onContextmenu.bind(this),
         },
         [
-          createElement("div", { className: "icon" }, [
+          (this.iconElement = createElement("div", { className: "icon" }, [
             (this.iconSpanElement = createElement("span")),
             createElement("div", {
               className: "check",
@@ -47,7 +49,7 @@ export class MainEntryElement extends HTMLElement {
               className: "copy",
               innerHTML: copy(32),
             }),
-          ]),
+          ])),
           createElement("div", { className: "content" }, [
             (this.nameElement = createElement("div", { className: "name" })),
             (this.codeElement = createElement("div", { className: "code" })),

@@ -15,6 +15,14 @@ export function entryDisplayName(entry: VaultEntry): string {
   else return issuer || name;
 }
 
+export function entryColor(entry: VaultEntry): string {
+  const value = entrySerializedName(entry);
+  let hash = 0;
+  for (let i = 0; i < value.length; i++)
+    hash = value.charCodeAt(i) + ((hash << 5) - hash);
+  return `hsl(${hash % 360}, 85%, 35%)`;
+}
+
 function entryToOtp(entry: VaultEntry): OTP {
   return new OTP({
     name: entrySerializedName(entry),
