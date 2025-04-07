@@ -1,4 +1,5 @@
 import "./style.css";
+import "./radio.css";
 import "./env";
 import { updateView } from "./view";
 import { updateIconColors, updateTheme } from "./theme";

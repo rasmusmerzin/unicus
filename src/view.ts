@@ -1,3 +1,4 @@
+import "./view.css";
 import { MainView } from "./views/main/MainView";
 import { SetupView } from "./views/setup/SetupView";
 import { UnlockView } from "./views/unlock/UnlockView";
@@ -5,6 +6,7 @@ import { getEncryptedVault, secret$, vault$ } from "./vault";
 import { captureStyle } from "./captureStyle";
 import { userPrefersDarkMode } from "./theme";
 import { updateTheme } from "./theme";
+import { resolveFactory } from "./resolveFactory";
 
 export interface OnMountedAsFirst {
   onMountedAsFirst(): any;
@@ -70,13 +72,12 @@ export function onback(handler: () => any): () => void {
 }
 
 export async function openModal(
-  constructor: HTMLElement | Constructor<HTMLElement>,
+  factory: Factory<HTMLElement, []>,
   { duration = 200 }: { duration?: number } = {}
 ) {
   document.body.style.pointerEvents = "none";
   document.body.style.overflow = "hidden";
-  const modal =
-    constructor instanceof HTMLElement ? constructor : new constructor();
+  const modal = resolveFactory(factory);
   historyStack.push(modal);
   const level = historyStack.length;
   modal.style.zIndex = `${1000 * level}`;

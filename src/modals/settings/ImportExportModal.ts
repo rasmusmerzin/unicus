@@ -1,6 +1,10 @@
 import "./ImportExportModal.css";
+import { FloatingModal } from "../../elements/FloatingModal";
 import { ModalHeader } from "../../elements/ModalHeader";
 import { SettingsEntryElement } from "./SettingsEntryElement";
+import { closeAllModals, openModal } from "../../view";
+import { clickFeedback } from "../../mixins/clickFeedback";
+import { importEntries, SourceType } from "../../vault";
 
 @tag("app-import-export-modal")
 export class ImportExportModal extends HTMLElement {
@@ -11,8 +15,8 @@ export class ImportExportModal extends HTMLElement {
       createElement("main", {}, [
         createElement(SettingsEntryElement, {
           name: "Import",
-          disabled: true,
           description: "Import tokens from a file.",
+          onclick: this.promptImport.bind(this),
         }),
         createElement(SettingsEntryElement, {
           name: "Export",
@@ -22,4 +26,97 @@ export class ImportExportModal extends HTMLElement {
       ])
     );
   }
+
+  promptImport() {
+    const state = { value: "" };
+    function onclick() {
+      const fileInput = createElement("input", {
+        type: "file",
+        accept: "application/json",
+        onchange,
+      });
+      fileInput.click();
+      function onchange() {
+        const [file] = fileInput.files || [];
+        if (!file) return;
+        importEntries(state.value as SourceType, file)
+          .then(async ({ accepted, rejected }) => {
+            await closeAllModals();
+            alert(
+              `Successfully imported ${accepted.length} entries.` +
+                ` Failed to import ${rejected.length} entries.`
+            );
+          })
+          .catch(alert);
+      }
+    }
+    const modal = createElement(
+      FloatingModal,
+      { title: "Import", actions: [{ name: "OK", onclick }] },
+      [
+        //RadioInput({
+        //  group: "import-type",
+        //  value: "unicus",
+        //  display: "Unicus",
+        //  state,
+        //}),
+        RadioInput({
+          group: "import-type",
+          value: "aegis",
+          display: "Aegis (unencrypted json)",
+          checked: true,
+          state,
+        }),
+      ]
+    );
+    openModal(modal);
+  }
+}
+
+function RadioInput({
+  checked,
+  display,
+  group,
+  state,
+  value,
+}: {
+  checked?: boolean;
+  display: string;
+  group: string;
+  state: { value: string };
+  value: string;
+}) {
+  let input: HTMLInputElement;
+  if (checked) state.value = value;
+  return clickFeedback(
+    createElement(
+      "button",
+      {
+        tabIndex: -1,
+        style: {
+          display: "flex",
+          alignItems: "center",
+          width: "100%",
+          gap: "16px",
+          padding: "0 8px",
+          height: "40px",
+        },
+        onclick: () => {
+          input.checked = true;
+          state.value = value;
+        },
+      },
+      [
+        (input = createElement("input", {
+          type: "radio",
+          id: `${group}-${value}`,
+          name: group,
+          value,
+          checked,
+          onchange: () => input.checked && (state.value = value),
+        })),
+        createElement("label", { for: `${group}-${value}` }, display),
+      ]
+    )
+  );
 }

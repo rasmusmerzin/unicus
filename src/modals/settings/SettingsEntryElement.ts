@@ -63,7 +63,9 @@ export class SettingsEntryElement extends HTMLElement {
   }
 
   private onClick(event: MouseEvent) {
-    if (event.target instanceof HTMLInputElement) return;
-    else this.switchElement.value = !this.switchElement.value;
+    if (this.type === "switch") {
+      if (event.target instanceof HTMLInputElement) return;
+      else this.switchElement.value = !this.switchElement.value;
+    }
   }
 }
