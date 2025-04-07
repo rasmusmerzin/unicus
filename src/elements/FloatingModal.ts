@@ -54,8 +54,8 @@ export class FloatingModal extends HTMLElement {
           createElement("button", {
             innerText: action.name,
             onclick(event: MouseEvent) {
-              history.back();
               if (action.onclick) action.onclick(event);
+              history.back();
             },
           })
         )
@@ -79,7 +79,11 @@ export class FloatingModal extends HTMLElement {
     this.control?.abort();
     this.control = new AbortController();
     setTimeout(() => {
-      addEventListener("click", this.onDocumentClick.bind(this), this.control);
+      this.addEventListener(
+        "click",
+        this.onDocumentClick.bind(this),
+        this.control
+      );
     }, 100);
   }
 

@@ -1,7 +1,7 @@
 {
   "name": "Unicus",
   "short_name": "Unicus",
-  "description": "OTP generator",
+  "description": "OTP authenticator app for 2FA codes",
   "background_color": "#08f",
   "theme_color": "#08f",
   "scope": "/",
