@@ -1,7 +1,6 @@
 export * from "./createElement";
+export * from "./inputMode";
 export * from "./tag";
-import "./mouseMode";
-import "./touchMode";
 import "./virtualKeyboard";
 
 navigator.serviceWorker.register("/sw.js");

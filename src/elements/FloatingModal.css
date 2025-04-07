@@ -41,9 +41,6 @@ app-floating-modal {
       > *:first-child {
         margin-top: 0;
       }
-      > *:last-child {
-        margin-bottom: 0;
-      }
     }
     > .actions {
       padding: 8px 0 0;
@@ -80,9 +77,9 @@ app-floating-modal.opening {
 }
 
 app-floating-modal.closing {
-  animation: blur-out 200ms;
+  animation: blur-out 200ms forwards;
   > main {
-    animation: pop-out 200ms;
+    animation: pop-out 200ms forwards;
   }
 }
 

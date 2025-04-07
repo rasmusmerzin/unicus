@@ -50,6 +50,7 @@ ul {
 }
 
 p {
+  line-height: 1.25;
   margin: 8px 0;
 }
 
@@ -60,12 +61,12 @@ button {
   }
 }
 
-[touch] {
+[input-mode="touch"] {
   user-select: none;
 }
 
-[touch],
-[mouse] {
+[input-mode="touch"],
+[input-mode="mouse"] {
   button {
     outline: none !important;
   }

@@ -1,6 +1,10 @@
 import "./UnlockView.css";
 import { ButtonElement } from "../../elements/ButtonElement";
 import { InputElement } from "../../elements/InputElement";
+import { OnMountedAsFirst, updateView } from "../../view";
+import { clickFeedback } from "../../mixins/clickFeedback";
+import { deriveKey } from "../../crypto";
+import { fingerprint } from "../../icons";
 import {
   getFingerprintEncryptedSecret,
   lockVault,
@@ -8,11 +12,7 @@ import {
   openVault,
   secret$,
 } from "../../vault";
-import { deriveKey } from "../../crypto";
-import { OnMountedAsFirst, updateView } from "../../view";
-import { clickFeedback } from "../../mixins/clickFeedback";
-import { fingerprint } from "../../icons";
-import { isTouchMode } from "../../env/touchMode";
+import { getInputMode } from "../../env";
 
 @tag("app-unlock")
 export class UnlockView extends HTMLElement implements OnMountedAsFirst {
@@ -50,7 +50,7 @@ export class UnlockView extends HTMLElement implements OnMountedAsFirst {
   }
 
   connectedCallback() {
-    if (!isTouchMode()) this.passcodeInput.focus();
+    if (getInputMode() !== "touch") this.passcodeInput.focus();
   }
 
   onMountedAsFirst() {
