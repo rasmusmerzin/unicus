@@ -1,6 +1,8 @@
-import { decryptData, deriveKey, encryptData, Encrypted } from "./crypto";
-import { fingerprint } from "./fingerprint";
-import { Subject } from "./Subject";
+import { decryptData, deriveKey, encryptData, Encrypted } from "../crypto";
+import { fingerprint } from "../fingerprint";
+import { Subject } from "../Subject";
+
+export * from "./import";
 
 export interface Vault {
   entries?: VaultEntry[];
@@ -18,13 +20,6 @@ export type VaultEntry = VaultEntryExt & {
 export type VaultEntryExt =
   | { type: "TOTP"; period: number }
   | { type: "HOTP"; counter: number };
-
-export type SourceType = "unicus" | "aegis";
-
-export interface ImportResult {
-  accepted: VaultEntry[];
-  rejected: any[];
-}
 
 export const vault$ = new Subject<Vault | null>(null);
 export const secret$ = new Subject<string | null>(null);
@@ -133,76 +128,6 @@ export function getFingerprintEncryptedSecret(): Encrypted | null {
 
 export function removeFingerprintEncryptedSecret() {
   localStorage.removeItem("fingerprint");
-}
-
-export async function importFromFile(
-  sourceType: SourceType,
-  source: File
-): Promise<ImportResult> {
-  const accepted = <VaultEntry[]>[];
-  const rejected = <any[]>[];
-  const data = await source.text();
-  const obj = JSON.parse(data);
-  if (sourceType === "aegis") {
-    const { db } = obj;
-    if (typeof db === "string")
-      throw new Error("Encrypted Aegis file is not supported");
-    const { entries } = db;
-    for (const entry of entries) {
-      const uuid =
-        typeof entry.uuid === "string" ? entry.uuid : crypto.randomUUID();
-      const name = typeof entry.name === "string" ? entry.name : "";
-      const issuer = typeof entry.issuer === "string" ? entry.issuer : "";
-      const secret =
-        typeof entry.info?.secret === "string" ? entry.info.secret : "";
-      const hash =
-        typeof entry.info?.algo === "string"
-          ? entry.info.algo.toUpperCase().replace(/-/g, "")
-          : "";
-      const digits =
-        typeof entry.info?.digits === "number" ? entry.info.digits : 0;
-      const type =
-        typeof entry.type === "string" ? entry.type.toUpperCase() : "";
-      const period =
-        typeof entry.info?.period === "number" ? entry.info.period : undefined;
-      const counter =
-        typeof entry.info?.counter === "number"
-          ? entry.info.counter
-          : undefined;
-      if (
-        hash !== "SHA1" ||
-        !["TOTP", "HOTP"].includes(type) ||
-        !secret ||
-        !digits
-      ) {
-        rejected.push(entry);
-        continue;
-      }
-      if (type === "TOTP" && !period) {
-        rejected.push(entry);
-        continue;
-      }
-      if (type === "HOTP" && !counter) {
-        rejected.push(entry);
-        continue;
-      }
-      accepted.push({
-        uuid,
-        name,
-        issuer,
-        secret,
-        hash,
-        digits,
-        type,
-        period,
-        counter,
-      });
-    }
-  } else if (sourceType === "unicus") {
-    throw new Error("Unicus import is not supported yet");
-  } else throw new Error("Unsupported source type");
-  await upsertVaultEntry(...accepted);
-  return { accepted, rejected };
 }
 
 export async function exportToFile(encrypted: boolean) {

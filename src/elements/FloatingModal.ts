@@ -53,14 +53,21 @@ export class FloatingModal extends HTMLElement {
         clickFeedback(
           createElement("button", {
             innerText: action.name,
-            onclick(event: MouseEvent) {
-              if (action.onclick) action.onclick(event);
+            async onclick(event: MouseEvent) {
+              await action.onclick?.(event);
               history.back();
             },
           })
         )
       )
     );
+  }
+  #ondisconnect: (() => any) | null = null;
+  get ondisconnect(): (() => any) | null {
+    return this.#ondisconnect;
+  }
+  set ondisconnect(value: (() => any) | null) {
+    this.#ondisconnect = value;
   }
 
   constructor() {
@@ -90,6 +97,7 @@ export class FloatingModal extends HTMLElement {
   disconnectedCallback() {
     this.control?.abort();
     delete this.control;
+    this.ondisconnect?.();
   }
 
   private onDocumentClick(event: MouseEvent) {

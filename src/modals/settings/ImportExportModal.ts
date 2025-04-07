@@ -119,17 +119,17 @@ function ImportFromFileModal() {
     FloatingModal,
     { title: "Import from file", actions: [{ name: "OK", onclick }] },
     [
-      //RadioInput({
-      //  group: "import-type",
-      //  value: "unicus",
-      //  display: "Unicus",
-      //  state,
-      //}),
+      RadioInput({
+        group: "import-type",
+        value: "unicus",
+        display: "Unicus",
+        checked: true,
+        state,
+      }),
       RadioInput({
         group: "import-type",
         value: "aegis",
         display: "Aegis (unencrypted json)",
-        checked: true,
         state,
       }),
     ]
