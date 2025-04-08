@@ -50,6 +50,9 @@ app-main-header {
 }
 
 app-main-header.selected {
+  > .actions {
+    display: none;
+  }
   > .selection {
     display: flex;
   }

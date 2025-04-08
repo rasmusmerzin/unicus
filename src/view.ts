@@ -63,6 +63,7 @@ export async function openModal(
   document.body.style.pointerEvents = "";
   document.body.style.overflow = "";
   resetModalStyle();
+  disableNonActive();
 }
 
 export async function closeAllModals() {
@@ -75,18 +76,16 @@ export async function closeAllModals() {
 
 export async function updateView({
   force = true,
-  hideModals = true,
   viewConstructor = getViewConstructor(),
   duration,
   direction,
 }: {
   force?: boolean;
-  hideModals?: boolean;
   viewConstructor?: Constructor<HTMLElement & Partial<OnMountedAsFirst>>;
   duration?: number;
   direction?: "forwards" | "backwards";
 } = {}): Promise<HTMLElement> {
-  if (hideModals) await closeAllModals();
+  await closeAllModals();
   const current = app.firstElementChild as HTMLElement;
   if (current instanceof viewConstructor && !force) return current;
   const next = new viewConstructor();
@@ -127,11 +126,39 @@ async function onpopstate(event: PopStateEvent) {
       animating = true;
     }
   }
+  enableActive();
   if (animating) await new Promise((resolve) => setTimeout(resolve, 200));
   if (popstateSymbol === symbol) {
     document.body.style.pointerEvents = "";
     document.body.style.overflow = "";
   }
+}
+
+function enableActive() {
+  const active = getActiveModal() || getMountedView();
+  if (active) active.style.display = "";
+}
+
+function disableNonActive() {
+  const view = getMountedView();
+  const active = getActiveModal() || view;
+  for (const entry of [view, ...historyStack]) {
+    if (!(entry instanceof HTMLElement)) continue;
+    if (entry === active) continue;
+    entry.style.display = "none";
+  }
+}
+
+function getMountedView(): HTMLElement | null {
+  return app.firstElementChild as HTMLElement;
+}
+
+function getActiveModal(): HTMLElement | null {
+  for (let i = historyStack.length - 1; i >= 0; i--) {
+    const entry = historyStack[i];
+    if (entry instanceof HTMLElement) return entry;
+  }
+  return null;
 }
 
 function elementHasAnimation(element: HTMLElement): boolean {
