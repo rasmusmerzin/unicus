@@ -1,12 +1,9 @@
-app-floating-modal {
+app-drawer-modal {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   &::before {
     content: "";
     position: fixed;
@@ -17,15 +14,15 @@ app-floating-modal {
     backdrop-filter: blur(8px);
   }
   > main {
-    position: relative;
-    width: 400px;
-    min-height: 200px;
-    max-width: calc(100% - 32px);
-    max-height: calc(100% - 64px);
-    padding: 24px;
-    border-radius: 24px;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    max-height: calc(100% - 32px);
     background: var(--background);
     box-shadow: 0 0 32px #0004;
+    border-top-left-radius: 24px;
+    border-top-right-radius: 24px;
     display: flex;
     flex-direction: column;
     &::before {
@@ -44,49 +41,29 @@ app-floating-modal {
     }
     > .header {
       flex-shrink: 0;
-      padding: 0 0 16px;
+      text-align: center;
+      &:not(:empty) {
+        padding: 24px 0 16px;
+      }
     }
     > .content {
       flex: 1;
-      padding: 8px;
-      margin: -8px;
       overflow: auto;
-      > *:first-child {
-        margin-top: 0;
-      }
-    }
-    > .actions {
-      padding: 8px 0 0;
-      flex-shrink: 0;
-      display: flex;
-      justify-content: flex-end;
-      grid-gap: 16px;
-      > button {
-        padding: 16px 24px;
-        margin: -8px 0;
-        font-size: 14px;
-        font-weight: 500;
-        color: var(--primary);
-        &:disabled {
-          color: var(--foreground);
-          opacity: 0.5;
-        }
-      }
     }
   }
 }
 
-app-floating-modal.opening {
+app-drawer-modal.opening {
   animation: blur-in 200ms;
   > main {
-    animation: pop-in 200ms;
+    animation: slide-in 200ms;
   }
 }
 
-app-floating-modal.closing {
+app-drawer-modal.closing {
   animation: blur-out 200ms forwards;
   > main {
-    animation: pop-out 200ms forwards;
+    animation: slide-out 200ms forwards;
   }
 }
 
@@ -108,15 +85,15 @@ app-floating-modal.closing {
   }
 }
 
-@keyframes pop-in {
+@keyframes slide-in {
   from {
-    opacity: 0;
-    transform: scale(0);
+    border-radius: 0;
+    transform: translateY(100%);
   }
 }
 
-@keyframes pop-out {
+@keyframes slide-out {
   to {
-    opacity: 0;
+    transform: translateY(100%);
   }
 }

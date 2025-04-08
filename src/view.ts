@@ -135,30 +135,31 @@ async function onpopstate(event: PopStateEvent) {
 }
 
 function enableActive() {
-  const active = getActiveModal() || getMountedView();
-  if (active) active.style.display = "";
+  for (const element of getActiveElements()) element.style.display = "";
 }
 
 function disableNonActive() {
-  const view = getMountedView();
-  const active = getActiveModal() || view;
-  for (const entry of [view, ...historyStack]) {
+  const active = getActiveElements();
+  const stack = [app.firstElementChild as HTMLElement, ...historyStack];
+  for (const entry of stack) {
     if (!(entry instanceof HTMLElement)) continue;
-    if (entry === active) continue;
-    entry.style.display = "none";
+    if (!active.includes(entry)) entry.style.display = "none";
   }
 }
 
-function getMountedView(): HTMLElement | null {
-  return app.firstElementChild as HTMLElement;
-}
-
-function getActiveModal(): HTMLElement | null {
-  for (let i = historyStack.length - 1; i >= 0; i--) {
-    const entry = historyStack[i];
-    if (entry instanceof HTMLElement) return entry;
+function getActiveElements(): HTMLElement[] {
+  const active = <HTMLElement[]>[];
+  const stack = [app.firstElementChild as HTMLElement, ...historyStack];
+  for (let i = stack.length - 1; i >= 0; i--) {
+    const entry = stack[i];
+    if (!(entry instanceof HTMLElement)) continue;
+    active.push(entry);
+    const { backgroundColor } = getComputedStyle(entry);
+    // check if entry is see-through
+    if (backgroundColor.split("").filter((c) => c === ",").length < 3)
+      return active;
   }
-  return null;
+  return active;
 }
 
 function elementHasAnimation(element: HTMLElement): boolean {

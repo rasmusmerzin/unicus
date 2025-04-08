@@ -1,6 +1,8 @@
 import "./MainHeaderElement.css";
+import { AddDrawerModal } from "./AddDrawerModal";
 import { FloatingModal } from "../../elements/FloatingModal";
 import { MainView } from "./MainView";
+import { QrCodeModal } from "../../modals/qrcode/QrCodeModal";
 import { SettingsModal } from "../../modals/settings/SettingsModal";
 import { UpsertModal } from "../../modals/upsert/UpsertModal";
 import {
@@ -23,7 +25,6 @@ import {
 } from "../../vault";
 import { entryDisplayName, generateCode } from "../../otp";
 import { openModal, updateView } from "../../view";
-import { QrCodeModal } from "../../modals/qrcode/QrCodeModal";
 
 @tag("app-main-header")
 export class MainHeaderElement extends HTMLElement {
@@ -40,7 +41,7 @@ export class MainHeaderElement extends HTMLElement {
         clickFeedback(
           createElement("button", {
             innerHTML: add(32),
-            onclick: () => openModal(UpsertModal),
+            onclick: () => openModal(AddDrawerModal),
           }),
           { size: 0.5 }
         ),
