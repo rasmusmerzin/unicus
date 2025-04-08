@@ -19,7 +19,7 @@ app-button {
     overflow: hidden;
     transition: background 200ms, color 200ms, opacity 200ms, filter 100ms;
     &:not(:disabled):hover {
-      filter: brightness(0.9);
+      filter: brightness(1.1);
     }
   }
   .loader {

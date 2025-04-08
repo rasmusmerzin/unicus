@@ -9,7 +9,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "otp": "1"
+    "otp": "1",
+    "qr": "0.4"
   },
   "devDependencies": {
     "@merzin/inject-sw": "1",

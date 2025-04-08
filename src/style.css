@@ -71,6 +71,7 @@ button {
 
 [input-mode="touch"],
 [input-mode="mouse"] {
+  a,
   input[type="checkbox"],
   input[type="radio"],
   button {

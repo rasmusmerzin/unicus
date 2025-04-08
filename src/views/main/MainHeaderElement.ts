@@ -21,8 +21,9 @@ import {
   lockVault,
   vault$,
 } from "../../vault";
-import { entryDisplayName, generateOtp } from "../../otp";
+import { entryDisplayName, generateCode } from "../../otp";
 import { openModal, updateView } from "../../view";
+import { QrCodeModal } from "../../modals/qrcode/QrCodeModal";
 
 @tag("app-main-header")
 export class MainHeaderElement extends HTMLElement {
@@ -93,7 +94,7 @@ export class MainHeaderElement extends HTMLElement {
           clickFeedback(
             createElement("button", {
               innerHTML: qr(),
-              disabled: true,
+              onclick: this.showQrCodes.bind(this),
             }),
             { size: 0.5 }
           ),
@@ -140,6 +141,13 @@ export class MainHeaderElement extends HTMLElement {
     MainView.instance!.selected$.next(uuids);
   }
 
+  private showQrCodes() {
+    const uuids = MainView.instance!.selected$.current();
+    const entries = uuids.map((entry) => getVaultEntry(entry)!);
+    const modal = createElement(QrCodeModal, { entries });
+    openModal(modal);
+  }
+
   private trash() {
     const uuids = MainView.instance!.selected$.current();
     const entries = uuids.map((entry) => getVaultEntry(entry)!);
@@ -181,7 +189,7 @@ export class MainHeaderElement extends HTMLElement {
 
   private copy() {
     const [uuid] = MainView.instance!.selected$.current();
-    const code = generateOtp(getVaultEntry(uuid)!);
+    const code = generateCode(getVaultEntry(uuid)!);
     if (code) navigator.clipboard.writeText(code);
   }
 

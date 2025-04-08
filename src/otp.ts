@@ -1,11 +1,24 @@
 import OTP from "otp";
 import { VaultEntry } from "./vault";
 
-export function generateOtp(entry: VaultEntry): string {
+export function generateCode(entry: VaultEntry): string {
   const otp = entryToOtp(entry);
   if (entry.type === "TOTP") return otp.totp(Date.now());
   else if (entry.type === "HOTP") return otp.hotp(entry.counter);
   else throw new Error("Invalid OTP type");
+}
+
+export function generateUri(entry: VaultEntry): string {
+  const type = entry.type.toLowerCase();
+  const name = encodeURIComponent(entrySerializedName(entry));
+  const { issuer, secret, digits } = entry;
+  const algorithm = entry.hash;
+  const properties: Record<string, any> = { secret, digits, algorithm, issuer };
+  if (entry.type === "TOTP") properties.period = entry.period;
+  else if (entry.type === "HOTP") properties.counter = entry.counter;
+  const props = encodeUriProperties(properties);
+  const uri = `otpauth://${type}/${name}${props}`;
+  return uri;
 }
 
 export function entryDisplayName(entry: VaultEntry): string {
@@ -23,9 +36,17 @@ export function entryColor(entry: VaultEntry): string {
   return `hsl(${hash % 360}, 85%, 35%)`;
 }
 
+function encodeUriProperties(record: Record<string, any>): string {
+  return (
+    "?" +
+    Object.entries(record)
+      .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
+      .join("&")
+  );
+}
+
 function entryToOtp(entry: VaultEntry): OTP {
   return new OTP({
-    name: entrySerializedName(entry),
     keySize: entry.secret.length * 2,
     codeLength: entry.digits,
     secret: entry.secret,
