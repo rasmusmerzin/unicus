@@ -16,11 +16,13 @@ export class ScanModal extends HTMLElement {
   constructor() {
     super();
     this.replaceChildren(
-      (this.videoElement = createElement("video", {
-        className: this.facingMode,
-        autoplay: true,
-        onclick: this.toggleContain.bind(this),
-      })),
+      createElement("div", { className: "video-container" }, [
+        (this.videoElement = createElement("video", {
+          className: this.facingMode,
+          autoplay: true,
+          onclick: this.toggleContain.bind(this),
+        })),
+      ]),
       clickFeedback(
         createElement("button", {
           className: "back",
@@ -79,12 +81,8 @@ export class ScanModal extends HTMLElement {
   private getVideoFrameImageData() {
     const context = this.canvasElement.getContext("2d")!;
     context.drawImage(this.videoElement, 0, 0);
-    return context.getImageData(
-      0,
-      0,
-      this.canvasElement.width,
-      this.canvasElement.height
-    );
+    const { width, height } = this.canvasElement;
+    return context.getImageData(0, 0, width, height);
   }
 
   private async attachCameraStream() {
