@@ -23,7 +23,7 @@ import {
   lockVault,
   vault$,
 } from "../../vault";
-import { entryDisplayName, generateCode } from "../../otp";
+import { entryDisplayName, entryToCode } from "../../vault";
 import { openModal, updateView } from "../../view";
 
 @tag("app-main-header")
@@ -190,7 +190,7 @@ export class MainHeaderElement extends HTMLElement {
 
   private copy() {
     const [uuid] = MainView.instance!.selected$.current();
-    const code = generateCode(getVaultEntry(uuid)!);
+    const code = entryToCode(getVaultEntry(uuid)!);
     if (code) navigator.clipboard.writeText(code);
   }
 

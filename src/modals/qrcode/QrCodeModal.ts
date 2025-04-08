@@ -1,7 +1,6 @@
 import "./QrCodeModal.css";
 import { ModalHeader } from "../../elements/ModalHeader";
-import { VaultEntry } from "../../vault";
-import { generateUri } from "../../otp";
+import { VaultEntry, entryToUri } from "../../vault";
 import encodeQR from "qr";
 import { ButtonElement } from "../../elements/ButtonElement";
 import { chevronLeft, chevronRight } from "../../icons";
@@ -97,7 +96,7 @@ export class QrCodeModal extends HTMLElement {
 
 function QrCodeCard(entry: VaultEntry) {
   let button: ButtonElement;
-  const uri = generateUri(entry);
+  const uri = entryToUri(entry);
   return createElement("div", { className: "card" }, [
     createElement("a", { href: uri, className: "img" }),
     createElement("h2", { className: "issuer", innerText: entry.issuer }),

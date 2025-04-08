@@ -3,6 +3,7 @@ import { fingerprint } from "../fingerprint";
 import { Subject } from "../Subject";
 
 export * from "./import";
+export * from "./entry";
 
 export interface Vault {
   entries?: VaultEntry[];

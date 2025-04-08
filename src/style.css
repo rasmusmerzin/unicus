@@ -41,6 +41,7 @@ body {
   height: 100dvh;
   margin: 0 auto;
   max-width: 640px;
+  overflow: hidden;
   overscroll-behavior: contain;
   padding-bottom: var(--keyboard-height, 0);
   transition: padding 100ms;

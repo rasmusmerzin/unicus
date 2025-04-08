@@ -1,19 +1,27 @@
 import { DrawerModal } from "../../elements/DrawerModal";
 import { addImage, edit, scanQr } from "../../icons";
 import { clickFeedback } from "../../mixins/clickFeedback";
+import { ScanModal } from "../../modals/scan/ScanModal";
 import { UpsertModal } from "../../modals/upsert/UpsertModal";
 import { openModal } from "../../view";
 
 export function AddDrawerModal() {
   return createElement(DrawerModal, { title: "Add new entry" }, [
-    Option({ icon: scanQr(), display: "Scan QR code", disabled: true }),
+    Option({
+      icon: scanQr(),
+      display: "Scan QR code",
+      onclick() {
+        history.back();
+        setTimeout(openModal, 10, ScanModal);
+      },
+    }),
     Option({ icon: addImage(), display: "Scan image", disabled: true }),
     Option({
       icon: edit(),
       display: "Enter manually",
-      onclick: () => {
+      onclick() {
         history.back();
-        setTimeout(openModal, 0, UpsertModal);
+        setTimeout(openModal, 10, UpsertModal);
       },
     }),
   ]);

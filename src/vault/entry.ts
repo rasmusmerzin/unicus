@@ -1,14 +1,14 @@
 import OTP from "otp";
-import { VaultEntry } from "./vault";
+import { VaultEntry } from ".";
 
-export function generateCode(entry: VaultEntry): string {
+export function entryToCode(entry: VaultEntry): string {
   const otp = entryToOtp(entry);
   if (entry.type === "TOTP") return otp.totp(Date.now());
   else if (entry.type === "HOTP") return otp.hotp(entry.counter);
   else throw new Error("Invalid OTP type");
 }
 
-export function generateUri(entry: VaultEntry): string {
+export function entryToUri(entry: VaultEntry): string {
   const type = entry.type.toLowerCase();
   const name = encodeURIComponent(entrySerializedName(entry));
   const { issuer, secret, digits } = entry;
@@ -19,6 +19,38 @@ export function generateUri(entry: VaultEntry): string {
   const props = encodeUriProperties(properties);
   const uri = `otpauth://${type}/${name}${props}`;
   return uri;
+}
+
+export function entryFromUri(uri: string): Partial<VaultEntry> {
+  const entry: Partial<VaultEntry> = {};
+  const url = new URL(uri);
+  if (url.protocol !== "otpauth:") throw new Error("Invalid OTP URI");
+  const type = url.host.toUpperCase();
+  if (!["TOTP", "HOTP"].includes(type)) throw new Error("Unsupported OTP type");
+  let [issuer, ...rest] = decodeURIComponent(url.pathname.substring(1)).split(
+    ":"
+  );
+  let name = rest.join(":");
+  if (url.searchParams.has("issuer")) {
+    if (!name) name = issuer;
+    issuer = decodeURIComponent(url.searchParams.get("issuer")!);
+  }
+  const secret = decodeURIComponent(url.searchParams.get("secret") || "");
+  const hash = decodeURIComponent(url.searchParams.get("algorithm") || "")
+    .toUpperCase()
+    .replace(/-/g, "");
+  if (hash && hash !== "SHA1") throw new Error("Unsupported hash algorithm");
+  const digits = decodeURIComponent(url.searchParams.get("digits") || "");
+  const period = decodeURIComponent(url.searchParams.get("period") || "");
+  const counter = decodeURIComponent(url.searchParams.get("counter") || "");
+  entry.name = name;
+  entry.issuer = issuer;
+  entry.secret = secret;
+  entry.type = type as VaultEntry["type"];
+  if (digits) entry.digits = parseInt(digits);
+  if (entry.type === "TOTP" && period) entry.period = parseInt(period);
+  if (entry.type === "HOTP" && counter) entry.counter = parseInt(counter);
+  return entry;
 }
 
 export function entryDisplayName(entry: VaultEntry): string {

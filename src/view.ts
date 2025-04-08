@@ -42,7 +42,6 @@ export async function openModal(
   { duration = 200 }: { duration?: number } = {}
 ) {
   document.body.style.pointerEvents = "none";
-  document.body.style.overflow = "hidden";
   const modal = resolveFactory(factory);
   historyStack.push(modal);
   const level = historyStack.length;
@@ -61,7 +60,6 @@ export async function openModal(
   await new Promise((resolve) => setTimeout(resolve, duration));
   modal.classList.remove("opening");
   document.body.style.pointerEvents = "";
-  document.body.style.overflow = "";
   resetModalStyle();
   disableNonActive();
 }
@@ -104,7 +102,6 @@ async function onpopstate(event: PopStateEvent) {
   if (level > historyStack.length) history.go(historyStack.length - level);
   const symbol = (popstateSymbol = Symbol());
   document.body.style.pointerEvents = "none";
-  document.body.style.overflow = "hidden";
   let animating = false;
   while (historyStack.length > level) {
     const entry = historyStack.pop()!;
@@ -128,10 +125,7 @@ async function onpopstate(event: PopStateEvent) {
   }
   enableActive();
   if (animating) await new Promise((resolve) => setTimeout(resolve, 200));
-  if (popstateSymbol === symbol) {
-    document.body.style.pointerEvents = "";
-    document.body.style.overflow = "";
-  }
+  if (popstateSymbol === symbol) document.body.style.pointerEvents = "";
 }
 
 function enableActive() {
@@ -186,7 +180,6 @@ async function transitionView({
   const resetNextStyle = captureStyle(next);
   const backgroundColor = userPrefersDarkMode() ? "#333" : "#ccc";
   document.body.style.pointerEvents = "none";
-  document.body.style.overflow = "hidden";
   document.body.style.transition = "background 100ms";
   document.body.style.background = backgroundColor;
   updateTheme(backgroundColor);
@@ -211,7 +204,6 @@ async function transitionView({
   current?.remove();
   resetNextStyle();
   document.body.style.pointerEvents = "";
-  document.body.style.overflow = "";
   document.body.style.transition = "";
   document.body.style.background = "";
 }

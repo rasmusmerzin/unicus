@@ -1,9 +1,13 @@
 import "./MainEntryElement.css";
 import { MainView } from "./MainView";
-import { VaultEntry } from "../../vault";
+import {
+  VaultEntry,
+  entryColor,
+  entryDisplayName,
+  entryToCode,
+} from "../../vault";
 import { check, copy } from "../../icons";
 import { clickFeedback } from "../../mixins/clickFeedback";
-import { entryColor, entryDisplayName, generateCode } from "../../otp";
 import { touchHoldFeedback } from "../../mixins/touchHoldFeedback";
 
 @tag("app-main-entry")
@@ -80,7 +84,7 @@ export class MainEntryElement extends HTMLElement {
   private onClick() {
     if (MainView.instance?.selected$.current().length) this.toggle();
     else {
-      const code = this.entry && generateCode(this.entry);
+      const code = this.entry && entryToCode(this.entry);
       if (!code || this.classList.contains("active")) return;
       this.classList.add("active");
       setTimeout(() => this.classList.remove("active"), 600);
@@ -104,7 +108,7 @@ export class MainEntryElement extends HTMLElement {
   private syncCode() {
     this.codeElement.innerText = "";
     if (!this.entry) return;
-    const code = generateCode(this.entry);
+    const code = entryToCode(this.entry);
     const breakpoint = Math.floor(this.entry.digits / 2);
     this.codeElement.textContent =
       code.substring(0, breakpoint) + " " + code.substring(breakpoint);
