@@ -61,9 +61,9 @@ export class ScanModal extends HTMLElement {
   }
 
   private async scan() {
-    const image = this.getVideoFrame();
+    const imageData = this.getVideoFrameImageData();
     try {
-      const result = decodeQR(image);
+      const result = decodeQR(imageData);
       try {
         const entry = entryFromUri(result);
         const modal = createElement(UpsertModal, entry);
@@ -76,7 +76,7 @@ export class ScanModal extends HTMLElement {
     } catch (error) {}
   }
 
-  private getVideoFrame() {
+  private getVideoFrameImageData() {
     const context = this.canvasElement.getContext("2d")!;
     context.drawImage(this.videoElement, 0, 0);
     return context.getImageData(
