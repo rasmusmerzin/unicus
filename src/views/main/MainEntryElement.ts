@@ -41,9 +41,10 @@ export class MainEntryElement extends HTMLElement {
       (button = createElement(
         "button",
         {
-          onmousedown: this.onMousedown.bind(this),
           onclick: this.onClick.bind(this),
           oncontextmenu: this.onContextmenu.bind(this),
+          onmousedown: this.onMousedown.bind(this),
+          ontouchstart: this.onTouchstart.bind(this),
         },
         [
           (this.iconElement = createElement("div", { className: "icon" }, [
@@ -93,6 +94,43 @@ export class MainEntryElement extends HTMLElement {
     clearTimeout(this.timeout);
     this.control?.abort();
     delete this.control;
+  }
+
+  private onTouchstart(event: TouchEvent) {
+    const selected = MainView.instance!.selected$.current();
+    if (selected.length !== 1 || selected[0] !== this.entry!.uuid) return;
+    this.parentElement!.style.overflow = "hidden";
+    let started = false;
+    const startY = event.touches[0].clientY;
+    const control = new AbortController();
+    const { height } = this.getBoundingClientRect();
+    const cleanup = () => {
+      control.abort();
+      this.style.pointerEvents = "";
+      this.style.transform = "";
+      this.style.transition = "";
+      this.style.zIndex = "";
+      this.parentElement!.style.overflow = "";
+      MainView.instance!.dragging$.next(null);
+    };
+    const move = (event: TouchEvent) => {
+      const deltaY = event.touches[0].clientY - startY;
+      if (!started && Math.abs(deltaY) < 8) return;
+      started = true;
+      this.style.pointerEvents = "none";
+      this.style.transform = `translateY(${deltaY}px)`;
+      this.style.transition = "none";
+      this.style.zIndex = "10";
+      const originIndex = this.index;
+      const targetIndex = Math.round((this.index * height + deltaY) / height);
+      const dragging = MainView.instance!.dragging$.current();
+      if (dragging?.targetIndex !== targetIndex)
+        MainView.instance!.dragging$.next({ originIndex, targetIndex });
+    };
+    this.control?.signal.addEventListener("abort", cleanup, control);
+    addEventListener("touchend", cleanup, control);
+    addEventListener("touchcancel", cleanup, control);
+    addEventListener("touchmove", move, control);
   }
 
   private onMousedown(event: MouseEvent) {
