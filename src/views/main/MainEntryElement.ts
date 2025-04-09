@@ -10,6 +10,7 @@ import { check, copy } from "../../icons";
 import { clickFeedback } from "../../mixins/clickFeedback";
 import { touchHoldFeedback } from "../../mixins/touchHoldFeedback";
 import { getInputMode } from "../../env";
+import { MainContentElement } from "./MainContentElement";
 
 @tag("app-main-entry")
 export class MainEntryElement extends HTMLElement {
@@ -135,10 +136,14 @@ export class MainEntryElement extends HTMLElement {
 
   private onMousedown(event: MouseEvent) {
     if (getInputMode() === "touch") return;
-    let started = false;
-    const startY = event.clientY;
     const control = new AbortController();
+    const parent = this.parentElement as MainContentElement;
     const { height } = this.getBoundingClientRect();
+    const startY = event.clientY;
+    const startScrollTop = parent.scrollTop;
+    let started = false;
+    let currentY = startY;
+    let scrollTop = startScrollTop;
     const cleanup = () => {
       control.abort();
       this.style.pointerEvents = "";
@@ -147,8 +152,8 @@ export class MainEntryElement extends HTMLElement {
       this.style.zIndex = "";
       MainView.instance!.dragging$.next(null);
     };
-    const move = (event: MouseEvent) => {
-      const deltaY = event.clientY - startY;
+    const move = () => {
+      const deltaY = currentY - startY + scrollTop - startScrollTop;
       if (!started && Math.abs(deltaY) < 8) return;
       started = true;
       this.style.pointerEvents = "none";
@@ -161,9 +166,22 @@ export class MainEntryElement extends HTMLElement {
       if (dragging?.targetIndex !== targetIndex)
         MainView.instance!.dragging$.next({ originIndex, targetIndex });
     };
+    const onmove = (event: MouseEvent) => {
+      currentY = event.clientY;
+      move();
+    };
+    const onscroll = () => {
+      scrollTop = parent.scrollTop;
+      move();
+    };
     this.control?.signal.addEventListener("abort", cleanup, control);
     addEventListener("mouseup", cleanup, control);
-    addEventListener("mousemove", move, control);
+    addEventListener("mousemove", onmove, control);
+    parent.addEventListener("scroll", onscroll, {
+      passive: true,
+      capture: true,
+      signal: control.signal,
+    });
   }
 
   private onClick() {
