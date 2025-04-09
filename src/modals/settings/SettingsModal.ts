@@ -1,7 +1,7 @@
 import "./SettingsModal.css";
-import { ImportExportModal } from "./ImportExportModal";
+import { ImportExportModal } from "./import-export/ImportExportModal";
 import { ModalHeader } from "../../elements/ModalHeader";
-import { SecuritySettingsModal } from "./SecuritySettingsModal";
+import { SecuritySettingsModal } from "./security/SecuritySettingsModal";
 import { brush, construction, key, receipt, touch } from "../../icons";
 import { clickFeedback } from "../../mixins/clickFeedback";
 import { openModal } from "../../view";
