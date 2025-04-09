@@ -3,12 +3,19 @@ import { MainHeaderElement } from "./MainHeaderElement";
 import { MainContentElement } from "./MainContentElement";
 import { Subject } from "../../Subject";
 import { onback } from "../../view";
+import { moveVaultEntry } from "../../vault";
+
+export interface Dragging {
+  originIndex: number;
+  targetIndex: number;
+}
 
 @tag("app-main")
 export class MainView extends HTMLElement {
   static readonly instance?: MainView;
 
   readonly selected$ = new Subject<string[]>([]);
+  readonly dragging$ = new Subject<Dragging | null>(null);
 
   private control?: AbortController;
   private cancelBack?: () => void;
@@ -30,6 +37,11 @@ export class MainView extends HTMLElement {
         this.cancelBack = onback(() => this.selected$.next([]));
       else if (previous?.length && !current.length && this.cancelBack)
         this.cancelBack();
+    }, this.control);
+    this.dragging$.subscribe((current, previous) => {
+      if (current || !previous) return;
+      const { originIndex, targetIndex } = previous;
+      moveVaultEntry(originIndex, targetIndex).catch(alert);
     }, this.control);
   }
 

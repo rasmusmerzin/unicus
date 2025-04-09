@@ -36,9 +36,26 @@ export function getVaultEntry(uuid: string): VaultEntry | null {
   return vault?.entries?.find((entry) => entry.uuid === uuid) || null;
 }
 
-export async function upsertVaultEntry(...entries: VaultEntry[]) {
-  if (!vault$.current()) throw new Error("Vault is not initialized");
+export async function moveVaultEntry(originIndex: number, targetIndex: number) {
+  if (originIndex === targetIndex) return;
   const current = vault$.current();
+  if (!current) throw new Error("Vault is not initialized");
+  const updated: Vault = JSON.parse(JSON.stringify(current));
+  const { entries } = updated;
+  const [entry] = entries!.splice(originIndex, 1);
+  entries!.splice(targetIndex, 0, entry);
+  try {
+    vault$.next(updated);
+    await saveVault();
+  } catch (error) {
+    vault$.next(current);
+    throw error;
+  }
+}
+
+export async function upsertVaultEntry(...entries: VaultEntry[]) {
+  const current = vault$.current();
+  if (!current) throw new Error("Vault is not initialized");
   const updated: Vault = JSON.parse(JSON.stringify(current));
   if (!updated.entries) updated.entries = [...entries];
   else {

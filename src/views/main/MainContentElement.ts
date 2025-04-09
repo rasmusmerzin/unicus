@@ -12,8 +12,8 @@ export class MainContentElement extends HTMLElement {
     vault$.subscribe((vault) => {
       if (vault?.entries)
         this.replaceChildren(
-          ...vault.entries.map((entry) =>
-            createElement(MainEntryElement, { entry })
+          ...vault.entries.map((entry, index) =>
+            createElement(MainEntryElement, { entry, index })
           )
         );
     }, this.control);

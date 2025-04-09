@@ -9,6 +9,7 @@ import {
 import { check, copy } from "../../icons";
 import { clickFeedback } from "../../mixins/clickFeedback";
 import { touchHoldFeedback } from "../../mixins/touchHoldFeedback";
+import { getInputMode } from "../../env";
 
 @tag("app-main-entry")
 export class MainEntryElement extends HTMLElement {
@@ -19,6 +20,7 @@ export class MainEntryElement extends HTMLElement {
   private timeout: any;
   private control?: AbortController;
 
+  index = 0;
   #entry?: VaultEntry;
   get entry(): VaultEntry | undefined {
     return this.#entry;
@@ -39,6 +41,7 @@ export class MainEntryElement extends HTMLElement {
       (button = createElement(
         "button",
         {
+          onmousedown: this.onMousedown.bind(this),
           onclick: this.onClick.bind(this),
           oncontextmenu: this.onContextmenu.bind(this),
         },
@@ -72,6 +75,17 @@ export class MainEntryElement extends HTMLElement {
       if (selected.includes(this.entry?.uuid!)) this.classList.add("selected");
       else this.classList.remove("selected");
     }, this.control);
+    MainView.instance!.dragging$.subscribe((dragging) => {
+      if (!dragging) return (this.style.transform = "");
+      const { height } = this.getBoundingClientRect();
+      const { originIndex, targetIndex } = dragging;
+      if (this.index === originIndex) return;
+      if (this.index < originIndex && this.index >= targetIndex)
+        this.style.transform = `translateY(${height}px)`;
+      else if (this.index > originIndex && this.index <= targetIndex)
+        this.style.transform = `translateY(-${height}px)`;
+      else this.style.transform = "";
+    }, this.control);
     this.syncCode();
   }
 
@@ -79,6 +93,39 @@ export class MainEntryElement extends HTMLElement {
     clearTimeout(this.timeout);
     this.control?.abort();
     delete this.control;
+  }
+
+  private onMousedown(event: MouseEvent) {
+    if (getInputMode() === "touch") return;
+    let started = false;
+    const startY = event.clientY;
+    const control = new AbortController();
+    const { height } = this.getBoundingClientRect();
+    const cleanup = () => {
+      control.abort();
+      this.style.pointerEvents = "";
+      this.style.transform = "";
+      this.style.transition = "";
+      this.style.zIndex = "";
+      MainView.instance!.dragging$.next(null);
+    };
+    const move = (event: MouseEvent) => {
+      const deltaY = event.clientY - startY;
+      if (!started && Math.abs(deltaY) < 8) return;
+      started = true;
+      this.style.pointerEvents = "none";
+      this.style.transform = `translateY(${deltaY}px)`;
+      this.style.transition = "none";
+      this.style.zIndex = "10";
+      const originIndex = this.index;
+      const targetIndex = Math.round((this.index * height + deltaY) / height);
+      const dragging = MainView.instance!.dragging$.current();
+      if (dragging?.targetIndex !== targetIndex)
+        MainView.instance!.dragging$.next({ originIndex, targetIndex });
+    };
+    this.control?.signal.addEventListener("abort", cleanup, control);
+    addEventListener("mouseup", cleanup, control);
+    addEventListener("mousemove", move, control);
   }
 
   private onClick() {
