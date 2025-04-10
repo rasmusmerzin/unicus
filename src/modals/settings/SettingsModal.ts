@@ -2,7 +2,7 @@ import "./SettingsModal.css";
 import { ImportExportModal } from "./import-export/ImportExportModal";
 import { ModalHeader } from "../../elements/ModalHeader";
 import { SecuritySettingsModal } from "./security/SecuritySettingsModal";
-import { brush, construction, key, receipt, touch } from "../../icons";
+import { brush, construction, key, receipt } from "../../icons";
 import { clickFeedback } from "../../mixins/clickFeedback";
 import { openModal } from "../../view";
 
@@ -19,13 +19,6 @@ export class SettingsModal extends HTMLElement {
           disabled: true,
           description:
             "Adjust the theme, primary color and other settings that affect the appearance of the app.",
-        }),
-        Entry({
-          icon: touch(),
-          name: "Behavior",
-          disabled: true,
-          description:
-            "Customize how the app behaves, including keyboard shortcuts and other settings.",
         }),
         Entry({
           icon: key(),
