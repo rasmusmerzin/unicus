@@ -10,7 +10,7 @@ app-button {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 16px;
+    font-size: 14px;
     white-space: nowrap;
     padding: 0 24px;
     background: var(--primary);

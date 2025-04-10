@@ -47,12 +47,6 @@ export class SecuritySettingsModal extends HTMLElement {
           name: "Auto lock",
           onclick: () => openModal(AutoLockModal),
         })),
-        createElement(SettingsEntryElement, {
-          disabled: true,
-          name: "Password reminder",
-          description:
-            "Show a biweekly reminder to enter your password, so that you don't forget it.",
-        }),
       ])
     );
   }
