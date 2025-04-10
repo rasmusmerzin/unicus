@@ -4,8 +4,8 @@ setTimeout(() => {
   addEventListener("keydown", enterKeyboardMode);
   addEventListener("mousedown", enterMouseMode);
   addEventListener("mousemove", enterMouseMode);
-  addEventListener("touchstart", enterTouchMode);
   addEventListener("touchmove", enterTouchMode);
+  addEventListener("touchstart", enterTouchMode);
 });
 
 export function getInputMode(): InputMode | null {
