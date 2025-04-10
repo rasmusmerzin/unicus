@@ -60,9 +60,9 @@ app-floating-modal {
       flex-shrink: 0;
       display: flex;
       justify-content: flex-end;
-      gap: 16px;
+      gap: 8px;
       > button {
-        padding: 16px 24px;
+        padding: 16px;
         margin: -8px 0;
         font-size: 14px;
         font-weight: 500;

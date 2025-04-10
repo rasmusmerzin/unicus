@@ -166,6 +166,12 @@ export async function exportToFile(encrypted: boolean) {
   createElement("a", { href: dataUrl, download: fileName }).click();
 }
 
+export function clearVault() {
+  lockVault();
+  localStorage.removeItem("vault");
+  localStorage.removeItem("fingerprint");
+}
+
 function setEncryptedVault(vault: Encrypted) {
   localStorage.setItem("vault", JSON.stringify(vault));
 }

@@ -1,7 +1,7 @@
 import "./UnlockView.css";
 import { ButtonElement } from "../../elements/ButtonElement";
 import { InputElement } from "../../elements/InputElement";
-import { OnMountedAsFirst, updateView } from "../../view";
+import { OnMountedAsFirst, openModal, updateView } from "../../view";
 import { clickFeedback } from "../../mixins/clickFeedback";
 import { deriveKey } from "../../crypto";
 import { fingerprint } from "../../icons";
@@ -13,6 +13,7 @@ import {
   secret$,
 } from "../../vault";
 import { getInputMode } from "../../env";
+import { ForgotModal } from "../../modals/forgot/ForgotModal";
 
 @tag("app-unlock")
 export class UnlockView extends HTMLElement implements OnMountedAsFirst {
@@ -35,7 +36,12 @@ export class UnlockView extends HTMLElement implements OnMountedAsFirst {
       (this.continueButton = createElement(ButtonElement, {
         textContent: "Continue",
         onclick: this.continue.bind(this),
-      }))
+      })),
+      createElement("button", {
+        className: "forgot",
+        innerText: "Forgot passcode?",
+        onclick: () => openModal(ForgotModal),
+      })
     );
     if (getFingerprintEncryptedSecret())
       this.append(

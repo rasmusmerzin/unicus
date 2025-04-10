@@ -35,4 +35,16 @@ app-unlock {
       opacity: 1;
     }
   }
+  > button.forgot {
+    position: fixed;
+    padding: 8px;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0.5;
+    transition: opacity 100ms;
+    &:hover {
+      opacity: 1;
+    }
+  }
 }
