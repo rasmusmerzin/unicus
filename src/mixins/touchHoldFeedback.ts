@@ -21,7 +21,7 @@ export function touchHoldFeedback<E extends HTMLElement>(
   let timeout: any;
   let start: { x: number; y: number } | null = null;
 
-  element.addEventListener("touchstart", ontouchstart);
+  element.addEventListener("touchstart", ontouchstart, { passive: true });
 
   function ontouchstart(event: TouchEvent) {
     cleanup();
