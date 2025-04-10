@@ -1,10 +1,14 @@
 import { FloatingModal } from "../../../elements/FloatingModal";
-import { clickFeedback } from "../../../mixins/clickFeedback";
+import { RadioElement } from "../../../elements/RadioElement";
 import { closeAllModals } from "../../../view";
 import { importFromFile, SourceType } from "../../../vault";
 
 export function ImportFromFileModal() {
-  const state = { value: "" };
+  let state = "unicus";
+  function onchange(event: Event) {
+    const target = event.target as HTMLInputElement;
+    if (target.checked) state = target.value;
+  }
   function onclick() {
     const fileInput = createElement("input", {
       type: "file",
@@ -15,7 +19,7 @@ export function ImportFromFileModal() {
     function onchange() {
       const [file] = fileInput.files || [];
       if (!file) return;
-      importFromFile(state.value as SourceType, file)
+      importFromFile(state as SourceType, file)
         .then(async ({ accepted, rejected }) => {
           await closeAllModals();
           alert(
@@ -38,67 +42,19 @@ export function ImportFromFileModal() {
     FloatingModal,
     { title: "Import from file", actions: [{ name: "OK", onclick }] },
     [
-      RadioInput({
-        group: "import-type",
+      createElement(RadioElement, {
+        name: "import-type",
         value: "unicus",
-        display: "Unicus",
+        label: "Unicus",
         checked: true,
-        state,
+        onchange,
       }),
-      RadioInput({
-        group: "import-type",
+      createElement(RadioElement, {
+        name: "import-type",
         value: "aegis",
-        display: "Aegis (unencrypted json)",
-        state,
+        label: "Aegis (unencrypted json)",
+        onchange,
       }),
     ]
-  );
-}
-
-function RadioInput({
-  checked,
-  display,
-  group,
-  state,
-  value,
-}: {
-  checked?: boolean;
-  display: string;
-  group: string;
-  state: { value: string };
-  value: string;
-}) {
-  let input: HTMLInputElement;
-  if (checked) state.value = value;
-  return clickFeedback(
-    createElement(
-      "button",
-      {
-        tabIndex: -1,
-        style: {
-          display: "flex",
-          alignItems: "center",
-          width: "100%",
-          gap: "16px",
-          padding: "0 8px",
-          height: "40px",
-        },
-        onclick: () => {
-          input.checked = true;
-          state.value = value;
-        },
-      },
-      [
-        (input = createElement("input", {
-          type: "radio",
-          id: `${group}-${value}`,
-          name: group,
-          value,
-          checked,
-          onchange: () => input.checked && (state.value = value),
-        })),
-        createElement("label", { for: `${group}-${value}` }, display),
-      ]
-    )
   );
 }

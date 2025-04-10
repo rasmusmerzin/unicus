@@ -54,7 +54,7 @@ app-qr-code-modal {
     display: flex;
     justify-content: center;
     align-items: center;
-    grid-gap: 24px;
+    gap: 24px;
     .index {
       font-size: 16px;
       font-weight: 500;

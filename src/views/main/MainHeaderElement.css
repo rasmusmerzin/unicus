@@ -24,7 +24,7 @@ app-main-header {
   .actions {
     display: flex;
     align-items: center;
-    grid-gap: 8px;
+    gap: 8px;
   }
   > .timer-bar {
     position: absolute;

@@ -3,14 +3,14 @@ app-modal-header {
   padding: 12px;
   display: flex;
   align-items: center;
-  grid-gap: 8px;
+  gap: 8px;
   h2 {
     flex: 1;
   }
   > div {
     display: flex;
     align-items: center;
-    grid-gap: 8px;
+    gap: 8px;
   }
   button {
     fill: var(--foreground);

@@ -14,12 +14,12 @@ app-upsert-modal {
     flex: 1;
     display: flex;
     flex-direction: column;
-    grid-gap: 4px;
+    gap: 4px;
     padding: 8px 16px;
     overflow: auto;
     > div {
       display: flex;
-      grid-gap: 16px;
+      gap: 16px;
       > * {
         flex: 1;
       }

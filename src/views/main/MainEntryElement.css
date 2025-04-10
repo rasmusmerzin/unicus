@@ -11,7 +11,7 @@ app-main-entry {
     display: flex;
     text-align: left;
     padding: 16px;
-    grid-gap: 16px;
+    gap: 16px;
     position: relative;
     overflow: hidden;
     backdrop-filter: blur(8px);
@@ -73,7 +73,7 @@ app-main-entry {
       display: flex;
       flex-direction: column;
       justify-content: center;
-      grid-gap: 4px;
+      gap: 4px;
       > .name {
         font-size: 12px;
         font-weight: bold;

@@ -73,7 +73,7 @@ export async function closeAllModals() {
 }
 
 export async function updateView({
-  force = true,
+  force = false,
   viewConstructor = getViewConstructor(),
   duration,
   direction,
