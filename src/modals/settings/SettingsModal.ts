@@ -5,6 +5,7 @@ import { SecuritySettingsModal } from "./security/SecuritySettingsModal";
 import { brush, construction, key, receipt } from "../../icons";
 import { clickFeedback } from "../../mixins/clickFeedback";
 import { openModal } from "../../view";
+import { AppearanceModal } from "./appearance/AppearanceModal";
 
 @tag("app-settings-modal")
 export class SettingsModal extends HTMLElement {
@@ -16,9 +17,9 @@ export class SettingsModal extends HTMLElement {
         Entry({
           icon: brush(),
           name: "Appearance",
-          disabled: true,
           description:
-            "Adjust the theme, primary color and other settings that affect the appearance of the app.",
+            "Adjust the theme and other settings that affect the appearance of the app.",
+          modalConstructor: AppearanceModal,
         }),
         Entry({
           icon: key(),

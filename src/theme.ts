@@ -5,12 +5,25 @@ const themeMeta = document.head.querySelector<HTMLMetaElement>(
 const iconLink =
   document.head.querySelector<HTMLLinkElement>("link[rel=icon]")!;
 
-export function updateTheme(content = darkMode.matches ? "#000" : "#fff") {
+export function updateThemeColor(
+  content = getColorScheme() === "dark" ? "#000" : "#fff"
+) {
   themeMeta.content = content;
 }
 
-export function userPrefersDarkMode(): boolean {
-  return darkMode.matches;
+export function getColorScheme(): "dark" | "light" {
+  const override = document.documentElement.getAttribute("color-scheme");
+  if (override === "dark") return "dark";
+  else if (override === "light") return "light";
+  else return darkMode.matches ? "dark" : "light";
+}
+
+export function setColorScheme(scheme: "dark" | "light" | "system" = "system") {
+  if (scheme === "dark")
+    document.documentElement.setAttribute("color-scheme", "dark");
+  else if (scheme === "light")
+    document.documentElement.setAttribute("color-scheme", "light");
+  else document.documentElement.removeAttribute("color-scheme");
 }
 
 export function updateIconColors(
@@ -20,12 +33,12 @@ export function updateIconColors(
   iconLink.href = iconDataUrl(background, foreground);
 }
 
-export function getPrimaryColorValue(): string {
+function getPrimaryColorValue(): string {
   const style = getComputedStyle(document.documentElement);
   return style.getPropertyValue("--primary");
 }
 
-export function getPrimaryForegroundColorValue(): string {
+function getPrimaryForegroundColorValue(): string {
   const style = getComputedStyle(document.documentElement);
   return style.getPropertyValue("--primary-foreground");
 }

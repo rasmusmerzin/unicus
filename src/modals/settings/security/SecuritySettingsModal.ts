@@ -54,24 +54,26 @@ export class SecuritySettingsModal extends HTMLElement {
   connectedCallback() {
     this.control?.abort();
     this.control = new AbortController();
-    settings$.subscribe((settings) => {
-      const { lockOnBackground, lockOnInactivity } = settings;
-      if (!lockOnBackground && !lockOnInactivity)
-        this.autoLockElement.description = "Never";
-      else
-        this.autoLockElement.description =
-          "When " +
-          [
-            lockOnBackground ? "app is in the background" : null,
-            lockOnInactivity ? "inactive for a minute" : null,
-          ]
-            .filter(Boolean)
-            .join(", ");
-    }, this.control);
+    settings$.subscribe(this.render.bind(this), this.control);
   }
 
   disconnectedCallback() {
     this.control?.abort();
     delete this.control;
+  }
+
+  private render() {
+    const { lockOnBackground, lockOnInactivity } = settings$.current();
+    if (!lockOnBackground && !lockOnInactivity)
+      this.autoLockElement.description = "Never";
+    else
+      this.autoLockElement.description =
+        "When " +
+        [
+          lockOnBackground ? "app is in the background" : null,
+          lockOnInactivity ? "inactive for a minute" : null,
+        ]
+          .filter(Boolean)
+          .join(", ");
   }
 }

@@ -3,6 +3,7 @@ import { Subject } from "./Subject";
 export interface Settings {
   lockOnBackground?: boolean;
   lockOnInactivity?: boolean;
+  themeOverride?: "dark" | "light" | "system";
 }
 
 export const settings$ = new Subject<Settings>(getStoredSettings());
