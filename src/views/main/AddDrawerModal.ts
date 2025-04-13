@@ -113,7 +113,12 @@ function Option({
             fill: "var(--foreground)",
           },
         }),
-        createElement("label", { innerText: display }),
+        createElement("label", {
+          innerText: display,
+          style: {
+            pointerEvents: "none",
+          },
+        }),
       ]
     )
   );
