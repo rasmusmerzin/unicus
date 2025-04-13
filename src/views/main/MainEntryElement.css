@@ -120,3 +120,29 @@ app-main-entry.hide-icon {
     display: none;
   }
 }
+
+app-main-entry.indicate-expiring {
+  &.error {
+    > button > .content > .code {
+      transition: color 500ms;
+      color: var(--error);
+    }
+  }
+  &.blink {
+    > button > .content > .code {
+      animation: blink 1s infinite;
+    }
+  }
+}
+
+@keyframes blink {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}

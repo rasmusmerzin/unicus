@@ -91,9 +91,11 @@ export class MainEntryElement extends HTMLElement {
     }, this.control);
     this.syncCode();
     settings$.subscribe((settings) => {
-      const { hideIcons } = settings;
+      const { hideIcons, indicateExpiring } = settings;
       if (hideIcons) this.classList.add("hide-icon");
       else this.classList.remove("hide-icon");
+      if (indicateExpiring) this.classList.add("indicate-expiring");
+      else this.classList.remove("indicate-expiring");
     }, this.control);
   }
 
@@ -215,6 +217,7 @@ export class MainEntryElement extends HTMLElement {
   }
 
   private syncCode() {
+    this.classList.remove("error", "blink");
     this.codeElement.innerText = "";
     if (!this.entry) return;
     const code = entryToCode(this.entry);
@@ -224,8 +227,11 @@ export class MainEntryElement extends HTMLElement {
     if (this.entry.type === "TOTP") {
       const now = Date.now();
       const period = this.entry.period * 1000;
+      const untilNext = period - (now % period);
       clearTimeout(this.timeout);
-      this.timeout = setTimeout(() => this.syncCode(), period - (now % period));
+      setTimeout(() => this.classList.add("error"), untilNext - 5000);
+      setTimeout(() => this.classList.add("blink"), untilNext - 3000);
+      this.timeout = setTimeout(() => this.syncCode(), untilNext);
     }
   }
 }

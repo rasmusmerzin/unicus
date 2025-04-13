@@ -5,6 +5,7 @@ export interface Settings {
   lockOnInactivity?: boolean;
   themeOverride?: "dark" | "light" | "system";
   hideIcons?: boolean;
+  indicateExpiring?: boolean;
 }
 
 export const settings$ = new Subject<Settings>(getStoredSettings());
@@ -20,6 +21,7 @@ function getStoredSettings(): Settings {
     : {
         lockOnBackground: false,
         lockOnInactivity: true,
+        indicateExpiring: true,
       };
 }
 

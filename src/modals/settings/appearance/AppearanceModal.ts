@@ -9,6 +9,7 @@ import { ThemeSelectModal } from "./ThemeSelectModal";
 export class AppearanceModal extends HTMLElement {
   private themeEntry: SettingsEntryElement;
   private iconEntry: SettingsEntryElement;
+  private expiringEntry: SettingsEntryElement;
   private control?: AbortController;
 
   constructor() {
@@ -28,6 +29,16 @@ export class AppearanceModal extends HTMLElement {
             ...settings,
             hideIcons: !this.iconEntry.value,
           })),
+      })),
+      (this.expiringEntry = createElement(SettingsEntryElement, {
+        type: "switch",
+        name: "Indicate expiring codes",
+        description: "Change the color of and blink expiring codes",
+        onchange: () =>
+          settings$.update((settings) => ({
+            ...settings,
+            indicateExpiring: this.expiringEntry.value,
+          })),
       }))
     );
   }
@@ -44,8 +55,9 @@ export class AppearanceModal extends HTMLElement {
   }
 
   private render() {
-    const { themeOverride, hideIcons } = settings$.current();
+    const { themeOverride, hideIcons, indicateExpiring } = settings$.current();
     this.themeEntry.description = "Selected: " + (themeOverride || "system");
     this.iconEntry.value = !hideIcons;
+    this.expiringEntry.value = !!indicateExpiring;
   }
 }
