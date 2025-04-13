@@ -1,12 +1,10 @@
 import "./MainHeaderElement.css";
-import { AddDrawerModal } from "./AddDrawerModal";
 import { FloatingModal } from "../../elements/FloatingModal";
 import { MainView } from "./MainView";
 import { QrCodeModal } from "../../modals/qrcode/QrCodeModal";
 import { SettingsModal } from "../../modals/settings/SettingsModal";
 import { UpsertModal } from "../../modals/upsert/UpsertModal";
 import {
-  add,
   close,
   copy,
   edit,
@@ -38,13 +36,6 @@ export class MainHeaderElement extends HTMLElement {
     this.replaceChildren(
       createElement("h2", { textContent: document.title }),
       createElement("div", { className: "actions" }, [
-        clickFeedback(
-          createElement("button", {
-            innerHTML: add(32),
-            onclick: () => openModal(AddDrawerModal),
-          }),
-          { size: 0.5 }
-        ),
         clickFeedback(
           createElement("button", {
             innerHTML: lock(),

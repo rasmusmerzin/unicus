@@ -114,3 +114,9 @@ app-main-entry.active {
     opacity: 1;
   }
 }
+
+app-main-entry.hide-icon {
+  > button > .icon {
+    display: none;
+  }
+}

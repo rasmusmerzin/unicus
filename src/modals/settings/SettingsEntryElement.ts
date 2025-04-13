@@ -59,13 +59,20 @@ export class SettingsEntryElement extends HTMLElement {
         { size: 2 }
       ))
     );
-    this.switchElement = createElement(SwitchElement);
+    this.switchElement = createElement(SwitchElement, {
+      onchange: this.onChange.bind(this),
+    });
   }
 
   private onClick(event: MouseEvent) {
     if (this.type === "switch") {
       if (event.target instanceof HTMLInputElement) return;
-      else this.switchElement.value = !this.switchElement.value;
+      this.switchElement.value = !this.switchElement.value;
+      this.onChange();
     }
+  }
+
+  private onChange() {
+    this.dispatchEvent(new Event("change"));
   }
 }

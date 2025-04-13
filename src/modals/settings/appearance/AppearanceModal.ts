@@ -8,6 +8,7 @@ import { ThemeSelectModal } from "./ThemeSelectModal";
 @tag("app-appearance-modal")
 export class AppearanceModal extends HTMLElement {
   private themeEntry: SettingsEntryElement;
+  private iconEntry: SettingsEntryElement;
   private control?: AbortController;
 
   constructor() {
@@ -17,6 +18,16 @@ export class AppearanceModal extends HTMLElement {
       (this.themeEntry = createElement(SettingsEntryElement, {
         name: "Theme",
         onclick: () => openModal(ThemeSelectModal),
+      })),
+      (this.iconEntry = createElement(SettingsEntryElement, {
+        type: "switch",
+        name: "Show icons",
+        description: "Display icons next to entries",
+        onchange: () =>
+          settings$.update((settings) => ({
+            ...settings,
+            hideIcons: !this.iconEntry.value,
+          })),
       }))
     );
   }
@@ -33,11 +44,8 @@ export class AppearanceModal extends HTMLElement {
   }
 
   private render() {
-    const { themeOverride } = settings$.current();
-    this.themeEntry.description =
-      "Selected: " +
-      ((themeOverride === "dark" && "Dark") ||
-        (themeOverride === "light" && "Light") ||
-        "System");
+    const { themeOverride, hideIcons } = settings$.current();
+    this.themeEntry.description = "Selected: " + (themeOverride || "system");
+    this.iconEntry.value = !hideIcons;
   }
 }

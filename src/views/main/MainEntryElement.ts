@@ -11,6 +11,7 @@ import { clickFeedback } from "../../mixins/clickFeedback";
 import { touchHoldFeedback } from "../../mixins/touchHoldFeedback";
 import { getInputMode } from "../../env";
 import { MainContentElement } from "./MainContentElement";
+import { settings$ } from "../../settings";
 
 @tag("app-main-entry")
 export class MainEntryElement extends HTMLElement {
@@ -89,6 +90,11 @@ export class MainEntryElement extends HTMLElement {
       else this.style.transform = "";
     }, this.control);
     this.syncCode();
+    settings$.subscribe((settings) => {
+      const { hideIcons } = settings;
+      if (hideIcons) this.classList.add("hide-icon");
+      else this.classList.remove("hide-icon");
+    }, this.control);
   }
 
   disconnectedCallback() {

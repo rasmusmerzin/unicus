@@ -7,4 +7,17 @@ app-main {
   background: var(--background);
   display: flex;
   flex-direction: column;
+  > button {
+    position: absolute;
+    right: 16px;
+    bottom: 24px;
+    width: 56px;
+    height: 56px;
+    border-radius: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    fill: var(--primary-foreground);
+    background: var(--primary);
+  }
 }

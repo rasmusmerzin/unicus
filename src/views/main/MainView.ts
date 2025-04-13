@@ -2,8 +2,11 @@ import "./MainView.css";
 import { MainHeaderElement } from "./MainHeaderElement";
 import { MainContentElement } from "./MainContentElement";
 import { Subject } from "../../Subject";
-import { onback } from "../../view";
+import { onback, openModal } from "../../view";
 import { moveVaultEntry } from "../../vault";
+import { clickFeedback } from "../../mixins/clickFeedback";
+import { add } from "../../icons";
+import { AddDrawerModal } from "./AddDrawerModal";
 
 export interface Dragging {
   originIndex: number;
@@ -24,7 +27,14 @@ export class MainView extends HTMLElement {
     super();
     this.replaceChildren(
       createElement(MainHeaderElement),
-      createElement(MainContentElement)
+      createElement(MainContentElement),
+      clickFeedback(
+        createElement("button", {
+          innerHTML: add(40),
+          onclick: () => openModal(AddDrawerModal),
+        }),
+        { size: 0.5 }
+      )
     );
     (MainView as any).instance = this;
   }

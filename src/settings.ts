@@ -4,6 +4,7 @@ export interface Settings {
   lockOnBackground?: boolean;
   lockOnInactivity?: boolean;
   themeOverride?: "dark" | "light" | "system";
+  hideIcons?: boolean;
 }
 
 export const settings$ = new Subject<Settings>(getStoredSettings());

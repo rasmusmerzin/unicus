@@ -34,5 +34,6 @@ export class SwitchElement extends HTMLElement {
   private onChange() {
     if (this.value) this.classList.add("checked");
     else this.classList.remove("checked");
+    this.dispatchEvent(new Event("change"));
   }
 }
