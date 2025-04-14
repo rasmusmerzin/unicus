@@ -47,6 +47,52 @@ app-main-header {
     align-items: center;
     justify-content: space-between;
   }
+  > .search {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: var(--bar-height);
+    padding: 12px;
+    background: var(--background);
+    display: none;
+    gap: 8px;
+    > .placeholder {
+      position: absolute;
+      top: 12px;
+      left: 20px;
+      right: 60px;
+      bottom: 12px;
+      display: none;
+      align-items: center;
+      font-size: 16px;
+      font-weight: 500;
+      opacity: 0.4;
+      > .icon {
+        width: 28px;
+        height: 28px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        fill: var(--foreground);
+      }
+    }
+    > input {
+      flex: 1;
+      font-size: 16px;
+      padding: 0 8px;
+      border-bottom: 1px solid #888;
+      &:not(:disabled) {
+        &:hover {
+          filter: brightness(1.1);
+        }
+        &:focus {
+          outline: none;
+          border-color: var(--foreground);
+        }
+      }
+    }
+  }
 }
 
 app-main-header.selected {
@@ -56,13 +102,30 @@ app-main-header.selected {
   > .selection {
     display: flex;
   }
+  &.multiple {
+    > .selection {
+      .edit,
+      .copy {
+        display: none;
+      }
+    }
+  }
 }
 
-app-main-header.selected.multiple {
-  > .selection {
-    .edit,
-    .copy {
-      display: none;
-    }
+app-main-header[search] {
+  > .actions {
+    display: none;
+  }
+  > .search {
+    display: flex;
+  }
+  &[search=""] > .search > .placeholder {
+    display: flex;
+  }
+}
+
+app-main-header.empty {
+  > .actions > .search {
+    display: none;
   }
 }

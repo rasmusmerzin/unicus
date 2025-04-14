@@ -91,7 +91,7 @@ app-main-entry {
         height: 28px;
         font-weight: bold;
         color: var(--primary);
-        filter: saturate(0.25);
+        filter: saturate(0.5);
       }
     }
   }

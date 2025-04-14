@@ -19,9 +19,10 @@ export class MainView extends HTMLElement {
 
   readonly selected$ = new Subject<string[]>([]);
   readonly dragging$ = new Subject<Dragging | null>(null);
+  readonly search$ = new Subject<string | null>(null);
 
   private control?: AbortController;
-  private cancelBack?: () => void;
+  private resolveBack?: () => void;
 
   constructor() {
     super();
@@ -44,9 +45,9 @@ export class MainView extends HTMLElement {
     this.control = new AbortController();
     this.selected$.subscribe((current, previous) => {
       if (current.length && !previous?.length)
-        this.cancelBack = onback(() => this.selected$.next([]));
-      else if (previous?.length && !current.length && this.cancelBack)
-        this.cancelBack();
+        this.resolveBack = onback(() => this.selected$.next([]));
+      else if (previous?.length && !current.length && this.resolveBack)
+        this.resolveBack();
     }, this.control);
     this.dragging$.subscribe((current, previous) => {
       if (current || !previous) return;
@@ -58,6 +59,7 @@ export class MainView extends HTMLElement {
   disconnectedCallback() {
     this.control?.abort();
     delete this.control;
-    if (this.cancelBack) this.cancelBack();
+    this.resolveBack?.();
+    delete this.resolveBack;
   }
 }

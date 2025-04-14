@@ -2,11 +2,13 @@ app-main-content {
   display: block;
   flex: 1;
   overflow: auto;
-  p {
+  .count {
+    font-size: 14px;
+    font-weight: 500;
     text-align: center;
-    padding: 0 0 8px;
+    margin: 8px 0 16px;
   }
-  .empty {
+  .splash {
     width: 100%;
     height: 100%;
     display: flex;
@@ -18,6 +20,7 @@ app-main-content {
       opacity: 0.25;
     }
     p {
+      text-align: center;
       margin: 16px 0 32px;
     }
     app-button {

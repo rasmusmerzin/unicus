@@ -19,5 +19,13 @@ app-main {
     align-items: center;
     fill: var(--primary-foreground);
     background: var(--primary);
+    &:not(:disabled) {
+      &:hover {
+        filter: brightness(1.1);
+      }
+      &:focus {
+        outline-color: var(--foreground);
+      }
+    }
   }
 }

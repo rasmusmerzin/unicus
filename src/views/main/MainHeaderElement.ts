@@ -10,6 +10,7 @@ import {
   edit,
   lock,
   qr,
+  search,
   selectAll,
   settings,
   trash,
@@ -22,20 +23,32 @@ import {
   vault$,
 } from "../../vault";
 import { entryDisplayName, entryToCode } from "../../vault";
-import { openModal, updateView } from "../../view";
+import { onback, openModal, updateView } from "../../view";
 
 @tag("app-main-header")
 export class MainHeaderElement extends HTMLElement {
   private timerBarElement: HTMLElement;
   private selectAllButton: HTMLButtonElement;
+  private searchInput: HTMLInputElement;
+
   private animationFrame?: number;
   private control?: AbortController;
+  private resolveBack?: () => void;
 
   constructor() {
     super();
     this.replaceChildren(
       createElement("h2", { textContent: document.title }),
       createElement("div", { className: "actions" }, [
+        clickFeedback(
+          createElement("button", {
+            className: "search",
+            innerHTML: search(),
+            onclick: () =>
+              MainView.instance!.search$.next(this.searchInput.value),
+          }),
+          { size: 0.5 }
+        ),
         clickFeedback(
           createElement("button", {
             innerHTML: lock(),
@@ -99,6 +112,27 @@ export class MainHeaderElement extends HTMLElement {
           )),
         ]),
       ]),
+      createElement("div", { className: "search" }, [
+        (this.searchInput = createElement("input", {
+          spellcheck: false,
+          type: "text",
+          oninput: () =>
+            MainView.instance!.search$.next(this.searchInput.value),
+          onblur: () =>
+            !this.searchInput.value && MainView.instance!.search$.next(null),
+        })),
+        clickFeedback(
+          createElement("button", {
+            innerHTML: close(),
+            onclick: () => history.back(),
+          }),
+          { size: 0.5 }
+        ),
+        createElement("div", { className: "placeholder" }, [
+          createElement("div", { className: "icon", innerHTML: search(20) }),
+          createElement("div", { className: "text", innerText: "Search" }),
+        ]),
+      ]),
       (this.timerBarElement = createElement("div", {
         className: "timer-bar",
       }))
@@ -108,6 +142,10 @@ export class MainHeaderElement extends HTMLElement {
   connectedCallback() {
     this.control?.abort();
     this.control = new AbortController();
+    vault$.subscribe((vault) => {
+      if (vault?.entries?.length) this.classList.remove("empty");
+      else this.classList.add("empty");
+    }, this.control);
     MainView.instance!.selected$.subscribe((selected) => {
       if (selected.length) this.classList.add("selected");
       else this.classList.remove("selected");
@@ -118,6 +156,18 @@ export class MainHeaderElement extends HTMLElement {
       else this.classList.remove("all");
       this.selectAllButton.disabled = allSelected;
     }, this.control);
+    MainView.instance!.search$.subscribe((search) => {
+      this.searchInput.value = search || "";
+      if (search !== null) {
+        this.resolveBack = onback(() => MainView.instance!.search$.next(null));
+        this.setAttribute("search", this.searchInput.value);
+        this.searchInput.focus();
+      } else {
+        this.removeAttribute("search");
+        this.resolveBack?.();
+        delete this.resolveBack;
+      }
+    }, this.control);
     cancelAnimationFrame(this.animationFrame!);
     this.animateFrame();
   }
@@ -126,6 +176,8 @@ export class MainHeaderElement extends HTMLElement {
     this.control?.abort();
     delete this.control;
     cancelAnimationFrame(this.animationFrame!);
+    this.resolveBack?.();
+    delete this.resolveBack;
   }
 
   private selectAll() {

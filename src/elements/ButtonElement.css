@@ -18,8 +18,13 @@ app-button {
     border-radius: inherit;
     overflow: hidden;
     transition: background 200ms, color 200ms, opacity 200ms, filter 100ms;
-    &:not(:disabled):hover {
-      filter: brightness(1.1);
+    &:not(:disabled) {
+      &:hover {
+        filter: brightness(1.1);
+      }
+      &:focus {
+        outline-color: var(--foreground);
+      }
     }
   }
   .loader {
