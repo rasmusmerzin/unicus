@@ -6,7 +6,7 @@ import {
   entryDisplayName,
   entryToCode,
 } from "../../vault";
-import { check, copy } from "../../icons";
+import { check, copy, drag } from "../../icons";
 import { clickFeedback } from "../../mixins/clickFeedback";
 import { touchHoldFeedback } from "../../mixins/touchHoldFeedback";
 import { getInputMode } from "../../env";
@@ -18,6 +18,7 @@ export class MainEntryElement extends HTMLElement {
   private iconSpanElement: HTMLElement;
   private iconElement: HTMLElement;
   private nameElement: HTMLElement;
+  private issuerElement: HTMLElement;
   private codeElement: HTMLElement;
   private timeout: any;
   private control?: AbortController;
@@ -32,7 +33,12 @@ export class MainEntryElement extends HTMLElement {
     const displayName = entry ? entryDisplayName(entry) : "";
     this.iconElement.style.background = entry ? entryColor(entry) : "";
     this.iconSpanElement.innerText = entry ? displayName.charAt(0) : "";
-    this.nameElement.textContent = displayName;
+    this.issuerElement.textContent = entry?.issuer || "";
+    this.nameElement.textContent = entry?.name || "";
+    if (entry?.name && !entry.issuer) {
+      this.issuerElement.textContent = entry.name;
+      this.nameElement.textContent = "";
+    }
     if (document.contains(this)) this.syncCode();
   }
 
@@ -61,9 +67,15 @@ export class MainEntryElement extends HTMLElement {
             }),
           ])),
           createElement("div", { className: "content" }, [
-            (this.nameElement = createElement("div", { className: "name" })),
+            createElement("div", { className: "identifier" }, [
+              (this.issuerElement = createElement("span", {
+                className: "issuer",
+              })),
+              (this.nameElement = createElement("span", { className: "name" })),
+            ]),
             (this.codeElement = createElement("div", { className: "code" })),
           ]),
+          createElement("div", { className: "drag", innerHTML: drag() }),
         ]
       ))
     );
@@ -77,6 +89,9 @@ export class MainEntryElement extends HTMLElement {
     MainView.instance!.selected$.subscribe((selected) => {
       if (selected.includes(this.entry?.uuid!)) this.classList.add("selected");
       else this.classList.remove("selected");
+      if (selected.length === 1 && selected[0] === this.entry?.uuid)
+        this.classList.add("only");
+      else this.classList.remove("only");
     }, this.control);
     MainView.instance!.dragging$.subscribe((dragging) => {
       if (!dragging) return (this.style.transform = "");
@@ -91,11 +106,12 @@ export class MainEntryElement extends HTMLElement {
     }, this.control);
     this.syncCode();
     settings$.subscribe((settings) => {
-      const { hideIcons, indicateExpiring } = settings;
+      const { hideIcons, indicateExpiring, namePlacement } = settings;
       if (hideIcons) this.classList.add("hide-icon");
       else this.classList.remove("hide-icon");
       if (indicateExpiring) this.classList.add("indicate-expiring");
       else this.classList.remove("indicate-expiring");
+      this.setAttribute("name-placement", namePlacement || "right");
     }, this.control);
   }
 

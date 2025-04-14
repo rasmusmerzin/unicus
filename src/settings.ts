@@ -6,9 +6,12 @@ export interface Settings {
   themeOverride?: "dark" | "light" | "system";
   hideIcons?: boolean;
   indicateExpiring?: boolean;
+  namePlacement?: "right" | "bottom" | "hide";
 }
 
 export const settings$ = new Subject<Settings>(getStoredSettings());
+
+if (import.meta.env.DEV) Object.assign(globalThis, { settings$ });
 
 setTimeout(() => {
   settings$.subscribe(setStoredSettings, new AbortController());
@@ -21,7 +24,10 @@ function getStoredSettings(): Settings {
     : {
         lockOnBackground: false,
         lockOnInactivity: true,
+        themeOverride: "system",
+        hideIcons: false,
         indicateExpiring: true,
+        namePlacement: "right",
       };
 }
 

@@ -1,44 +1,24 @@
-import { FloatingModal } from "../../../elements/FloatingModal";
-import { RadioElement } from "../../../elements/RadioElement";
-import { settings$ } from "../../../settings";
+import { SelectModal } from "../../../elements/SelectModal";
+import { Settings, settings$ } from "../../../settings";
 
 export function ThemeSelectModal() {
-  let state = settings$.current().themeOverride || "system";
-  function onchange(event: Event) {
-    const target = event.target as HTMLInputElement;
-    if (target.checked) state = target.value as any;
+  return SelectModal({
+    title: "Select theme",
+    group: "theme",
+    selected: settings$.current().themeOverride || "system",
+    entries: [
+      { value: "system", label: "System" },
+      { value: "light", label: "Light" },
+      { value: "dark", label: "Dark" },
+    ],
+    onsubmit: update,
+    onchange: update,
+    oncancel: update,
+  });
+  function update(value: string) {
+    settings$.update((settings) => ({
+      ...settings,
+      themeOverride: value as Settings["themeOverride"],
+    }));
   }
-  function onclick() {
-    settings$.update((settings) => ({ ...settings, themeOverride: state }));
-  }
-  return createElement(
-    FloatingModal,
-    {
-      title: "Select theme",
-      actions: [{ name: "OK", onclick }],
-    },
-    [
-      createElement(RadioElement, {
-        name: "theme",
-        value: "system",
-        label: "System",
-        checked: state === "system",
-        onchange,
-      }),
-      createElement(RadioElement, {
-        name: "theme",
-        value: "light",
-        label: "Light",
-        checked: state === "light",
-        onchange,
-      }),
-      createElement(RadioElement, {
-        name: "theme",
-        value: "dark",
-        label: "Dark",
-        checked: state === "dark",
-        onchange,
-      }),
-    ]
-  );
 }

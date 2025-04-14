@@ -14,7 +14,8 @@ app-main-entry {
     gap: 16px;
     position: relative;
     overflow: hidden;
-    backdrop-filter: blur(8px);
+    backdrop-filter: blur(24px);
+    transition: background 200ms;
     &::before {
       content: "";
       position: absolute;
@@ -74,17 +75,12 @@ app-main-entry {
       flex-direction: column;
       justify-content: center;
       gap: 4px;
-      > .name {
-        font-size: 12px;
-        font-weight: bold;
+      > .identifier {
+        font-size: 14px;
         line-height: 16px;
-        height: 16px;
-        word-break: break-all;
-        overflow: hidden;
-        display: -webkit-box;
-        -webkit-box-orient: vertical;
-        -webkit-line-clamp: 1;
-        line-clamp: 1;
+        > .issuer {
+          font-weight: bold;
+        }
       }
       > .code {
         font-size: 28px;
@@ -93,6 +89,18 @@ app-main-entry {
         color: var(--primary);
         filter: saturate(0.5);
       }
+    }
+    > .drag {
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 32px;
+      position: absolute;
+      cursor: grab;
+      fill: var(--foreground);
+      display: none;
+      justify-content: center;
+      align-items: center;
     }
   }
 }
@@ -107,16 +115,64 @@ app-main-entry.selected {
       transform: scale(1);
     }
   }
+  &.only > button > .drag {
+    display: flex;
+  }
 }
 
 app-main-entry.active {
-  > button > .icon > .copy {
-    opacity: 1;
+  > button {
+    background: #8884;
+    > .icon > .copy {
+      opacity: 1;
+    }
   }
 }
 
 app-main-entry.hide-icon {
   > button > .icon {
+    display: none;
+  }
+}
+
+app-main-entry[name-placement="right"] {
+  > button > .content > .identifier {
+    height: 16px;
+    word-break: break-all;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
+    > .name:not(:empty) {
+      margin-left: 8px;
+      &::before {
+        content: "(";
+      }
+      &::after {
+        content: ")";
+      }
+    }
+  }
+}
+app-main-entry[name-placement="bottom"] {
+  > button > .content > .identifier {
+    display: flex;
+    flex-direction: column;
+    grid-gap: 4px;
+    > .issuer,
+    > .name {
+      word-break: break-all;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 1;
+      line-clamp: 1;
+    }
+  }
+}
+app-main-entry[name-placement="hide"] {
+  > button > .content > .identifier > .name {
     display: none;
   }
 }

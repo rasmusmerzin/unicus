@@ -25,11 +25,7 @@ export type VaultEntryExt =
 export const vault$ = new Subject<Vault | null>(null);
 export const secret$ = new Subject<string | null>(null);
 
-if (import.meta.env.DEV)
-  vault$.subscribe(
-    (vault) => Object.assign(globalThis, { vault }),
-    new AbortController()
-  );
+if (import.meta.env.DEV) Object.assign(globalThis, { vault$, secret$ });
 
 export function getVaultEntry(uuid: string): VaultEntry | null {
   const vault = vault$.current();

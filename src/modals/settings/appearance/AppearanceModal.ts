@@ -1,15 +1,17 @@
-import { ModalHeader } from "../../../elements/ModalHeader";
-import { settings$ } from "../../../settings";
-import { openModal } from "../../../view";
-import { SettingsEntryElement } from "../SettingsEntryElement";
 import "./AppearanceModal.css";
+import { ModalHeader } from "../../../elements/ModalHeader";
+import { SettingsEntryElement } from "../SettingsEntryElement";
 import { ThemeSelectModal } from "./ThemeSelectModal";
+import { openModal } from "../../../view";
+import { settings$ } from "../../../settings";
+import { NamePlacementSelectModal } from "./NamePlacementSelectModal";
 
 @tag("app-appearance-modal")
 export class AppearanceModal extends HTMLElement {
   private themeEntry: SettingsEntryElement;
   private iconEntry: SettingsEntryElement;
   private expiringEntry: SettingsEntryElement;
+  private namePlacementEntry: SettingsEntryElement;
   private control?: AbortController;
 
   constructor() {
@@ -19,6 +21,10 @@ export class AppearanceModal extends HTMLElement {
       (this.themeEntry = createElement(SettingsEntryElement, {
         name: "Theme",
         onclick: () => openModal(ThemeSelectModal),
+      })),
+      (this.namePlacementEntry = createElement(SettingsEntryElement, {
+        name: "Name placement",
+        onclick: () => openModal(NamePlacementSelectModal),
       })),
       (this.iconEntry = createElement(SettingsEntryElement, {
         type: "switch",
@@ -55,9 +61,17 @@ export class AppearanceModal extends HTMLElement {
   }
 
   private render() {
-    const { themeOverride, hideIcons, indicateExpiring } = settings$.current();
+    const { themeOverride, hideIcons, indicateExpiring, namePlacement } =
+      settings$.current();
     this.themeEntry.description = "Selected: " + (themeOverride || "system");
     this.iconEntry.value = !hideIcons;
     this.expiringEntry.value = !!indicateExpiring;
+    this.namePlacementEntry.description =
+      "Entry account name is " +
+      (namePlacement === "right"
+        ? "placed right of the issuer name"
+        : namePlacement === "bottom"
+        ? "placed below the issuer name"
+        : "hidden");
   }
 }
