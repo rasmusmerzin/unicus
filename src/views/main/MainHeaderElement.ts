@@ -18,6 +18,7 @@ import {
 import { clickFeedback } from "../../mixins/clickFeedback";
 import {
   deleteVaultEntry,
+  entryFilterPredicate,
   getVaultEntry,
   lockVault,
   vault$,
@@ -33,7 +34,6 @@ export class MainHeaderElement extends HTMLElement {
 
   private animationFrame?: number;
   private control?: AbortController;
-  private resolveBack?: () => void;
 
   constructor() {
     super();
@@ -64,6 +64,30 @@ export class MainHeaderElement extends HTMLElement {
           { size: 0.5 }
         ),
       ]),
+      createElement("div", { className: "search" }, [
+        (this.searchInput = createElement("input", {
+          spellcheck: false,
+          type: "text",
+          oninput: () =>
+            MainView.instance!.search$.next(this.searchInput.value),
+          onblur: () =>
+            !this.searchInput.value && MainView.instance!.search$.next(null),
+        })),
+        clickFeedback(
+          createElement("button", {
+            innerHTML: close(),
+            onclick: () => history.back(),
+          }),
+          { size: 0.5 }
+        ),
+        createElement("div", { className: "placeholder" }, [
+          createElement("div", { className: "icon", innerHTML: search(20) }),
+          createElement("div", { className: "text", innerText: "Search" }),
+        ]),
+      ]),
+      (this.timerBarElement = createElement("div", {
+        className: "timer-bar",
+      })),
       createElement("div", { className: "selection" }, [
         clickFeedback(
           createElement("button", {
@@ -111,31 +135,7 @@ export class MainHeaderElement extends HTMLElement {
             { size: 0.5 }
           )),
         ]),
-      ]),
-      createElement("div", { className: "search" }, [
-        (this.searchInput = createElement("input", {
-          spellcheck: false,
-          type: "text",
-          oninput: () =>
-            MainView.instance!.search$.next(this.searchInput.value),
-          onblur: () =>
-            !this.searchInput.value && MainView.instance!.search$.next(null),
-        })),
-        clickFeedback(
-          createElement("button", {
-            innerHTML: close(),
-            onclick: () => history.back(),
-          }),
-          { size: 0.5 }
-        ),
-        createElement("div", { className: "placeholder" }, [
-          createElement("div", { className: "icon", innerHTML: search(20) }),
-          createElement("div", { className: "text", innerText: "Search" }),
-        ]),
-      ]),
-      (this.timerBarElement = createElement("div", {
-        className: "timer-bar",
-      }))
+      ])
     );
   }
 
@@ -159,14 +159,9 @@ export class MainHeaderElement extends HTMLElement {
     MainView.instance!.search$.subscribe((search) => {
       this.searchInput.value = search || "";
       if (search !== null) {
-        this.resolveBack = onback(() => MainView.instance!.search$.next(null));
         this.setAttribute("search", this.searchInput.value);
         this.searchInput.focus();
-      } else {
-        this.removeAttribute("search");
-        this.resolveBack?.();
-        delete this.resolveBack;
-      }
+      } else this.removeAttribute("search");
     }, this.control);
     cancelAnimationFrame(this.animationFrame!);
     this.animateFrame();
@@ -176,12 +171,13 @@ export class MainHeaderElement extends HTMLElement {
     this.control?.abort();
     delete this.control;
     cancelAnimationFrame(this.animationFrame!);
-    this.resolveBack?.();
-    delete this.resolveBack;
   }
 
   private selectAll() {
-    const uuids = vault$.current()!.entries!.map((entry) => entry.uuid);
+    const search = MainView.instance!.search$.current();
+    let entries = vault$.current()!.entries!;
+    if (search) entries = entries.filter(entryFilterPredicate(search));
+    const uuids = entries.map((entry) => entry.uuid);
     MainView.instance!.selected$.next(uuids);
   }
 

@@ -68,6 +68,15 @@ export function entryColor(entry: VaultEntry): string {
   return `hsl(${hash % 360}, 85%, 35%)`;
 }
 
+export function entryFilterPredicate(search: string) {
+  const words = search.toLowerCase().split(" ").filter(Boolean);
+  return (entry: VaultEntry) => {
+    const name = entry.name.toLowerCase();
+    const issuer = entry.issuer.toLowerCase();
+    return words.every((word) => name.includes(word) || issuer.includes(word));
+  };
+}
+
 function encodeUriProperties(record: Record<string, any>): string {
   return (
     "?" +

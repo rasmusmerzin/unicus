@@ -4,7 +4,7 @@ import { ButtonElement } from "../../elements/ButtonElement";
 import { MainEntryElement } from "./MainEntryElement";
 import { openModal } from "../../view";
 import { splash } from "../../icons";
-import { vault$, VaultEntry } from "../../vault";
+import { entryFilterPredicate, vault$, VaultEntry } from "../../vault";
 import { MainView } from "./MainView";
 
 @tag("app-main-content")
@@ -29,21 +29,9 @@ export class MainContentElement extends HTMLElement {
     if (!vault) return;
     else if (vault.entries?.length) {
       let filtered = vault.entries;
-      if (search)
-        filtered = vault.entries.filter(this.entryFilterPredicate(search));
+      if (search) filtered = vault.entries.filter(entryFilterPredicate(search));
       this.renderEntries(filtered);
     } else this.renderSplash();
-  }
-
-  private entryFilterPredicate(search: string) {
-    const words = search.toLowerCase().split(" ").filter(Boolean);
-    return (entry: VaultEntry) => {
-      const name = entry.name.toLowerCase();
-      const issuer = entry.issuer.toLowerCase();
-      return words.every(
-        (word) => name.includes(word) || issuer.includes(word)
-      );
-    };
   }
 
   private renderEntries(entries: VaultEntry[]) {

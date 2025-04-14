@@ -22,7 +22,8 @@ export class MainView extends HTMLElement {
   readonly search$ = new Subject<string | null>(null);
 
   private control?: AbortController;
-  private resolveBack?: () => void;
+  private resolveSelectBack?: () => void;
+  private resolveSearchBack?: () => void;
 
   constructor() {
     super();
@@ -44,22 +45,34 @@ export class MainView extends HTMLElement {
     this.control?.abort();
     this.control = new AbortController();
     this.selected$.subscribe((current, previous) => {
-      if (current.length && !previous?.length)
-        this.resolveBack = onback(() => this.selected$.next([]));
-      else if (previous?.length && !current.length && this.resolveBack)
-        this.resolveBack();
+      if (current.length && !previous?.length) {
+        this.resolveSelectBack = onback(() => this.selected$.next([]));
+      } else if (previous?.length && !current.length) {
+        this.resolveSelectBack?.();
+        delete this.resolveSelectBack;
+      }
     }, this.control);
     this.dragging$.subscribe((current, previous) => {
       if (current || !previous) return;
       const { originIndex, targetIndex } = previous;
       moveVaultEntry(originIndex, targetIndex).catch(alert);
     }, this.control);
+    this.search$.subscribe((current, previous) => {
+      if (current !== null && previous === null) {
+        this.resolveSearchBack = onback(() => this.search$.next(null));
+      } else if (previous !== null && current === null) {
+        this.resolveSearchBack?.();
+        delete this.resolveSearchBack;
+      }
+    }, this.control);
   }
 
   disconnectedCallback() {
     this.control?.abort();
     delete this.control;
-    this.resolveBack?.();
-    delete this.resolveBack;
+    this.resolveSelectBack?.();
+    delete this.resolveSelectBack;
+    this.resolveSearchBack?.();
+    delete this.resolveSearchBack;
   }
 }
