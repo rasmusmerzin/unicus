@@ -115,7 +115,10 @@ app-main-entry.selected {
       transform: scale(1);
     }
   }
-  &.only > button > .drag {
+}
+
+app-main-entry.draggable {
+  > button > .drag {
     display: flex;
   }
 }

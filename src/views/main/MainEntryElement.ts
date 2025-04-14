@@ -89,10 +89,12 @@ export class MainEntryElement extends HTMLElement {
     MainView.instance!.selected$.subscribe((selected) => {
       if (selected.includes(this.entry?.uuid!)) this.classList.add("selected");
       else this.classList.remove("selected");
-      if (selected.length === 1 && selected[0] === this.entry?.uuid)
-        this.classList.add("only");
-      else this.classList.remove("only");
+      this.updateDraggable();
     }, this.control);
+    MainView.instance!.search$.subscribe(
+      this.updateDraggable.bind(this),
+      this.control
+    );
     MainView.instance!.dragging$.subscribe((dragging) => {
       if (!dragging) return (this.style.transform = "");
       const { height } = this.getBoundingClientRect();
@@ -121,7 +123,20 @@ export class MainEntryElement extends HTMLElement {
     delete this.control;
   }
 
+  private updateDraggable() {
+    const selected = MainView.instance!.selected$.current();
+    const search = MainView.instance!.search$.current();
+    if (
+      selected.length === 1 &&
+      selected[0] === this.entry?.uuid &&
+      search === null
+    )
+      this.classList.add("draggable");
+    else this.classList.remove("draggable");
+  }
+
   private onTouchstart(event: TouchEvent) {
+    if (!this.classList.contains("draggable")) return;
     const selected = MainView.instance!.selected$.current();
     if (selected.length !== 1 || selected[0] !== this.entry!.uuid) return;
     this.parentElement!.style.overflow = "hidden";
@@ -159,6 +174,7 @@ export class MainEntryElement extends HTMLElement {
   }
 
   private onMousedown(event: MouseEvent) {
+    if (!this.classList.contains("draggable")) return;
     if (getInputMode() === "touch") return;
     const control = new AbortController();
     const parent = this.parentElement as MainContentElement;
