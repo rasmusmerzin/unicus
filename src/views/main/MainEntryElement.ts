@@ -118,12 +118,13 @@ export class MainEntryElement extends HTMLElement {
     }, this.control);
     this.syncCode();
     settings$.subscribe((settings) => {
-      const { hideIcons, indicateExpiring, namePlacement } = settings;
+      const { hideIcons, indicateExpiring, namePlacement, viewMode } = settings;
       if (hideIcons) this.classList.add("hide-icon");
       else this.classList.remove("hide-icon");
       if (indicateExpiring) this.classList.add("indicate-expiring");
       else this.classList.remove("indicate-expiring");
       this.setAttribute("name-placement", namePlacement || "right");
+      this.setAttribute("view-mode", viewMode || "normal");
     }, this.control);
   }
 

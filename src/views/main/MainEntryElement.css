@@ -1,4 +1,5 @@
 app-main-entry {
+  --identifier-height: 16px;
   position: relative;
   display: block;
   height: 104px;
@@ -86,8 +87,8 @@ app-main-entry {
       justify-content: center;
       gap: 4px;
       > .identifier {
-        font-size: 14px;
-        line-height: 16px;
+        font-size: calc(var(--identifier-height) - 2px);
+        line-height: var(--identifier-height);
         > .issuer {
           font-weight: bold;
         }
@@ -150,7 +151,7 @@ app-main-entry.hide-icon {
 
 app-main-entry[name-placement="right"] {
   > button > .content > .identifier {
-    height: 16px;
+    height: var(--identifier-height);
     word-break: break-all;
     overflow: hidden;
     display: -webkit-box;
@@ -187,6 +188,39 @@ app-main-entry[name-placement="bottom"] {
 app-main-entry[name-placement="hide"] {
   > button > .content > .identifier > .name {
     display: none;
+  }
+}
+
+app-main-entry[view-mode="compact"] {
+  --identifier-height: 14px;
+  height: 88px;
+  > button {
+    > .icon {
+      height: 48px;
+      width: 48px;
+      font-size: 24px;
+    }
+    > .content > .code {
+      font-size: 24px;
+      height: 24px;
+    }
+  }
+}
+app-main-entry[view-mode="small"] {
+  --identifier-height: 12px;
+  height: 80px;
+  > button {
+    padding: 12px;
+    gap: 12px;
+    > .icon {
+      height: 48px;
+      width: 48px;
+      font-size: 24px;
+    }
+    > .content > .code {
+      font-size: 20px;
+      height: 20px;
+    }
   }
 }
 

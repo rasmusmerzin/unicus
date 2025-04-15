@@ -7,6 +7,7 @@ export interface Settings {
   hideIcons?: boolean;
   indicateExpiring?: boolean;
   namePlacement?: "right" | "bottom" | "hide";
+  viewMode?: "normal" | "compact" | "small";
 }
 
 export const settings$ = new Subject<Settings>(getStoredSettings());

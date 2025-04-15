@@ -1,10 +1,11 @@
 import "./AppearanceModal.css";
 import { ModalHeader } from "../../../elements/ModalHeader";
+import { NamePlacementSelectModal } from "./NamePlacementSelectModal";
 import { SettingsEntryElement } from "../SettingsEntryElement";
 import { ThemeSelectModal } from "./ThemeSelectModal";
+import { ViewModeSelectModal } from "./ViewModeSelectModal";
 import { openModal } from "../../../view";
 import { settings$ } from "../../../settings";
-import { NamePlacementSelectModal } from "./NamePlacementSelectModal";
 
 @tag("app-appearance-modal")
 export class AppearanceModal extends HTMLElement {
@@ -12,6 +13,7 @@ export class AppearanceModal extends HTMLElement {
   private iconEntry: SettingsEntryElement;
   private expiringEntry: SettingsEntryElement;
   private namePlacementEntry: SettingsEntryElement;
+  private viewModeEntry: SettingsEntryElement;
   private control?: AbortController;
 
   constructor() {
@@ -21,6 +23,10 @@ export class AppearanceModal extends HTMLElement {
       (this.themeEntry = createElement(SettingsEntryElement, {
         name: "Theme",
         onclick: () => openModal(ThemeSelectModal),
+      })),
+      (this.viewModeEntry = createElement(SettingsEntryElement, {
+        name: "View mode",
+        onclick: () => openModal(ViewModeSelectModal),
       })),
       (this.namePlacementEntry = createElement(SettingsEntryElement, {
         name: "Name placement",
@@ -61,11 +67,17 @@ export class AppearanceModal extends HTMLElement {
   }
 
   private render() {
-    const { themeOverride, hideIcons, indicateExpiring, namePlacement } =
-      settings$.current();
+    const {
+      themeOverride,
+      hideIcons,
+      indicateExpiring,
+      namePlacement,
+      viewMode,
+    } = settings$.current();
     this.themeEntry.description = "Selected: " + (themeOverride || "system");
     this.iconEntry.value = !hideIcons;
     this.expiringEntry.value = !!indicateExpiring;
+    this.viewModeEntry.description = "Selected: " + (viewMode || "normal");
     this.namePlacementEntry.description =
       "Entry account name is " +
       (namePlacement === "right"
