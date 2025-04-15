@@ -61,6 +61,7 @@ export class UpsertModal extends HTMLElement {
   }
   set type(value: VaultEntry["type"]) {
     this.typeSelect.value = value;
+    this.syncType();
   }
   get hash(): VaultEntry["hash"] {
     return this.hashSelect.value as VaultEntry["hash"];

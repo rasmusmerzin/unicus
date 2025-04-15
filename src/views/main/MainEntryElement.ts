@@ -1,4 +1,5 @@
 import "./MainEntryElement.css";
+import { MainContentElement } from "./MainContentElement";
 import { MainView } from "./MainView";
 import {
   VaultEntry,
@@ -7,22 +8,24 @@ import {
   entryIconUrl,
   entryToCode,
   saveEntryIcon,
+  upsertVaultEntry,
 } from "../../vault";
-import { check, copy, drag } from "../../icons";
+import { check, copy, menu, refresh } from "../../icons";
 import { clickFeedback } from "../../mixins/clickFeedback";
-import { touchHoldFeedback } from "../../mixins/touchHoldFeedback";
 import { getInputMode } from "../../env";
-import { MainContentElement } from "./MainContentElement";
 import { settings$ } from "../../settings";
+import { touchHoldFeedback } from "../../mixins/touchHoldFeedback";
 
 @tag("app-main-entry")
 export class MainEntryElement extends HTMLElement {
+  private buttonElement: HTMLButtonElement;
   private iconSpanElement: HTMLElement;
   private iconImageElement: HTMLElement;
   private iconElement: HTMLElement;
   private nameElement: HTMLElement;
   private issuerElement: HTMLElement;
   private codeElement: HTMLElement;
+  private incrementButton: HTMLButtonElement;
   private timeout: any;
   private control?: AbortController;
 
@@ -47,13 +50,14 @@ export class MainEntryElement extends HTMLElement {
       : "";
     if (entry && import.meta.env.PROD) saveEntryIcon(entry);
     if (document.contains(this)) this.syncCode();
+    if (entry?.type === "HOTP") this.buttonElement.append(this.incrementButton);
+    else this.incrementButton.remove();
   }
 
   constructor() {
     super();
-    let button;
     this.replaceChildren(
-      (button = createElement(
+      (this.buttonElement = createElement(
         "button",
         {
           onclick: this.onClick.bind(this),
@@ -85,12 +89,20 @@ export class MainEntryElement extends HTMLElement {
             ]),
             (this.codeElement = createElement("div", { className: "code" })),
           ]),
-          createElement("div", { className: "drag", innerHTML: drag() }),
+          createElement("div", { className: "drag", innerHTML: menu() }),
         ]
       ))
     );
-    clickFeedback(button, { size: 2, contextmenu: true });
-    touchHoldFeedback(button, { size: 2 });
+    this.incrementButton = clickFeedback(
+      createElement("button", {
+        className: "increment",
+        innerHTML: refresh(),
+        onclick: this.onIncrement.bind(this),
+      }),
+      { size: 0.5 }
+    );
+    clickFeedback(this.buttonElement, { size: 2, contextmenu: true });
+    touchHoldFeedback(this.buttonElement, { size: 2 });
   }
 
   connectedCallback() {
@@ -132,6 +144,14 @@ export class MainEntryElement extends HTMLElement {
     clearTimeout(this.timeout);
     this.control?.abort();
     delete this.control;
+  }
+
+  private async onIncrement(event: Event) {
+    event.stopPropagation();
+    if (this.entry?.type !== "HOTP") return;
+    const entry = { ...this.entry, counter: this.entry.counter + 1 };
+    await upsertVaultEntry(entry);
+    this.entry = entry;
   }
 
   private updateDraggable() {

@@ -10,6 +10,7 @@ app-main-entry {
     height: 100%;
     border-radius: 16px;
     display: flex;
+    align-items: center;
     text-align: left;
     padding: 16px;
     gap: 16px;
@@ -101,12 +102,22 @@ app-main-entry {
         filter: saturate(0.5);
       }
     }
+    > .increment {
+      width: 40px;
+      height: 40px;
+      border-radius: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      fill: var(--foreground);
+    }
     > .drag {
-      top: 0;
-      right: 0;
-      bottom: 0;
-      width: 32px;
       position: absolute;
+      top: 50%;
+      right: -8px;
+      transform: translateY(-50%);
+      width: 24px;
+      height: 24px;
       cursor: grab;
       fill: var(--foreground);
       display: none;
