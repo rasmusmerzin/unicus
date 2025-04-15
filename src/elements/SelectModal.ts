@@ -10,7 +10,7 @@ export function SelectModal({
   selected = entries[0].value,
   title = "Select",
 }: {
-  entries: { value: string; label: string }[];
+  entries: { value: string; label?: string }[];
   group?: string;
   oncancel?: (value: string) => void;
   onchange?: (value: string) => void;
@@ -32,7 +32,7 @@ export function SelectModal({
       createElement(RadioElement, {
         name: group,
         value,
-        label,
+        label: label || value,
         checked: value === selected,
         onchange: (event: Event) => {
           const target = event.target as HTMLInputElement;

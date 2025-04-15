@@ -7,6 +7,7 @@ export class InputElement extends HTMLElement {
   private inputElement: HTMLInputElement;
   private errorElement: HTMLElement;
   private eyeElement: HTMLElement;
+  private uid = crypto.randomUUID();
 
   transformer: ((value: string) => string) | null = null;
 
@@ -15,6 +16,12 @@ export class InputElement extends HTMLElement {
   }
   set label(value: string) {
     this.labelElement.innerText = value;
+  }
+  get name(): string {
+    return this.inputElement.name;
+  }
+  set name(value: string) {
+    this.inputElement.name = value;
   }
   get disabled(): boolean {
     return this.inputElement.disabled;
@@ -70,8 +77,9 @@ export class InputElement extends HTMLElement {
     super();
     this.classList.add("empty");
     this.replaceChildren(
-      (this.labelElement = createElement("label")),
+      (this.labelElement = createElement("label", { for: this.uid })),
       (this.inputElement = createElement("input", {
+        id: this.uid,
         spellcheck: false,
         oninput: this.onInput.bind(this),
         onfocus: this.onFocus.bind(this),

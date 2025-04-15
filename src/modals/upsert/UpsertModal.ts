@@ -6,6 +6,7 @@ import { check, trash } from "../../icons";
 import { clickFeedback } from "../../mixins/clickFeedback";
 import { deleteVaultEntry, upsertVaultEntry, VaultEntry } from "../../vault";
 import { openModal } from "../../view";
+import { SelectElement } from "../../elements/SelectElement";
 
 const BASE32 = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
 
@@ -15,8 +16,8 @@ export class UpsertModal extends HTMLElement {
   private nameInput: InputElement;
   private issuerInput: InputElement;
   private secretInput: InputElement;
-  private typeInput: InputElement;
-  private hashInput: InputElement;
+  private typeSelect: SelectElement;
+  private hashSelect: SelectElement;
   private digitsInput: InputElement;
   private periodInput: InputElement;
   private counterInput: InputElement;
@@ -56,16 +57,16 @@ export class UpsertModal extends HTMLElement {
     this.secretInput.value = value;
   }
   get type(): VaultEntry["type"] {
-    return this.typeInput.value as VaultEntry["type"];
+    return this.typeSelect.value as VaultEntry["type"];
   }
   set type(value: VaultEntry["type"]) {
-    this.typeInput.value = value;
+    this.typeSelect.value = value;
   }
   get hash(): VaultEntry["hash"] {
-    return this.hashInput.value as VaultEntry["hash"];
+    return this.hashSelect.value as VaultEntry["hash"];
   }
   set hash(value: VaultEntry["hash"]) {
-    this.hashInput.value = value;
+    this.hashSelect.value = value;
   }
   get digits(): number {
     return parseInt(this.digitsInput.value);
@@ -111,14 +112,17 @@ export class UpsertModal extends HTMLElement {
       createElement("main", {}, [
         (this.nameInput = createElement(InputElement, {
           label: "Name",
+          name: "otp-name",
           onsubmit: this.submit.bind(this),
         })),
         (this.issuerInput = createElement(InputElement, {
           label: "Issuer",
+          name: "otp-issuer",
           onsubmit: this.submit.bind(this),
         })),
         (this.secretInput = createElement(InputElement, {
           label: "Secret",
+          name: "otp-secret",
           type: "password",
           onsubmit: this.submit.bind(this),
           oninput: this.onInputClearError.bind(this),
@@ -130,17 +134,16 @@ export class UpsertModal extends HTMLElement {
               .join(""),
         })),
         createElement("div", {}, [
-          (this.typeInput = createElement(InputElement, {
-            type: "select",
+          (this.typeSelect = createElement(SelectElement, {
             label: "Type",
-            value: "TOTP",
-            disabled: true,
+            name: "otp-type",
+            options: [{ value: "TOTP" }, { value: "HOTP" }],
             oninput: this.syncType.bind(this),
           })),
-          (this.hashInput = createElement(InputElement, {
-            type: "select",
+          (this.hashSelect = createElement(SelectElement, {
             label: "Hash",
-            value: "SHA1",
+            name: "otp-hash",
+            options: [{ value: "SHA1" }],
             disabled: true,
           })),
         ]),
@@ -148,6 +151,7 @@ export class UpsertModal extends HTMLElement {
           (this.periodInput = createElement(InputElement, {
             className: "period",
             label: "Period",
+            name: "otp-period",
             type: "number",
             value: "30",
             onsubmit: this.submit.bind(this),
@@ -156,6 +160,7 @@ export class UpsertModal extends HTMLElement {
           (this.counterInput = createElement(InputElement, {
             className: "counter",
             label: "Counter",
+            name: "otp-counter",
             type: "number",
             value: "0",
             onsubmit: this.submit.bind(this),
@@ -163,6 +168,7 @@ export class UpsertModal extends HTMLElement {
           })),
           (this.digitsInput = createElement(InputElement, {
             label: "Digits",
+            name: "otp-digits",
             type: "number",
             value: "6",
             onsubmit: this.submit.bind(this),
@@ -175,7 +181,7 @@ export class UpsertModal extends HTMLElement {
   }
 
   private syncType() {
-    this.setAttribute("type", this.typeInput.value);
+    this.setAttribute("type", this.typeSelect.value);
   }
 
   private trash() {
@@ -230,12 +236,12 @@ export class UpsertModal extends HTMLElement {
     else if (![16, 32].includes(this.secretInput.value.length))
       this.secretInput.error = "Secret must be 16 or 32 characters";
     if (!this.digitsInput.value) this.digitsInput.error = "Digits is required";
-    if (this.typeInput.value === "TOTP") {
+    if (this.typeSelect.value === "TOTP") {
       if (!this.periodInput.value)
         this.periodInput.error = "Period is required";
       else if (!(parseInt(this.periodInput.value) > 0))
         this.periodInput.error = "Period must be greater than 0";
-    } else if (this.typeInput.value === "HOTP") {
+    } else if (this.typeSelect.value === "HOTP") {
       if (!this.counterInput.value)
         this.counterInput.error = "Counter is required";
       else if (!(parseInt(this.counterInput.value) >= 0))
