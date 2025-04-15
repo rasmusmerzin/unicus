@@ -24,7 +24,7 @@ import {
   vault$,
 } from "../../vault";
 import { entryDisplayName, entryToCode } from "../../vault";
-import { onback, openModal, updateView } from "../../view";
+import { openModal, updateView } from "../../view";
 
 @tag("app-main-header")
 export class MainHeaderElement extends HTMLElement {

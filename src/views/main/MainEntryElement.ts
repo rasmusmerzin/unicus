@@ -4,7 +4,9 @@ import {
   VaultEntry,
   entryColor,
   entryDisplayName,
+  entryIconUrl,
   entryToCode,
+  saveEntryIcon,
 } from "../../vault";
 import { check, copy, drag } from "../../icons";
 import { clickFeedback } from "../../mixins/clickFeedback";
@@ -16,6 +18,7 @@ import { settings$ } from "../../settings";
 @tag("app-main-entry")
 export class MainEntryElement extends HTMLElement {
   private iconSpanElement: HTMLElement;
+  private iconImageElement: HTMLElement;
   private iconElement: HTMLElement;
   private nameElement: HTMLElement;
   private issuerElement: HTMLElement;
@@ -39,6 +42,10 @@ export class MainEntryElement extends HTMLElement {
       this.issuerElement.textContent = entry.name;
       this.nameElement.textContent = "";
     }
+    this.iconImageElement.style.background = entry
+      ? `url(${entryIconUrl(entry)})`
+      : "";
+    if (entry && import.meta.env.PROD) saveEntryIcon(entry);
     if (document.contains(this)) this.syncCode();
   }
 
@@ -57,6 +64,9 @@ export class MainEntryElement extends HTMLElement {
         [
           (this.iconElement = createElement("div", { className: "icon" }, [
             (this.iconSpanElement = createElement("span")),
+            (this.iconImageElement = createElement("div", {
+              className: "image",
+            })),
             createElement("div", {
               className: "check",
               innerHTML: check(40),

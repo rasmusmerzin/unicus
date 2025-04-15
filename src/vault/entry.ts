@@ -8,6 +8,22 @@ export function entryToCode(entry: VaultEntry): string {
   else throw new Error("Invalid OTP type");
 }
 
+export function entryIconUrl(entry: VaultEntry): string {
+  let issuer = entry.issuer.trim() || entry.name.trim();
+  issuer = issuer.replace(/\s+/g, "").toLowerCase();
+  return "/icons/" + encodeURIComponent(issuer) + ".svg";
+}
+
+export async function saveEntryIcon(entry: VaultEntry) {
+  const url = entryIconUrl(entry);
+  const match = await caches.match(url);
+  if (match) return;
+  const response = await fetch(url);
+  if (!response.ok) return;
+  const cache = await caches.open("icons");
+  cache.put(url, response);
+}
+
 export function entryToUri(entry: VaultEntry): string {
   const type = entry.type.toLowerCase();
   const name = encodeURIComponent(entrySerializedName(entry));

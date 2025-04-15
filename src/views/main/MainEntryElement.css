@@ -44,6 +44,16 @@ app-main-entry {
       text-transform: uppercase;
       position: relative;
       overflow: hidden;
+      > .image {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-size: cover;
+        border-radius: 100%;
+        overflow: hidden;
+      }
       > .check,
       > .copy {
         position: absolute;
