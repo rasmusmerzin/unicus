@@ -37,6 +37,11 @@ export function onback(handler: () => any): () => void {
   return () => historyStack.includes(handler) && history.back();
 }
 
+export function isModalOnTop(modal: HTMLElement) {
+  const modals = historyStack.filter((entry) => entry instanceof HTMLElement);
+  return modals[modals.length - 1] === modal;
+}
+
 export async function openModal(
   factory: Factory<HTMLElement, []>,
   { duration = 200 }: { duration?: number } = {}

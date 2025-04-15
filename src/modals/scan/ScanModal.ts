@@ -4,7 +4,7 @@ import { clickFeedback } from "../../mixins/clickFeedback";
 import "./ScanModal.css";
 import { entryFromUri } from "../../vault";
 import { UpsertModal } from "../upsert/UpsertModal";
-import { openModal } from "../../view";
+import { isModalOnTop, openModal } from "../../view";
 
 @tag("app-scan-modal")
 export class ScanModal extends HTMLElement {
@@ -63,6 +63,7 @@ export class ScanModal extends HTMLElement {
   }
 
   private async scan() {
+    if (!isModalOnTop(this)) return;
     const imageData = this.getVideoFrameImageData();
     try {
       const result = decodeQR(imageData);
