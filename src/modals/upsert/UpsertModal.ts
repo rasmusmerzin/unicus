@@ -234,8 +234,8 @@ export class UpsertModal extends HTMLElement {
       this.counterInput.error =
         "";
     if (!this.secretInput.value) this.secretInput.error = "Secret is required";
-    else if (![16, 32].includes(this.secretInput.value.length))
-      this.secretInput.error = "Secret must be 16 or 32 characters";
+    else if (this.secretInput.value.length < 16)
+      this.secretInput.error = "Secret must be at least 16 characters";
     if (!this.digitsInput.value) this.digitsInput.error = "Digits is required";
     if (this.typeSelect.value === "TOTP") {
       if (!this.periodInput.value)

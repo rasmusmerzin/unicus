@@ -2,7 +2,12 @@ import OTP from "otp";
 import { VaultEntry } from ".";
 
 export function entryToCode(entry: VaultEntry): string {
-  const otp = entryToOtp(entry);
+  const otp = new OTP({
+    keySize: entry.secret.length * 2,
+    codeLength: entry.digits,
+    secret: entry.secret,
+    timeSlice: entry.type === "TOTP" ? entry.period : 0,
+  });
   if (entry.type === "TOTP") return otp.totp(Date.now());
   else if (entry.type === "HOTP") return otp.hotp(entry.counter);
   else throw new Error("Invalid OTP type");
@@ -68,15 +73,6 @@ function encodeUriProperties(record: Record<string, any>): string {
       .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
       .join("&")
   );
-}
-
-function entryToOtp(entry: VaultEntry): OTP {
-  return new OTP({
-    keySize: entry.secret.length * 2,
-    codeLength: entry.digits,
-    secret: entry.secret,
-    timeSlice: entry.type === "TOTP" ? entry.period : 0,
-  });
 }
 
 function entrySerializedName(entry: VaultEntry): string {

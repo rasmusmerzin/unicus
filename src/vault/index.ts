@@ -83,9 +83,14 @@ export async function upsertVaultEntry(
         }
       } else {
         const previous = updated.entries[existingIndex];
-        if (previous.secret !== entry.secret) entry.uuid = crypto.randomUUID();
-        updated.entries[existingIndex] = entry;
-        result.overwriten.push({ current: entry, previous });
+        if (JSON.stringify(previous) === JSON.stringify(entry))
+          result.skipped.push(entry);
+        else {
+          if (previous.secret !== entry.secret)
+            entry.uuid = crypto.randomUUID();
+          updated.entries[existingIndex] = entry;
+          result.overwriten.push({ current: entry, previous });
+        }
       }
     }
   }
