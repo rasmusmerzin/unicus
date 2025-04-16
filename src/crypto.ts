@@ -1,3 +1,5 @@
+import { base64 } from "rfc4648";
+
 export interface Encrypted {
   iv: string;
   cipher: string;
@@ -27,7 +29,7 @@ export async function deriveKey(
     keyMaterial,
     bytes
   );
-  return bufferToBase64(derivedBits);
+  return base64.stringify(new Uint8Array(derivedBits));
 }
 
 export async function encryptData(
@@ -38,7 +40,7 @@ export async function encryptData(
   const iv = crypto.getRandomValues(new Uint8Array(12));
   const key = await crypto.subtle.importKey(
     "raw",
-    await base64ToBuffer(secretKey),
+    base64.parse(secretKey),
     { name: "AES-GCM" },
     false,
     ["encrypt"]
@@ -49,8 +51,8 @@ export async function encryptData(
     encoder.encode(data)
   );
   return {
-    iv: await bufferToBase64(iv),
-    cipher: await bufferToBase64(encrypted),
+    iv: base64.stringify(iv),
+    cipher: base64.stringify(new Uint8Array(encrypted)),
   };
 }
 
@@ -61,7 +63,7 @@ export async function decryptData(
   const decoder = new TextDecoder();
   const key = await crypto.subtle.importKey(
     "raw",
-    await base64ToBuffer(secretKey),
+    base64.parse(secretKey),
     { name: "AES-GCM" },
     false,
     ["decrypt"]
@@ -69,29 +71,10 @@ export async function decryptData(
   const decrypted = await crypto.subtle.decrypt(
     {
       name: "AES-GCM",
-      iv: await base64ToBuffer(encryptedData.iv),
+      iv: base64.parse(encryptedData.iv),
     },
     key,
-    await base64ToBuffer(encryptedData.cipher)
+    base64.parse(encryptedData.cipher)
   );
   return decoder.decode(decrypted);
 }
-
-export async function bufferToBase64(buffer: ArrayBuffer): Promise<string> {
-  const base64Url = await blobToBase64Url(new Blob([buffer]));
-  return base64Url.slice(base64Url.indexOf(",") + 1);
-}
-
-export async function base64ToBuffer(base64: string): Promise<ArrayBuffer> {
-  const base64Url = `data:application/octet-stream;base64,${base64}`;
-  const response = await fetch(base64Url);
-  return response.arrayBuffer();
-}
-
-const blobToBase64Url = (blob: Blob) =>
-  new Promise<string>((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onabort = reader.onerror = reject;
-    reader.onload = () => resolve(reader.result as string);
-    reader.readAsDataURL(blob);
-  });
