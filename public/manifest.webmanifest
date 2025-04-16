@@ -1,5 +1,5 @@
 {
-  "name": "Unicus",
+  "name": "Unicus Authenticator",
   "short_name": "Unicus",
   "description": "OTP authenticator app for 2FA codes",
   "background_color": "#08f",
