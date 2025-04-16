@@ -1,29 +1,32 @@
-import "./QrCodeModal.css";
+import "./ExportToQrCodeModal.css";
 import encodeQR from "qr";
-import { ButtonElement } from "../../elements/ButtonElement";
-import { ModalHeader } from "../../elements/ModalHeader";
-import { VaultEntry, entryToUri } from "../../vault";
-import { chevronLeft, chevronRight } from "../../icons";
-import { clickFeedback } from "../../mixins/clickFeedback";
+import { ModalHeader } from "../../../elements/ModalHeader";
+import { chevronLeft, chevronRight } from "../../../icons";
+import { clickFeedback } from "../../../mixins/clickFeedback";
+import { entriesToMigrationUris, vault$ } from "../../../vault";
 
-@tag("app-qr-code-modal")
-export class QrCodeModal extends HTMLElement {
+@tag("app-export-to-qr-code-modal")
+export class ExportToQrCodeModal extends HTMLElement {
   private mainElement: HTMLElement;
   private indexElement: HTMLElement;
   private backwardButton: HTMLButtonElement;
   private forwardButton: HTMLButtonElement;
   private control?: AbortController;
 
-  set entries(entries: VaultEntry[]) {
-    this.mainElement.replaceChildren(...entries.map(QrCodeCard));
-    this.mainElement.scrollTo({ left: 0, behavior: "instant" });
-    if (document.contains(this)) this.onScroll();
-  }
-
   constructor() {
     super();
     this.replaceChildren(
-      createElement(ModalHeader, { title: "QR Code" }),
+      createElement(ModalHeader, { title: "Migration QR Code" }),
+      createElement("div", { className: "header" }, [
+        createElement("p", {
+          innerText:
+            "Scan these QR codes with Unicus, Aegis or Google Authenticator to migrate your entries.",
+        }),
+        createElement("p", {
+          innerText:
+            "Included entries are the ones with types TOTP or HOTP, hash algorithms SHA1, SHA256, SHA512 or MD5 and digits 6 or 8.",
+        }),
+      ]),
       (this.mainElement = createElement("main")),
       createElement("div", { className: "footer" }, [
         (this.backwardButton = clickFeedback(
@@ -52,6 +55,9 @@ export class QrCodeModal extends HTMLElement {
       passive: true,
       signal: this.control.signal,
     });
+    this.mainElement.replaceChildren(
+      ...entriesToMigrationUris(vault$.current()?.entries || []).map(QrCodeCard)
+    );
     this.onScroll();
   }
 
@@ -95,25 +101,8 @@ export class QrCodeModal extends HTMLElement {
   }
 }
 
-function QrCodeCard(entry: VaultEntry) {
-  let button: ButtonElement;
-  const uri = entryToUri(entry);
+function QrCodeCard(uri: string) {
   return createElement("div", { className: "card" }, [
     createElement("a", { href: uri, className: "img" }),
-    createElement("h2", { className: "issuer", innerText: entry.issuer }),
-    createElement("div", { className: "name", innerText: entry.name }),
-    (button = createElement(ButtonElement, {
-      textContent: "Copy URI",
-      async onclick() {
-        const start = Date.now();
-        try {
-          button.loading = true;
-          await navigator.clipboard.writeText(uri);
-        } finally {
-          await new Promise((r) => setTimeout(r, 400 - (Date.now() - start)));
-          button.loading = false;
-        }
-      },
-    })),
   ]);
 }

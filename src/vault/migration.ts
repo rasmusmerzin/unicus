@@ -30,6 +30,47 @@ interface OtpParameters {
   counter?: number;
 }
 
+export function entriesToMigrationUris(entries: VaultEntry[]): string[] {
+  const batchId = Date.now();
+  const version = 1;
+  const filteredEntries = entries.filter(
+    (entry) =>
+      ALGORITHM.includes(entry.hash) &&
+      DIGIT_COUNT.includes(entry.digits) &&
+      OTP_TYPE.includes(entry.type) &&
+      (entry.type !== "TOTP" || entry.period === 30)
+  );
+  const otpParameters: OtpParameters[] = filteredEntries.map((entry) => ({
+    secret: base32.parse(entry.secret || "", { loose: true }),
+    name: entry.name,
+    issuer: entry.issuer,
+    algorithm: ALGORITHM.indexOf(entry.hash),
+    digits: DIGIT_COUNT.indexOf(entry.digits),
+    type: OTP_TYPE.indexOf(entry.type),
+    ...(entry.type === "HOTP" ? { counter: entry.counter } : {}),
+  }));
+  const otpParametersBatches = <OtpParameters[][]>[[]];
+  for (const params of otpParameters) {
+    let batch = otpParametersBatches[otpParametersBatches.length - 1];
+    if (batch.length >= 10) otpParametersBatches.push((batch = []));
+    batch.push(params);
+  }
+  const batchSize = otpParametersBatches.length;
+  return otpParametersBatches.map((otpParameters, batchIndex) => {
+    const payload: MigrationPayload = {
+      batchId,
+      batchIndex,
+      batchSize,
+      version,
+      otpParameters,
+    };
+    const encoded = MIGRATION_PROTO!.encode(payload).finish();
+    const dataBase64 = base64.stringify(encoded);
+    const dataUri = encodeURIComponent(dataBase64);
+    return `otpauth-migration://offline?data=${dataUri}`;
+  });
+}
+
 export function entriesFromUri(uri: string): Partial<VaultEntry>[] {
   const url = new URL(uri);
   if (url.protocol === "otpauth:") return [entryFromUri(uri)];
