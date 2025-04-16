@@ -1,7 +1,12 @@
-export * from "./createElement";
-export * from "./tag";
-export * from "./alert";
-export * from "./inputMode";
+import "./style.css";
+import "./radio.css";
+import "./checkbox.css";
+
+import "./createElement";
+import "./tag";
+import "./alert";
 import "./clickBlur";
 import "./inactive";
 import "./virtualKeyboard";
+
+export * from "./inputMode";

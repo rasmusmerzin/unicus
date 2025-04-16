@@ -1,5 +1,4 @@
 import "./clickFeedback.css";
-import { captureStyle } from "../captureStyle";
 
 export function clickFeedback<E extends HTMLElement>(
   element: E,
@@ -15,7 +14,7 @@ export function clickFeedback<E extends HTMLElement>(
     contextmenu?: boolean;
   } = {}
 ): E {
-  let resetStyle: (() => void) | null = null;
+  let capturedStyle: string | null | undefined;
   let feedbackElement: HTMLElement | null = null;
   let timeout: any;
 
@@ -24,7 +23,7 @@ export function clickFeedback<E extends HTMLElement>(
 
   function onclick(event: MouseEvent) {
     cleanup();
-    resetStyle = captureStyle(element);
+    capturedStyle = element.getAttribute("style");
     const style = getComputedStyle(element);
     if (style.position === "static") element.style.position = "relative";
     element.style.overflow = "hidden";
@@ -55,9 +54,10 @@ export function clickFeedback<E extends HTMLElement>(
 
   function cleanup() {
     clearTimeout(timeout);
-    if (resetStyle) {
-      resetStyle();
-      resetStyle = null;
+    if (capturedStyle !== undefined) {
+      if (capturedStyle) element.setAttribute("style", capturedStyle);
+      else element.removeAttribute("style");
+      capturedStyle = undefined;
     }
     if (feedbackElement) {
       feedbackElement.remove();

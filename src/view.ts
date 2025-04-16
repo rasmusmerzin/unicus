@@ -3,10 +3,8 @@ import { MainView } from "./views/main/MainView";
 import { SetupView } from "./views/setup/SetupView";
 import { UnlockView } from "./views/unlock/UnlockView";
 import { getEncryptedVault, secret$, vault$ } from "./vault";
-import { captureStyle } from "./captureStyle";
 import { getColorScheme } from "./theme";
 import { updateThemeColor } from "./theme";
-import { resolveFactory } from "./resolveFactory";
 
 export interface OnMountedAsFirst {
   onMountedAsFirst(): any;
@@ -52,7 +50,7 @@ export async function openModal(
   const level = historyStack.length;
   modal.style.zIndex = `${1000 * level}`;
   modal.classList.add("opening");
-  const resetModalStyle = captureStyle(modal);
+  const capturedModalStyle = modal.getAttribute("style");
   app.append(modal);
   if (!elementHasAnimation(modal))
     modal.style.animation = `modal-in ${duration}ms ease-in-out`;
@@ -65,7 +63,8 @@ export async function openModal(
   await new Promise((resolve) => setTimeout(resolve, duration));
   modal.classList.remove("opening");
   document.body.style.pointerEvents = "";
-  resetModalStyle();
+  if (capturedModalStyle) modal.setAttribute("style", capturedModalStyle);
+  else modal.removeAttribute("style");
   disableNonActive();
 }
 
@@ -182,7 +181,7 @@ async function transitionView({
   duration?: number;
   direction?: "forwards" | "backwards";
 }) {
-  const resetNextStyle = captureStyle(next);
+  const capturedNextStyle = next.getAttribute("style");
   const backgroundColor = getColorScheme() === "dark" ? "#333" : "#ccc";
   document.body.style.pointerEvents = "none";
   document.body.style.transition = "background 100ms";
@@ -207,8 +206,27 @@ async function transitionView({
     await new Promise((resolve) => setTimeout(resolve, duration));
   }
   current?.remove();
-  resetNextStyle();
+  if (capturedNextStyle) next.setAttribute("style", capturedNextStyle);
+  else next.removeAttribute("style");
   document.body.style.pointerEvents = "";
   document.body.style.transition = "";
   document.body.style.background = "";
+}
+
+function resolveFactory<T, A extends any[] = any[]>(
+  factory: Factory<T, A>,
+  ...args: A
+): T {
+  if (typeof factory === "function") {
+    if (isClass(factory)) return new (factory as any)(...args);
+    else return (factory as any)(...args);
+  }
+  return factory;
+}
+
+function isClass(obj: any) {
+  return (
+    typeof obj === "function" &&
+    Object.toString.call(obj).substring(0, 5) === "class"
+  );
 }

@@ -1,6 +1,3 @@
-import "./style.css";
-import "./radio.css";
-import "./checkbox.css";
 import "./env";
 import { updateView } from "./view";
 import { setColorScheme, updateIconColors, updateThemeColor } from "./theme";

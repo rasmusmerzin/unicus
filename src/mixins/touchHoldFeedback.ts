@@ -1,5 +1,4 @@
 import "./touchHoldFeedback.css";
-import { captureStyle } from "../captureStyle";
 
 export function touchHoldFeedback<E extends HTMLElement>(
   element: E,
@@ -15,7 +14,7 @@ export function touchHoldFeedback<E extends HTMLElement>(
     size?: number;
   } = {}
 ): E {
-  let resetStyle: (() => void) | null = null;
+  let capturedStyle: string | null | undefined;
   let feedbackElement: HTMLElement | null = null;
   let control: AbortController | null = null;
   let timeout: any;
@@ -25,7 +24,7 @@ export function touchHoldFeedback<E extends HTMLElement>(
 
   function ontouchstart(event: TouchEvent) {
     cleanup();
-    resetStyle = captureStyle(element);
+    capturedStyle = element.getAttribute("style");
     const [touch] = event.touches;
     start = { x: touch.clientX, y: touch.clientY };
     const style = getComputedStyle(element);
@@ -79,9 +78,10 @@ export function touchHoldFeedback<E extends HTMLElement>(
 
   function cleanup() {
     clearTimeout(timeout);
-    if (resetStyle) {
-      resetStyle();
-      resetStyle = null;
+    if (capturedStyle !== undefined) {
+      if (capturedStyle) element.setAttribute("style", capturedStyle);
+      else element.removeAttribute("style");
+      capturedStyle = undefined;
     }
     if (control) {
       control.abort();

@@ -68,7 +68,7 @@ export async function upsertVaultEntry(
   const current = vault$.current();
   if (!current) throw new Error("Vault is not initialized");
   const updated: Vault = JSON.parse(JSON.stringify(current));
-  if (!updated.entries) updated.entries = [...entries];
+  if (!updated.entries) result.created = updated.entries = [...entries];
   else {
     for (const entry of entries) {
       const existingIndex = updated.entries.findIndex(
