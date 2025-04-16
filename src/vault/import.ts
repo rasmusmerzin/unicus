@@ -97,7 +97,7 @@ function entryFromAegisObject(entry: any): VaultEntry | null {
   const issuer = typeof entry.issuer === "string" ? entry.issuer : "";
   const secret =
     typeof entry.info?.secret === "string" ? entry.info.secret : "";
-  const hash =
+  const algorithm =
     typeof entry.info?.algo === "string"
       ? entry.info.algo.toUpperCase().replace(/-/g, "")
       : undefined;
@@ -114,7 +114,7 @@ function entryFromAegisObject(entry: any): VaultEntry | null {
     name,
     issuer,
     secret,
-    hash,
+    algorithm,
     digits,
     type,
     period,
@@ -127,8 +127,10 @@ function entryFromUnicusObject(entry: any): VaultEntry | null {
   const name = typeof entry.name === "string" ? entry.name : "";
   const issuer = typeof entry.issuer === "string" ? entry.issuer : "";
   const secret = typeof entry.secret === "string" ? entry.secret : "";
-  const hash =
-    typeof entry.hash === "string"
+  const algorithm =
+    typeof entry.algorithm === "string"
+      ? entry.algorithm.toUpperCase().replace(/-/g, "")
+      : typeof entry.hash === "string"
       ? entry.hash.toUpperCase().replace(/-/g, "")
       : undefined;
   const digits = typeof entry.digits === "number" ? entry.digits : undefined;
@@ -141,7 +143,7 @@ function entryFromUnicusObject(entry: any): VaultEntry | null {
     name,
     issuer,
     secret,
-    hash,
+    algorithm,
     digits,
     type,
     period,

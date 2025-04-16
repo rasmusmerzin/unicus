@@ -16,7 +16,7 @@ export type VaultEntry = VaultEntryExt & {
   name: string;
   issuer: string;
   secret: string;
-  hash: "SHA1" | "SHA256" | "SHA512" | "MD5";
+  algorithm: "SHA1" | "SHA256" | "SHA512" | "MD5";
   digits: number;
 };
 

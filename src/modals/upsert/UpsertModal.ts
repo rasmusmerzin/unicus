@@ -17,7 +17,7 @@ export class UpsertModal extends HTMLElement {
   private issuerInput: InputElement;
   private secretInput: InputElement;
   private typeSelect: SelectElement;
-  private hashSelect: SelectElement;
+  private algorithmSelect: SelectElement;
   private digitsInput: InputElement;
   private periodInput: InputElement;
   private counterInput: InputElement;
@@ -63,11 +63,11 @@ export class UpsertModal extends HTMLElement {
     this.typeSelect.value = value;
     this.syncType();
   }
-  get hash(): VaultEntry["hash"] {
-    return this.hashSelect.value as VaultEntry["hash"];
+  get algorithm(): VaultEntry["algorithm"] {
+    return this.algorithmSelect.value as VaultEntry["algorithm"];
   }
-  set hash(value: VaultEntry["hash"]) {
-    this.hashSelect.value = value;
+  set algorithm(value: VaultEntry["algorithm"]) {
+    this.algorithmSelect.value = value;
   }
   get digits(): number {
     return parseInt(this.digitsInput.value);
@@ -141,10 +141,15 @@ export class UpsertModal extends HTMLElement {
             options: [{ value: "TOTP" }, { value: "HOTP" }],
             oninput: this.syncType.bind(this),
           })),
-          (this.hashSelect = createElement(SelectElement, {
-            label: "Hash",
-            name: "otp-hash",
-            options: [{ value: "SHA1" }],
+          (this.algorithmSelect = createElement(SelectElement, {
+            label: "Algorithm",
+            name: "otp-algorithm",
+            options: [
+              { value: "SHA1" },
+              { value: "SHA256" },
+              { value: "SHA512" },
+              { value: "MD5" },
+            ],
             disabled: true,
           })),
         ]),
@@ -213,12 +218,21 @@ export class UpsertModal extends HTMLElement {
   }
 
   private getVaultEntry(): VaultEntry {
-    const { uuid, name, issuer, secret, type, hash, digits, period, counter } =
-      this;
+    const {
+      uuid,
+      name,
+      issuer,
+      secret,
+      type,
+      algorithm,
+      digits,
+      period,
+      counter,
+    } = this;
     if (type === "TOTP")
-      return { uuid, name, issuer, secret, hash, digits, type, period };
+      return { uuid, name, issuer, secret, algorithm, digits, type, period };
     else if (type === "HOTP")
-      return { uuid, name, issuer, secret, hash, digits, type, counter };
+      return { uuid, name, issuer, secret, algorithm, digits, type, counter };
     else throw new Error("Invalid type");
   }
 

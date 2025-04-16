@@ -32,8 +32,7 @@ export async function saveEntryIcon(entry: VaultEntry) {
 export function entryToUri(entry: VaultEntry): string {
   const type = entry.type.toLowerCase();
   const name = encodeURIComponent(entrySerializedName(entry));
-  const { issuer, secret, digits } = entry;
-  const algorithm = entry.hash;
+  const { issuer, secret, digits, algorithm } = entry;
   const properties: Record<string, any> = { secret, digits, algorithm, issuer };
   if (entry.type === "TOTP") properties.period = entry.period;
   else if (entry.type === "HOTP") properties.counter = entry.counter;

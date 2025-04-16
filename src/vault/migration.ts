@@ -66,7 +66,7 @@ export function entriesToMigrationUris(entries: VaultEntry[]): string[] {
   const version = 1;
   const filteredEntries = entries.filter(
     (entry) =>
-      ALGORITHM.includes(entry.hash) &&
+      ALGORITHM.includes(entry.algorithm) &&
       DIGIT_COUNT.includes(entry.digits) &&
       OTP_TYPE.includes(entry.type) &&
       (entry.type !== "TOTP" || entry.period === 30)
@@ -75,7 +75,7 @@ export function entriesToMigrationUris(entries: VaultEntry[]): string[] {
     secret: base32.parse(entry.secret || "", { loose: true }),
     name: entry.name,
     issuer: entry.issuer,
-    algorithm: ALGORITHM.indexOf(entry.hash),
+    algorithm: ALGORITHM.indexOf(entry.algorithm),
     digits: DIGIT_COUNT.indexOf(entry.digits),
     type: OTP_TYPE.indexOf(entry.type),
     ...(entry.type === "HOTP" ? { counter: entry.counter } : {}),
@@ -119,7 +119,7 @@ export function entriesFromUri(uri: string): Partial<VaultEntry>[] {
             : undefined,
           name: param.name,
           issuer: param.issuer,
-          hash: ALGORITHM[param.algorithm || 0] as VaultEntry["hash"],
+          algorithm: ALGORITHM[param.algorithm || 0] as VaultEntry["algorithm"],
           digits: DIGIT_COUNT[param.digits || 0],
           type: OTP_TYPE[param.type || 0] as VaultEntry["type"],
           counter: param.counter,
@@ -143,10 +143,12 @@ function entryFromUri(uri: string): Partial<VaultEntry> {
     issuer = decodeURIComponent(url.searchParams.get("issuer")!);
   }
   const secret = decodeURIComponent(url.searchParams.get("secret") || "");
-  const hash = decodeURIComponent(url.searchParams.get("algorithm") || "")
-    .toUpperCase()
-    .replace(/-/g, "");
-  if (hash && hash !== "SHA1") throw new Error("Unsupported hash algorithm");
+  const algorithm =
+    decodeURIComponent(url.searchParams.get("algorithm") || "")
+      .toUpperCase()
+      .replace(/-/g, "") || undefined;
+  if (algorithm && algorithm !== "SHA1")
+    throw new Error("Unsupported hash algorithm");
   const digits = decodeURIComponent(url.searchParams.get("digits") || "");
   const period = decodeURIComponent(url.searchParams.get("period") || "");
   const counter = decodeURIComponent(url.searchParams.get("counter") || "");
@@ -154,6 +156,7 @@ function entryFromUri(uri: string): Partial<VaultEntry> {
   entry.issuer = issuer;
   entry.secret = secret;
   entry.type = type as VaultEntry["type"];
+  entry.algorithm = algorithm as VaultEntry["algorithm"];
   if (digits) entry.digits = parseInt(digits);
   if (entry.type === "TOTP" && period) entry.period = parseInt(period);
   if (entry.type === "HOTP" && counter) entry.counter = parseInt(counter);
