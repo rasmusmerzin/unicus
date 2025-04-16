@@ -1,6 +1,10 @@
-import { closeAllModals } from "../../../view";
-import { importFromFile, SourceType } from "../../../vault";
 import { SelectModal } from "../../../elements/SelectModal";
+import { closeAllModals } from "../../../view";
+import {
+  importFromFile,
+  importResultMessage,
+  SourceType,
+} from "../../../vault";
 
 export function ImportFromFileModal() {
   return SelectModal({
@@ -19,20 +23,9 @@ export function ImportFromFileModal() {
           const [file] = input.files || [];
           if (!file) return;
           importFromFile(value as SourceType, file)
-            .then(async ({ accepted, rejected }) => {
+            .then(async (result) => {
               await closeAllModals();
-              alert(
-                [
-                  accepted.length
-                    ? `Successfully imported ${accepted.length} entries.`
-                    : "",
-                  rejected.length
-                    ? `Failed to import ${rejected.length} entries.`
-                    : "",
-                ]
-                  .filter((s) => s)
-                  .join("\n")
-              );
+              alert(importResultMessage(result));
             })
             .catch(alert);
         },

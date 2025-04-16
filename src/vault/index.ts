@@ -4,6 +4,8 @@ import { Subject } from "../Subject";
 
 export * from "./import";
 export * from "./entry";
+export * from "./migration";
+export * from "./accept";
 
 export interface Vault {
   entries?: VaultEntry[];
@@ -14,13 +16,19 @@ export type VaultEntry = VaultEntryExt & {
   name: string;
   issuer: string;
   secret: string;
-  hash: "SHA1";
+  hash: "SHA1" | "SHA256" | "SHA512" | "MD5";
   digits: number;
 };
 
 export type VaultEntryExt =
   | { type: "TOTP"; period: number }
   | { type: "HOTP"; counter: number };
+
+export interface UpsertResult {
+  overwriten: { current: VaultEntry; previous: VaultEntry }[];
+  created: VaultEntry[];
+  skipped: VaultEntry[];
+}
 
 export const vault$ = new Subject<Vault | null>(null);
 export const secret$ = new Subject<string | null>(null);
@@ -49,7 +57,14 @@ export async function moveVaultEntry(originIndex: number, targetIndex: number) {
   }
 }
 
-export async function upsertVaultEntry(...entries: VaultEntry[]) {
+export async function upsertVaultEntry(
+  ...entries: VaultEntry[]
+): Promise<UpsertResult> {
+  const result: UpsertResult = {
+    overwriten: [],
+    created: [],
+    skipped: [],
+  };
   const current = vault$.current();
   if (!current) throw new Error("Vault is not initialized");
   const updated: Vault = JSON.parse(JSON.stringify(current));
@@ -59,8 +74,19 @@ export async function upsertVaultEntry(...entries: VaultEntry[]) {
       const existingIndex = updated.entries.findIndex(
         (e) => e.uuid == entry.uuid
       );
-      if (existingIndex < 0) updated.entries.push(entry);
-      else updated.entries[existingIndex] = entry;
+      if (existingIndex < 0) {
+        const alike = getVaultEntryLike(entry);
+        if (alike) result.skipped.push(entry);
+        else {
+          updated.entries.push(entry);
+          result.created.push(entry);
+        }
+      } else {
+        const previous = updated.entries[existingIndex];
+        if (previous.secret !== entry.secret) entry.uuid = crypto.randomUUID();
+        updated.entries[existingIndex] = entry;
+        result.overwriten.push({ current: entry, previous });
+      }
     }
   }
   try {
@@ -70,6 +96,20 @@ export async function upsertVaultEntry(...entries: VaultEntry[]) {
     vault$.next(current);
     throw error;
   }
+  return result;
+}
+
+export function getVaultEntryLike(
+  entry: Omit<VaultEntry, "uuid">
+): VaultEntry | null {
+  const serialized = JSON.stringify({ ...entry, uuid: undefined });
+  return (
+    vault$
+      .current()
+      ?.entries?.find(
+        (e) => serialized === JSON.stringify({ ...e, uuid: undefined })
+      ) || null
+  );
 }
 
 export async function deleteVaultEntry(...uuids: string[]) {

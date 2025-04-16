@@ -3,7 +3,7 @@ import { MainHeaderElement } from "./MainHeaderElement";
 import { MainContentElement } from "./MainContentElement";
 import { Subject } from "../../Subject";
 import { onback, openModal } from "../../view";
-import { moveVaultEntry } from "../../vault";
+import { getVaultEntry, moveVaultEntry, vault$ } from "../../vault";
 import { clickFeedback } from "../../mixins/clickFeedback";
 import { add } from "../../icons";
 import { AddDrawerModal } from "./AddDrawerModal";
@@ -64,6 +64,11 @@ export class MainView extends HTMLElement {
         this.resolveSearchBack?.();
         delete this.resolveSearchBack;
       }
+    }, this.control);
+    vault$.subscribe(() => {
+      const selected = this.selected$.current();
+      const filtered = selected.filter(getVaultEntry);
+      if (filtered.length !== selected.length) this.selected$.next(filtered);
     }, this.control);
   }
 

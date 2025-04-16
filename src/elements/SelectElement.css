@@ -60,6 +60,7 @@ app-select {
       padding: 12px;
       &::checkmark {
         order: 1;
+        display: none;
       }
       &:focus {
         font-weight: 500;

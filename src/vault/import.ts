@@ -1,7 +1,7 @@
-import { upsertVaultEntry, VaultEntry } from ".";
-import { decryptData, deriveKey, Encrypted } from "../crypto";
 import { FloatingModal } from "../elements/FloatingModal";
 import { InputElement } from "../elements/InputElement";
+import { tryAcceptEntry, UpsertResult, upsertVaultEntry, VaultEntry } from ".";
+import { decryptData, deriveKey, Encrypted } from "../crypto";
 import { openModal } from "../view";
 
 export type SourceType = "unicus" | "aegis";
@@ -9,6 +9,43 @@ export type SourceType = "unicus" | "aegis";
 export interface ImportResult {
   accepted: VaultEntry[];
   rejected: any[];
+  upsertResult: UpsertResult;
+}
+
+export function importResultMessage({
+  accepted,
+  rejected,
+  upsertResult: { created, overwriten, skipped },
+}: ImportResult): string {
+  return [
+    accepted.length &&
+      `Successfully resolved ${accepted.length} entries of which ` +
+        [
+          created.length && `${created.length} were newly created`,
+          overwriten.length && `${overwriten.length} were overwrites`,
+          skipped.length && `${skipped.length} were skipped`,
+        ]
+          .filter(Boolean)
+          .reduce(reduceComaAndJoin, "") +
+        ".",
+    rejected.length && `Failed to convert ${rejected.length} entries.`,
+  ]
+    .filter(Boolean)
+    .join("\n\n");
+}
+
+export async function importPartials(
+  partials: Partial<VaultEntry>[]
+): Promise<ImportResult> {
+  const accepted = <VaultEntry[]>[];
+  const rejected = <any[]>[];
+  for (const partial of partials) {
+    const result = tryAcceptEntry(partial);
+    if (result) accepted.push(result);
+    else rejected.push(partial);
+  }
+  const upsertResult = await upsertVaultEntry(...accepted);
+  return { accepted, rejected, upsertResult };
 }
 
 export async function importFromFile(
@@ -39,13 +76,23 @@ export async function importFromFile(
       else rejected.push(entry);
     }
   } else throw new Error("Unsupported source type");
-  await upsertVaultEntry(...accepted);
-  return { accepted, rejected };
+  const upsertResult = await upsertVaultEntry(...accepted);
+  return { accepted, rejected, upsertResult };
+}
+
+function reduceComaAndJoin<T>(
+  state: string,
+  current: T,
+  index: number,
+  list: T[]
+): string {
+  if (!state) return String(current);
+  if (index === list.length - 1) return `${state} and ${current}`;
+  return `${state}, ${current}`;
 }
 
 function entryFromAegisObject(entry: any): VaultEntry | null {
-  const uuid =
-    typeof entry.uuid === "string" ? entry.uuid : crypto.randomUUID();
+  const uuid = typeof entry.uuid === "string" ? entry.uuid : undefined;
   const name = typeof entry.name === "string" ? entry.name : "";
   const issuer = typeof entry.issuer === "string" ? entry.issuer : "";
   const secret =
@@ -53,20 +100,16 @@ function entryFromAegisObject(entry: any): VaultEntry | null {
   const hash =
     typeof entry.info?.algo === "string"
       ? entry.info.algo.toUpperCase().replace(/-/g, "")
-      : "";
-  const digits = typeof entry.info?.digits === "number" ? entry.info.digits : 0;
-  const type = typeof entry.type === "string" ? entry.type.toUpperCase() : "";
+      : undefined;
+  const digits =
+    typeof entry.info?.digits === "number" ? entry.info.digits : undefined;
+  const type =
+    typeof entry.type === "string" ? entry.type.toUpperCase() : undefined;
   const period =
     typeof entry.info?.period === "number" ? entry.info.period : undefined;
   const counter =
     typeof entry.info?.counter === "number" ? entry.info.counter : undefined;
-  if (hash !== "SHA1") return null;
-  if (!["TOTP", "HOTP"].includes(type)) return null;
-  if (!secret) return null;
-  if (!digits) return null;
-  if (type === "TOTP" && !period) return null;
-  if (type === "HOTP" && !counter) return null;
-  return {
+  return tryAcceptEntry({
     uuid,
     name,
     issuer,
@@ -76,30 +119,24 @@ function entryFromAegisObject(entry: any): VaultEntry | null {
     type,
     period,
     counter,
-  };
+  });
 }
 
 function entryFromUnicusObject(entry: any): VaultEntry | null {
-  const uuid =
-    typeof entry.uuid === "string" ? entry.uuid : crypto.randomUUID();
+  const uuid = typeof entry.uuid === "string" ? entry.uuid : undefined;
   const name = typeof entry.name === "string" ? entry.name : "";
   const issuer = typeof entry.issuer === "string" ? entry.issuer : "";
   const secret = typeof entry.secret === "string" ? entry.secret : "";
   const hash =
     typeof entry.hash === "string"
       ? entry.hash.toUpperCase().replace(/-/g, "")
-      : "";
-  const digits = typeof entry.digits === "number" ? entry.digits : 0;
-  const type = typeof entry.type === "string" ? entry.type.toUpperCase() : "";
+      : undefined;
+  const digits = typeof entry.digits === "number" ? entry.digits : undefined;
+  const type =
+    typeof entry.type === "string" ? entry.type.toUpperCase() : undefined;
   const period = typeof entry.period === "number" ? entry.period : undefined;
   const counter = typeof entry.counter === "number" ? entry.counter : undefined;
-  if (hash !== "SHA1") return null;
-  if (!["TOTP", "HOTP"].includes(type)) return null;
-  if (!secret) return null;
-  if (!digits) return null;
-  if (type === "TOTP" && !period) return null;
-  if (type === "HOTP" && !counter) return null;
-  return {
+  return tryAcceptEntry({
     uuid,
     name,
     issuer,
@@ -109,21 +146,33 @@ function entryFromUnicusObject(entry: any): VaultEntry | null {
     type,
     period,
     counter,
-  };
+  });
 }
 
 function decryptUnicusVault(encryptedVault: Encrypted): Promise<any> {
   return new Promise((resolve, reject) => {
     let modal: FloatingModal;
-    const input = createElement(InputElement, {
-      label: "Passcode",
-      type: "password",
-      oninput: () => {
-        input.error = "";
-        modal.getActionButton("OK")!.disabled = false;
-      },
-      onsubmit: onclick,
-    });
+    let input: InputElement;
+    openModal(
+      (modal = createElement(
+        FloatingModal,
+        {
+          title: "Enter vault passcode",
+          actions: [{ name: "OK", onclick }],
+          ondisconnect: () => reject(new Error("Couldn't decrypt vault")),
+        },
+        (input = createElement(InputElement, {
+          label: "Passcode",
+          type: "password",
+          oninput,
+          onsubmit: onclick,
+        }))
+      ))
+    ).then(() => input.focus());
+    function oninput() {
+      input.error = "";
+      modal.getActionButton("OK")!.disabled = false;
+    }
     async function onclick() {
       try {
         const secretKey = await deriveKey(input.value);
@@ -135,16 +184,5 @@ function decryptUnicusVault(encryptedVault: Encrypted): Promise<any> {
         throw new Error("Wrong passcode");
       }
     }
-    openModal(
-      (modal = createElement(
-        FloatingModal,
-        {
-          title: "Enter vault passcode",
-          actions: [{ name: "OK", onclick }],
-          ondisconnect: () => reject(new Error("Couldn't decrypt vault")),
-        },
-        input
-      ))
-    );
   });
 }

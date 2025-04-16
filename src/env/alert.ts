@@ -9,7 +9,7 @@ export function alert(msg?: any) {
     createElement(FloatingModal, { title: isError ? "Error" : "Info" }, [
       createElement("p", {
         innerText: isError ? msg.message : String(msg),
-        style: { color: isError ? "var(--error)" : "" },
+        style: { color: isError ? "var(--error)" : "", whiteSpace: "pre-wrap" },
       }),
     ])
   );
