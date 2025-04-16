@@ -15,7 +15,7 @@ export class ScanModal extends HTMLElement {
   private canvasElement = createElement("canvas");
   private videoElement: HTMLVideoElement;
   private facingMode: "environment" | "user" = "environment";
-  private scanInterval: any;
+  private scanTimeout: any;
 
   constructor() {
     super();
@@ -49,14 +49,14 @@ export class ScanModal extends HTMLElement {
   async connectedCallback() {
     try {
       await this.attachCameraStream();
-      this.scanInterval = setInterval(this.scan.bind(this), 50);
+      this.scan();
     } catch (error) {
       alert(error);
     }
   }
 
   disconnectedCallback() {
-    clearInterval(this.scanInterval);
+    clearTimeout(this.scanTimeout);
     this.stopCameraStream();
   }
 
@@ -67,7 +67,9 @@ export class ScanModal extends HTMLElement {
   }
 
   private async scan() {
-    if (!isModalOnTop(this)) return;
+    clearTimeout(this.scanTimeout);
+    if (!isModalOnTop(this))
+      return (this.scanTimeout = setTimeout(this.scan.bind(this), 100));
     const imageData = this.getVideoFrameImageData();
     try {
       const result = decodeQR(imageData);
@@ -87,6 +89,8 @@ export class ScanModal extends HTMLElement {
         alert(error);
       }
     } catch (error) {}
+    if (document.contains(this))
+      this.scanTimeout = setTimeout(this.scan.bind(this), 50);
   }
 
   private getVideoFrameImageData() {
