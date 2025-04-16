@@ -1,12 +1,43 @@
 import { VaultEntry } from ".";
 import { base32, base64 } from "rfc4648";
-import { load, Type } from "protobufjs";
+import { parse } from "protobufjs";
 
-let MIGRATION_PROTO: Type | undefined;
-setTimeout(async () => {
-  const root = await load("otpauth-migration.proto");
-  MIGRATION_PROTO = root.lookupType("MigrationPayload");
-});
+let MIGRATION_PROTO = parse(`
+  syntax = "proto3";
+  message MigrationPayload {
+    enum Algorithm {
+      UNSPECIFIED = 0;
+      SHA1 = 1;
+      SHA256 = 2;
+      SHA512 = 3;
+      MD5 = 4;
+    }
+    enum DigitCount {
+      UNSPECIFIED = 0;
+      SIX = 1;
+      EIGHT = 2;
+    }
+    enum OtpType {
+      UNSPECIFIED = 0;
+      HOTP = 1;
+      TOTP = 2;
+    }
+    message OtpParameters {
+      bytes secret = 1;
+      string name = 2;
+      string issuer = 3;
+      Algorithm algorithm = 4;
+      DigitCount digits = 5;
+      OtpType type = 6;
+      int64 counter = 7;
+    }
+    repeated OtpParameters otp_parameters = 1;
+    int32 version = 2;
+    int32 batch_size = 3;
+    int32 batch_index = 4;
+    int32 batch_id = 5;
+  }
+`).root.lookupType("MigrationPayload");
 
 const ALGORITHM = [undefined, "SHA1", "SHA256", "SHA512", "MD5"];
 const DIGIT_COUNT = [undefined, 6, 8];
