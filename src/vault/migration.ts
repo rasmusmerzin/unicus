@@ -147,7 +147,7 @@ function entryFromUri(uri: string): Partial<VaultEntry> {
     decodeURIComponent(url.searchParams.get("algorithm") || "")
       .toUpperCase()
       .replace(/-/g, "") || undefined;
-  if (algorithm && algorithm !== "SHA1")
+  if (![undefined, "SHA1", "SHA256", "SHA512", "MD5"].includes(algorithm))
     throw new Error("Unsupported hash algorithm");
   const digits = decodeURIComponent(url.searchParams.get("digits") || "");
   const period = decodeURIComponent(url.searchParams.get("period") || "");

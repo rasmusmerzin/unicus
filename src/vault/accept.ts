@@ -11,7 +11,7 @@ export function tryAcceptEntry(entry: Partial<VaultEntry>): VaultEntry | null {
   const period = (entry as any).period || 30;
   const counter = (entry as any).counter || 0;
   if (!secret) return null;
-  if (algorithm !== "SHA1") return null;
+  if (!["SHA1", "SHA256", "SHA512", "MD5"].includes(algorithm)) return null;
   if (!["TOTP", "HOTP"].includes(type)) return null;
   if (type === "TOTP")
     return { uuid, name, issuer, secret, algorithm, digits, type, period };

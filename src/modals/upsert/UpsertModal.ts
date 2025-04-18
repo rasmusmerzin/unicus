@@ -2,11 +2,11 @@ import "./UpsertModal.css";
 import { FloatingModal } from "../../elements/FloatingModal";
 import { InputElement } from "../../elements/InputElement";
 import { ModalHeader } from "../../elements/ModalHeader";
+import { SelectElement } from "../../elements/SelectElement";
 import { check, trash } from "../../icons";
 import { clickFeedback } from "../../mixins/clickFeedback";
 import { deleteVaultEntry, upsertVaultEntry, VaultEntry } from "../../vault";
 import { openModal } from "../../view";
-import { SelectElement } from "../../elements/SelectElement";
 
 const BASE32 = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
 
@@ -150,7 +150,6 @@ export class UpsertModal extends HTMLElement {
               { value: "SHA512" },
               { value: "MD5" },
             ],
-            disabled: true,
           })),
         ]),
         createElement("div", {}, [

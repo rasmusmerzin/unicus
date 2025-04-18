@@ -1,15 +1,9 @@
-import OTP from "otp";
+import { totp, hotp } from "@merzin/otp";
 import { VaultEntry } from ".";
 
 export function entryToCode(entry: VaultEntry): string {
-  const otp = new OTP({
-    keySize: entry.secret.length * 2,
-    codeLength: entry.digits,
-    secret: entry.secret,
-    timeSlice: entry.type === "TOTP" ? entry.period : 0,
-  });
-  if (entry.type === "TOTP") return otp.totp(Date.now());
-  else if (entry.type === "HOTP") return otp.hotp(entry.counter);
+  if (entry.type === "TOTP") return totp(entry);
+  else if (entry.type === "HOTP") return hotp(entry);
   else throw new Error("Invalid OTP type");
 }
 

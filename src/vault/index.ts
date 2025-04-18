@@ -1,6 +1,7 @@
+import { Algorithm } from "@merzin/otp";
+import { Subject } from "../Subject";
 import { decryptData, deriveKey, encryptData, Encrypted } from "../crypto";
 import { fingerprint } from "../fingerprint";
-import { Subject } from "../Subject";
 
 export * from "./import";
 export * from "./entry";
@@ -16,7 +17,7 @@ export type VaultEntry = VaultEntryExt & {
   name: string;
   issuer: string;
   secret: string;
-  algorithm: "SHA1" | "SHA256" | "SHA512" | "MD5";
+  algorithm: Algorithm;
   digits: number;
 };
 
