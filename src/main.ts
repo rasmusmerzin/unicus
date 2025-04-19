@@ -20,11 +20,11 @@ addEventListener("visibilitychange", () => {
   if (document.visibilityState !== "hidden") return;
   if (!settings$.current().lockOnBackground) return;
   lockVault();
-  updateView({ direction: "backwards" });
+  setTimeout(updateView, 100, { direction: "backwards" });
 });
 
 addEventListener("inactive", () => {
   if (!settings$.current().lockOnInactivity) return;
   lockVault();
-  updateView({ direction: "backwards" });
+  setTimeout(updateView, 100, { direction: "backwards" });
 });
