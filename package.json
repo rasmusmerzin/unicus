@@ -9,8 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@merzin/otp": "0.3",
-    "protobufjs": "7",
+    "@merzin/otp": "0.4",
     "qr": "0.4",
     "rfc4648": "1"
   },

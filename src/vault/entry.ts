@@ -1,5 +1,9 @@
 import { VaultEntry } from ".";
-import { encodeOtpUri } from "@merzin/otp/uri";
+import {
+  encodeOtpMigrationUri,
+  parseOtpMigrationUri,
+} from "@merzin/otp/migration";
+import { encodeOtpUri, parseOtpUri } from "@merzin/otp/uri";
 import { totp, hotp } from "@merzin/otp";
 
 export function entryToCode(entry: VaultEntry): string {
@@ -26,6 +30,18 @@ export async function saveEntryIcon(entry: VaultEntry) {
 
 export function entryToUri(entry: VaultEntry): string {
   return encodeOtpUri(entry);
+}
+
+export function entriesToMigrationUris(entries: VaultEntry[]): string[] {
+  return encodeOtpMigrationUri(entries);
+}
+
+export function entriesFromUri(uri: string): Partial<VaultEntry>[] {
+  const url = new URL(uri);
+  if (url.protocol === "otpauth:") return [parseOtpUri(uri)];
+  else if (url.protocol === "otpauth-migration:")
+    return parseOtpMigrationUri(uri);
+  else throw new Error("Invalid OTP URI");
 }
 
 export function entryDisplayName(entry: VaultEntry): string {

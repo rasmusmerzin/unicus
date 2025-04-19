@@ -1,11 +1,10 @@
-import { Algorithm } from "@merzin/otp";
+import { OtpAlgorithm } from "@merzin/otp";
 import { Subject } from "../Subject";
 import { decryptData, deriveKey, encryptData, Encrypted } from "../crypto";
 import { fingerprint } from "../fingerprint";
 
 export * from "./import";
 export * from "./entry";
-export * from "./migration";
 export * from "./accept";
 
 export interface Vault {
@@ -17,7 +16,7 @@ export type VaultEntry = VaultEntryExt & {
   name: string;
   issuer: string;
   secret: string;
-  algorithm: Algorithm;
+  algorithm: OtpAlgorithm;
   digits: number;
 };
 
