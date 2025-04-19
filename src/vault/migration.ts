@@ -1,6 +1,7 @@
 import { VaultEntry } from ".";
 import { base32, base64 } from "rfc4648";
 import { parse } from "protobufjs";
+import { parseOtpUri } from "@merzin/otp/uri";
 
 let MIGRATION_PROTO = parse(`
   syntax = "proto3";
@@ -129,36 +130,5 @@ export function entriesFromUri(uri: string): Partial<VaultEntry>[] {
 }
 
 function entryFromUri(uri: string): Partial<VaultEntry> {
-  const entry: Partial<VaultEntry> = {};
-  const url = new URL(uri);
-  if (url.protocol !== "otpauth:") throw new Error("Invalid OTP URI");
-  const type = url.host.toUpperCase();
-  if (!["TOTP", "HOTP"].includes(type)) throw new Error("Unsupported OTP type");
-  let [issuer, ...rest] = decodeURIComponent(url.pathname.substring(1)).split(
-    ":"
-  );
-  let name = rest.join(":");
-  if (url.searchParams.has("issuer")) {
-    if (!name) name = issuer;
-    issuer = decodeURIComponent(url.searchParams.get("issuer")!);
-  }
-  const secret = decodeURIComponent(url.searchParams.get("secret") || "");
-  const algorithm =
-    decodeURIComponent(url.searchParams.get("algorithm") || "")
-      .toUpperCase()
-      .replace(/-/g, "") || undefined;
-  if (![undefined, "SHA1", "SHA256", "SHA512", "MD5"].includes(algorithm))
-    throw new Error("Unsupported hash algorithm");
-  const digits = decodeURIComponent(url.searchParams.get("digits") || "");
-  const period = decodeURIComponent(url.searchParams.get("period") || "");
-  const counter = decodeURIComponent(url.searchParams.get("counter") || "");
-  entry.name = name;
-  entry.issuer = issuer;
-  entry.secret = secret;
-  entry.type = type as VaultEntry["type"];
-  entry.algorithm = algorithm as VaultEntry["algorithm"];
-  if (digits) entry.digits = parseInt(digits);
-  if (entry.type === "TOTP" && period) entry.period = parseInt(period);
-  if (entry.type === "HOTP" && counter) entry.counter = parseInt(counter);
-  return entry;
+  return parseOtpUri(uri);
 }

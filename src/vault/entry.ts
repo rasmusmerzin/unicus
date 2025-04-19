@@ -1,5 +1,6 @@
-import { totp, hotp } from "@merzin/otp";
 import { VaultEntry } from ".";
+import { encodeOtpUri } from "@merzin/otp/uri";
+import { totp, hotp } from "@merzin/otp";
 
 export function entryToCode(entry: VaultEntry): string {
   if (entry.type === "TOTP") return totp(entry);
@@ -24,15 +25,7 @@ export async function saveEntryIcon(entry: VaultEntry) {
 }
 
 export function entryToUri(entry: VaultEntry): string {
-  const type = entry.type.toLowerCase();
-  const name = encodeURIComponent(entrySerializedName(entry));
-  const { issuer, secret, digits, algorithm } = entry;
-  const properties: Record<string, any> = { secret, digits, algorithm, issuer };
-  if (entry.type === "TOTP") properties.period = entry.period;
-  else if (entry.type === "HOTP") properties.counter = entry.counter;
-  const props = encodeUriProperties(properties);
-  const uri = `otpauth://${type}/${name}${props}`;
-  return uri;
+  return encodeOtpUri(entry);
 }
 
 export function entryDisplayName(entry: VaultEntry): string {
@@ -57,15 +50,6 @@ export function entryFilterPredicate(search: string) {
     const issuer = entry.issuer.toLowerCase();
     return words.every((word) => name.includes(word) || issuer.includes(word));
   };
-}
-
-function encodeUriProperties(record: Record<string, any>): string {
-  return (
-    "?" +
-    Object.entries(record)
-      .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
-      .join("&")
-  );
 }
 
 function entrySerializedName(entry: VaultEntry): string {
