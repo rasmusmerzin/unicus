@@ -35,6 +35,7 @@ export class MainContentElement extends HTMLElement {
   }
 
   private renderEntries(entries: VaultEntry[]) {
+    const top = this.scrollTop;
     this.replaceChildren(
       ...entries.map((entry, index) =>
         createElement(MainEntryElement, { entry, index })
@@ -44,6 +45,7 @@ export class MainContentElement extends HTMLElement {
         innerText: `Showing ${entries.length} entries`,
       })
     );
+    this.scrollTo({ top });
   }
 
   private renderSplash() {
