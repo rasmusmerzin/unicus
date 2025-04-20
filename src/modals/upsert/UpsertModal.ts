@@ -5,8 +5,14 @@ import { ModalHeader } from "../../elements/ModalHeader";
 import { SelectElement } from "../../elements/SelectElement";
 import { check, trash } from "../../icons";
 import { clickFeedback } from "../../mixins/clickFeedback";
-import { deleteVaultEntry, upsertVaultEntry, VaultEntry } from "../../vault";
+import {
+  deleteVaultEntry,
+  getVaultEntry,
+  upsertVaultEntry,
+  VaultEntry,
+} from "../../vault";
 import { openModal } from "../../view";
+import { storeAuditEntry } from "../../audit";
 
 const BASE32 = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
 
@@ -127,6 +133,7 @@ export class UpsertModal extends HTMLElement {
           type: "password",
           onsubmit: this.submit.bind(this),
           oninput: this.onInputClearError.bind(this),
+          onpasswordshow: this.onSecretShow.bind(this),
           transformer: (value: string) =>
             value
               .toUpperCase()
@@ -199,21 +206,45 @@ export class UpsertModal extends HTMLElement {
         { name: "Cancel" },
         {
           name: "OK",
-          onclick: () =>
-            deleteVaultEntry(this.uuid)
-              .then(() => history.back())
-              .catch(alert),
+          onclick: async () => {
+            try {
+              const entry = getVaultEntry(this.uuid);
+              await deleteVaultEntry(this.uuid);
+              if (entry) {
+                const { uuid, name, issuer } = entry;
+                storeAuditEntry({
+                  type: "delete",
+                  entries: [{ uuid, name, issuer }],
+                });
+              }
+              history.back();
+            } catch (error) {
+              alert(error);
+            }
+          },
         },
       ],
     });
     openModal(modal);
   }
 
-  private submit() {
+  private async submit() {
     if (!this.validate()) return;
-    upsertVaultEntry(this.getVaultEntry())
-      .then(() => history.back())
-      .catch(alert);
+    try {
+      const result = await upsertVaultEntry(this.getVaultEntry());
+      if (result.created.length) {
+        const { uuid, name, issuer } = result.created[0];
+        storeAuditEntry({ type: "add", uuid, name, issuer });
+      }
+      if (result.overwriten.length) {
+        const { current } = result.overwriten[0];
+        const { uuid, name, issuer } = current;
+        storeAuditEntry({ type: "edit", uuid, name, issuer });
+      }
+      history.back();
+    } catch (error) {
+      alert(error);
+    }
   }
 
   private getVaultEntry(): VaultEntry {
@@ -233,6 +264,20 @@ export class UpsertModal extends HTMLElement {
     else if (type === "HOTP")
       return { uuid, name, issuer, secret, algorithm, digits, type, counter };
     else throw new Error("Invalid type");
+  }
+
+  private secretShown = false;
+  private onSecretShow() {
+    if (this.secretShown) return;
+    this.secretShown = true;
+    const entry = getVaultEntry(this.uuid);
+    if (!entry) return;
+    storeAuditEntry({
+      type: "view-secret",
+      uuid: entry.uuid,
+      name: entry.name,
+      issuer: entry.issuer,
+    });
   }
 
   private onInputClearError(event: Event) {

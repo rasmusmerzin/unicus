@@ -1,5 +1,6 @@
 import "./UnlockView.css";
 import { ButtonElement } from "../../elements/ButtonElement";
+import { ForgotModal } from "../../modals/forgot/ForgotModal";
 import { InputElement } from "../../elements/InputElement";
 import { OnMountedAsFirst, openModal, updateView } from "../../view";
 import { clickFeedback } from "../../mixins/clickFeedback";
@@ -13,7 +14,7 @@ import {
   secret$,
 } from "../../vault";
 import { getInputMode } from "../../env";
-import { ForgotModal } from "../../modals/forgot/ForgotModal";
+import { storeAuditEntry } from "../../audit";
 
 @tag("app-unlock")
 export class UnlockView extends HTMLElement implements OnMountedAsFirst {
@@ -71,6 +72,7 @@ export class UnlockView extends HTMLElement implements OnMountedAsFirst {
     try {
       this.continueButton.loading = true;
       await openVault();
+      storeAuditEntry({ type: "unlock", subtype: "biometric" });
       await updateView();
     } catch (error) {
       lockVault();
@@ -84,9 +86,11 @@ export class UnlockView extends HTMLElement implements OnMountedAsFirst {
       this.continueButton.loading = true;
       secret$.next(await deriveKey(this.passcodeInput.value));
       await openVault();
+      storeAuditEntry({ type: "unlock", subtype: "passcode" });
       await updateView();
     } catch (error) {
       lockVault();
+      storeAuditEntry({ type: "failed-unlock" });
       this.continueButton.disabled = true;
       this.passcodeInput.error = "Invalid passcode";
     } finally {

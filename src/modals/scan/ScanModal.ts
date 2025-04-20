@@ -9,6 +9,7 @@ import {
   importResultMessage,
 } from "../../vault";
 import { isModalOnTop, openModal } from "../../view";
+import { storeAuditEntry } from "../../audit";
 
 @tag("app-scan-modal")
 export class ScanModal extends HTMLElement {
@@ -83,6 +84,14 @@ export class ScanModal extends HTMLElement {
           });
         } else {
           const importResult = await importPartials(entries);
+          const { created, overwriten } = importResult.upsertResult;
+          if (created.length || overwriten.length) {
+            const entries = [
+              ...created,
+              ...overwriten.map(({ current }) => current),
+            ].map(({ uuid, name, issuer }) => ({ uuid, name, issuer }));
+            storeAuditEntry({ type: "import", subtype: "qrcode", entries });
+          }
           alert(importResultMessage(importResult));
         }
       } catch (error) {

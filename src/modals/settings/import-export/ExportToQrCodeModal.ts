@@ -4,6 +4,7 @@ import { ModalHeader } from "../../../elements/ModalHeader";
 import { chevronLeft, chevronRight } from "../../../icons";
 import { clickFeedback } from "../../../mixins/clickFeedback";
 import { entriesToMigrationUris, vault$ } from "../../../vault";
+import { storeAuditEntry } from "../../../audit";
 
 @tag("app-export-to-qr-code-modal")
 export class ExportToQrCodeModal extends HTMLElement {
@@ -24,7 +25,7 @@ export class ExportToQrCodeModal extends HTMLElement {
         }),
         createElement("p", {
           innerText:
-            "Included entries are the ones with types TOTP or HOTP, hash algorithms SHA1, SHA256, SHA512 or MD5 and digits 6 or 8.",
+            "Included entries are the ones with types TOTP or HOTP, hash algorithms SHA1, SHA256, SHA512 or MD5 and digits 6 or 8. TOTP entries with period other than 30 seconds are ignored.",
         }),
       ]),
       (this.mainElement = createElement("main")),
@@ -55,10 +56,20 @@ export class ExportToQrCodeModal extends HTMLElement {
       passive: true,
       signal: this.control.signal,
     });
+    const entries = vault$.current()?.entries || [];
     this.mainElement.replaceChildren(
-      ...entriesToMigrationUris(vault$.current()?.entries || []).map(QrCodeCard)
+      ...entriesToMigrationUris(entries).map(QrCodeCard)
     );
     this.onScroll();
+    storeAuditEntry({
+      type: "export",
+      subtype: "qrcode",
+      entries: entries.map(({ uuid, name, issuer }) => ({
+        uuid,
+        name,
+        issuer,
+      })),
+    });
   }
 
   disconnectedCallback() {

@@ -10,6 +10,7 @@ export class InputElement extends HTMLElement {
   private uid = crypto.randomUUID();
 
   transformer: ((value: string) => string) | null = null;
+  onpasswordshow: (() => void) | null = null;
 
   get label(): string {
     return this.labelElement.innerText;
@@ -135,10 +136,9 @@ export class InputElement extends HTMLElement {
     if (this.type !== "password") return;
     this.inputElement.type =
       this.inputElement.type === "password" ? "text" : "password";
-    this.eyeElement.innerHTML =
-      this.inputElement.type === "password"
-        ? visibility(20)
-        : visibilityOff(20);
+    const visible = this.inputElement.type === "text";
+    this.eyeElement.innerHTML = visible ? visibilityOff(20) : visibility(20);
+    if (visible) this.onpasswordshow?.();
   }
   private ownEvent(event: Event) {
     const { constructor } = Object.getPrototypeOf(event);

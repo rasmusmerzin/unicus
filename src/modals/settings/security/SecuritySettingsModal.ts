@@ -10,6 +10,7 @@ import {
 import { openModal } from "../../../view";
 import { settings$ } from "../../../settings";
 import { AutoLockModal } from "./AutoLockModal";
+import { storeAuditEntry } from "../../../audit";
 
 @tag("app-security-settings-modal")
 export class SecuritySettingsModal extends HTMLElement {
@@ -35,9 +36,13 @@ export class SecuritySettingsModal extends HTMLElement {
           description: "Allow biometric unlock using fingerprint or face ID.",
           onclick: async () => {
             try {
-              if (this.fingerprintElement.value)
+              if (this.fingerprintElement.value) {
                 await saveSecretWithFingerprint();
-              else removeFingerprintEncryptedSecret();
+                storeAuditEntry({ type: "biometric", action: "enable" });
+              } else {
+                removeFingerprintEncryptedSecret();
+                storeAuditEntry({ type: "biometric", action: "disable" });
+              }
             } finally {
               this.fingerprintElement.value = !!getFingerprintEncryptedSecret();
             }

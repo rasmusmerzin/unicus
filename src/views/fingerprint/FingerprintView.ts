@@ -2,6 +2,7 @@ import "./FingerprintView.css";
 import { ButtonElement } from "../../elements/ButtonElement";
 import { fingerprint } from "../../icons";
 import { saveSecretWithFingerprint } from "../../vault";
+import { storeAuditEntry } from "../../audit";
 import { updateView } from "../../view";
 
 @tag("app-fingerprint")
@@ -26,9 +27,13 @@ export class FingerprintView extends HTMLElement {
     );
   }
 
-  private setupFingerprint() {
-    saveSecretWithFingerprint()
-      .then(() => updateView())
-      .catch(alert);
+  private async setupFingerprint() {
+    try {
+      await saveSecretWithFingerprint();
+      storeAuditEntry({ type: "biometric", action: "enable" });
+      await updateView();
+    } catch (error) {
+      alert(error);
+    }
   }
 }

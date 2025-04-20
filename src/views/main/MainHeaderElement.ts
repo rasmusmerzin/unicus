@@ -25,6 +25,7 @@ import {
 } from "../../vault";
 import { entryDisplayName, entryToCode } from "../../vault";
 import { openModal, updateView } from "../../view";
+import { storeAuditEntry } from "../../audit";
 
 @tag("app-main-header")
 export class MainHeaderElement extends HTMLElement {
@@ -207,10 +208,22 @@ export class MainHeaderElement extends HTMLElement {
         { name: "Cancel" },
         {
           name: "OK",
-          onclick: () =>
-            deleteVaultEntry(...uuids)
-              .then(() => MainView.instance!.selected$.next([]))
-              .catch(alert),
+          onclick: async () => {
+            try {
+              await deleteVaultEntry(...uuids);
+              storeAuditEntry({
+                type: "delete",
+                entries: entries.map(({ uuid, name, issuer }) => ({
+                  uuid,
+                  name,
+                  issuer,
+                })),
+              });
+              MainView.instance!.selected$.next([]);
+            } catch (error) {
+              alert(error);
+            }
+          },
         },
       ],
     });
@@ -229,8 +242,12 @@ export class MainHeaderElement extends HTMLElement {
 
   private copy() {
     const [uuid] = MainView.instance!.selected$.current();
-    const code = entryToCode(getVaultEntry(uuid)!);
-    if (code) navigator.clipboard.writeText(code);
+    const entry = getVaultEntry(uuid)!;
+    const code = entryToCode(entry);
+    if (!code) return;
+    navigator.clipboard.writeText(code);
+    const { name, issuer } = entry;
+    storeAuditEntry({ type: "copy-code", uuid, name, issuer });
   }
 
   private lock() {

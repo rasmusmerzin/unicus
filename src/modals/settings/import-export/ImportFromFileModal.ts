@@ -5,6 +5,7 @@ import {
   importResultMessage,
   SourceType,
 } from "../../../vault";
+import { storeAuditEntry } from "../../../audit";
 
 export function ImportFromFileModal() {
   return SelectModal({
@@ -18,16 +19,25 @@ export function ImportFromFileModal() {
       createElement("input", {
         type: "file",
         accept: "application/json",
-        onchange: (event: Event) => {
+        onchange: async (event: Event) => {
           const input = event.target as HTMLInputElement;
           const [file] = input.files || [];
           if (!file) return;
-          importFromFile(value as SourceType, file)
-            .then(async (result) => {
-              await closeAllModals();
-              alert(importResultMessage(result));
-            })
-            .catch(alert);
+          try {
+            const result = await importFromFile(value as SourceType, file);
+            const { created, overwriten } = result.upsertResult;
+            if (created.length || overwriten.length) {
+              const entries = [
+                ...created,
+                ...overwriten.map(({ current }) => current),
+              ].map(({ uuid, name, issuer }) => ({ uuid, name, issuer }));
+              storeAuditEntry({ type: "import", subtype: "file", entries });
+            }
+            await closeAllModals();
+            alert(importResultMessage(result));
+          } catch (error) {
+            alert(error);
+          }
         },
       }).click(),
   });

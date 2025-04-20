@@ -1,6 +1,7 @@
 import { CheckboxElement } from "../../elements/CheckboxElement";
 import { FloatingModal } from "../../elements/FloatingModal";
 import { clearVault } from "../../vault";
+import { storeAuditEntry } from "../../audit";
 import { updateView } from "../../view";
 
 export function ForgotModal() {
@@ -18,6 +19,7 @@ export function ForgotModal() {
           name: "Delete",
           onclick: () => {
             clearVault();
+            storeAuditEntry({ type: "clear" });
             setTimeout(updateView, 100, { direction: "backwards" });
           },
         },

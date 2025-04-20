@@ -1,14 +1,24 @@
+import { storeAuditEntry } from "../../../audit";
 import { CheckboxElement } from "../../../elements/CheckboxElement";
 import { FloatingModal } from "../../../elements/FloatingModal";
-import { exportToFile } from "../../../vault";
+import { exportToFile, vault$ } from "../../../vault";
 
 export function ExportToFileModal() {
   let encryptCheckbox: CheckboxElement;
   let confirmationContainer: HTMLElement;
   let confirmationCheckbox: CheckboxElement;
   let modal: FloatingModal;
-  function onclick() {
-    exportToFile(encryptCheckbox.checked).catch(alert);
+  async function onclick() {
+    const encrypted = encryptCheckbox.checked;
+    try {
+      const entries = vault$
+        .current()!
+        .entries!.map(({ uuid, name, issuer }) => ({ uuid, name, issuer }));
+      await exportToFile(encrypted);
+      storeAuditEntry({ type: "export", subtype: "file", entries, encrypted });
+    } catch (error) {
+      alert(error);
+    }
   }
   function onchange() {
     confirmationContainer.style.display = encryptCheckbox.checked ? "none" : "";

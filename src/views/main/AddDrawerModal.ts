@@ -10,6 +10,7 @@ import {
   importResultMessage,
 } from "../../vault";
 import { openModal } from "../../view";
+import { storeAuditEntry } from "../../audit";
 
 export function AddDrawerModal() {
   return createElement(DrawerModal, { title: "Add new entry" }, [
@@ -55,6 +56,14 @@ function promptImageScan() {
           openModal(createElement(UpsertModal, entries[0]));
         else {
           const importResult = await importPartials(entries);
+          const { created, overwriten } = importResult.upsertResult;
+          if (created.length || overwriten.length) {
+            const entries = [
+              ...created,
+              ...overwriten.map(({ current }) => current),
+            ].map(({ uuid, name, issuer }) => ({ uuid, name, issuer }));
+            storeAuditEntry({ type: "import", subtype: "qrcode", entries });
+          }
           alert(importResultMessage(importResult));
         }
       } catch (error) {

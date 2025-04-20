@@ -15,6 +15,7 @@ import { clickFeedback } from "../../mixins/clickFeedback";
 import { getInputMode } from "../../env";
 import { settings$ } from "../../settings";
 import { touchHoldFeedback } from "../../mixins/touchHoldFeedback";
+import { storeAuditEntry } from "../../audit";
 
 @tag("app-main-entry")
 export class MainEntryElement extends HTMLElement {
@@ -263,6 +264,8 @@ export class MainEntryElement extends HTMLElement {
       this.classList.add("active");
       setTimeout(() => this.classList.remove("active"), 600);
       navigator.clipboard.writeText(code);
+      const { uuid, name, issuer } = this.entry!;
+      storeAuditEntry({ type: "copy-code", uuid, name, issuer });
     }
   }
 

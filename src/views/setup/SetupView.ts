@@ -5,6 +5,7 @@ import { saveVault, secret$, vault$ } from "../../vault";
 import { deriveKey } from "../../crypto";
 import { updateView } from "../../view";
 import { FingerprintView } from "../fingerprint/FingerprintView";
+import { storeAuditEntry } from "../../audit";
 
 @tag("app-setup")
 export class SetupView extends HTMLElement {
@@ -53,6 +54,7 @@ export class SetupView extends HTMLElement {
       secret$.next(await deriveKey(this.passcodeInput.value));
       vault$.next({});
       await saveVault();
+      storeAuditEntry({ type: "setup" });
       await updateView({ viewConstructor: FingerprintView });
     } catch (error) {
       alert(error);
