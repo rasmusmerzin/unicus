@@ -3,6 +3,7 @@
   --foreground: #000;
   --primary: #08f;
   --primary-foreground: #fff;
+  --warning: #ff2;
   --error: #f22;
   font-family: "Open Sans", system-ui, Avenir, Helvetica, Arial, sans-serif;
   font-size: 14px;

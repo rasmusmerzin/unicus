@@ -1,0 +1,66 @@
+app-audit-entry {
+  display: block;
+  padding: 0 4px 4px;
+  > .container {
+    display: flex;
+    padding: 8px;
+    gap: 8px;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+    &::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--foreground);
+      opacity: 0.025;
+    }
+    > .icon {
+      flex-shrink: 0;
+      width: 40px;
+      height: 40px;
+      fill: var(--foreground);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 8px;
+      overflow: hidden;
+      position: relative;
+      > * {
+        position: relative;
+      }
+      &::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: var(--foreground);
+        opacity: 0.1;
+      }
+    }
+    > .content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      > .title {
+        font-weight: 500;
+      }
+    }
+  }
+}
+
+app-audit-entry[level="2"] > .container > .icon::before {
+  background: var(--warning);
+  opacity: 0.5;
+}
+
+app-audit-entry[level="3"] > .container > .icon::before {
+  background: var(--error);
+  opacity: 0.5;
+}

@@ -41,8 +41,14 @@ export async function getAuditEntries(
   level?: AuditEntryLevel
 ): Promise<AuditEntry[]> {
   const db = await database;
-  if (level) return db.getAllFromIndex("audit", "level", level);
-  else return db.getAll("audit");
+  let entries: AuditEntry[] = [];
+  if (level) entries = await db.getAllFromIndex("audit", "level", level);
+  else entries = await db.getAll("audit");
+  return entries.sort((a, b) => {
+    if (a.created < b.created) return 1;
+    if (a.created > b.created) return -1;
+    return 0;
+  });
 }
 
 export async function storeAuditEntry(
