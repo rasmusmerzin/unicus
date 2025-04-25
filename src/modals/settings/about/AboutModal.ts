@@ -49,7 +49,7 @@ export class AboutModal extends HTMLElement {
             icon: mail(),
             label: "Contact",
             description: "Write an email",
-            href: "mailto:rasmusmerzin@gmail.com",
+            href: "mailto:rasmusmerzin@gmail.com?subject=Unicus",
           }),
         ]),
       ])
@@ -75,8 +75,8 @@ function Entry({
     createElement("button", { className: "entry", onclick }, [
       createElement("div", { className: "icon", innerHTML: icon }),
       createElement("div", { className: "content" }, [
-        createElement("label", {}, label),
-        createElement("div", {}, description),
+        createElement("div", { className: "label" }, label),
+        createElement("div", { className: "description" }, description),
       ]),
     ])
   );

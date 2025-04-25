@@ -45,10 +45,11 @@ app-about-modal {
           flex-direction: column;
           justify-content: center;
           gap: 4px;
-          > label {
+          > .label {
             font-weight: 500;
+            pointer-events: none;
           }
-          > div {
+          > .description {
             font-weight: 300;
           }
         }
