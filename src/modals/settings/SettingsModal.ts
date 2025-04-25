@@ -2,10 +2,11 @@ import "./SettingsModal.css";
 import { ImportExportModal } from "./import-export/ImportExportModal";
 import { ModalHeader } from "../../elements/ModalHeader";
 import { SecuritySettingsModal } from "./security/SecuritySettingsModal";
-import { brush, construction, key, receipt } from "../../icons";
+import { brush, construction, info, key, receipt } from "../../icons";
 import { clickFeedback } from "../../mixins/clickFeedback";
 import { openModal } from "../../view";
 import { AppearanceModal } from "./appearance/AppearanceModal";
+import { AboutModal } from "./about/AboutModal";
 
 @tag("app-settings-modal")
 export class SettingsModal extends HTMLElement {
@@ -41,6 +42,13 @@ export class SettingsModal extends HTMLElement {
           disabled: true,
           description:
             "Find a list of all actions taken in the app, including logins, exports and other sensitive actions.",
+        }),
+        Entry({
+          icon: info(),
+          name: "About",
+          description:
+            "Learn more about Unicus, including the version number and other information.",
+          modalConstructor: AboutModal,
         }),
       ])
     );
