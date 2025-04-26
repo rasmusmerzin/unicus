@@ -1,10 +1,7 @@
+import { FileType, entriesFromFile } from "../../../vault";
+import { ImportModal } from "../../import/ImportModal";
 import { SelectModal } from "../../../elements/SelectModal";
-import {
-  FileType,
-  entriesFromFile,
-  importPartials,
-  importResultMessage,
-} from "../../../vault";
+import { openModal } from "../../../view";
 
 export function ImportFromFileModal() {
   return SelectModal({
@@ -24,8 +21,7 @@ export function ImportFromFileModal() {
           if (!file) return;
           try {
             const entries = await entriesFromFile(value as FileType, file);
-            const importResult = await importPartials(entries);
-            alert(importResultMessage(importResult));
+            setTimeout(openModal, 100, createElement(ImportModal, { entries }));
           } catch (error) {
             alert(error);
           }

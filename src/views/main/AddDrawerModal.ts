@@ -1,14 +1,11 @@
 import decodeQR from "qr/decode.js";
 import { DrawerModal } from "../../elements/DrawerModal";
+import { ImportModal } from "../../modals/import/ImportModal";
 import { ScanModal } from "../../modals/scan/ScanModal";
 import { UpsertModal } from "../../modals/upsert/UpsertModal";
 import { addImage, edit, scanQr } from "../../icons";
 import { clickFeedback } from "../../mixins/clickFeedback";
-import {
-  entriesFromUri,
-  importPartials,
-  importResultMessage,
-} from "../../vault";
+import { entriesFromUri } from "../../vault";
 import { openModal } from "../../view";
 
 export function AddDrawerModal() {
@@ -53,10 +50,7 @@ function promptImageScan() {
         const entries = entriesFromUri(result);
         if (entries.length === 1)
           openModal(createElement(UpsertModal, entries[0]));
-        else {
-          const importResult = await importPartials(entries);
-          alert(importResultMessage(importResult));
-        }
+        else openModal(createElement(ImportModal, { entries }));
       } catch (error) {
         alert(error);
       }

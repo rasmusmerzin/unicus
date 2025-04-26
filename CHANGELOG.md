@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Import selection modal
+
 ## [1.0.0] - 2025-04-25
 
 ### Added

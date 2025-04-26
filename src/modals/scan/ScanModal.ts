@@ -1,13 +1,10 @@
 import "./ScanModal.css";
 import decodeQR from "qr/decode.js";
+import { ImportModal } from "../import/ImportModal";
 import { UpsertModal } from "../upsert/UpsertModal";
 import { backArrow, switchCamera } from "../../icons";
 import { clickFeedback } from "../../mixins/clickFeedback";
-import {
-  entriesFromUri,
-  importPartials,
-  importResultMessage,
-} from "../../vault";
+import { entriesFromUri } from "../../vault";
 import { isModalOnTop, openModal } from "../../view";
 
 @tag("app-scan-modal")
@@ -81,10 +78,7 @@ export class ScanModal extends HTMLElement {
           setTimeout(openModal, 100, createElement(UpsertModal, entries[0]), {
             duration: 0,
           });
-        } else {
-          const importResult = await importPartials(entries);
-          alert(importResultMessage(importResult));
-        }
+        } else openModal(createElement(ImportModal, { entries }));
       } catch (error) {
         alert(error);
       }

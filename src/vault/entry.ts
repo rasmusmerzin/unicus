@@ -44,9 +44,9 @@ export function entriesFromUri(uri: string): Partial<VaultEntry>[] {
   else throw new Error("Invalid OTP URI");
 }
 
-export function entryDisplayName(entry: VaultEntry): string {
-  const name = entry.name.trim();
-  const issuer = entry.issuer.trim();
+export function entryDisplayName(entry: Partial<VaultEntry>): string {
+  const name = (entry.name || "").trim();
+  const issuer = (entry.issuer || "").trim();
   if (issuer && name) return `${issuer} (${name})`;
   else return issuer || name;
 }

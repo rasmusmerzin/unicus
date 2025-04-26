@@ -1,12 +1,12 @@
 import "./SettingsModal.css";
+import { AboutModal } from "./about/AboutModal";
+import { AppearanceModal } from "./appearance/AppearanceModal";
 import { ImportExportModal } from "./import-export/ImportExportModal";
 import { ModalHeader } from "../../elements/ModalHeader";
 import { SecuritySettingsModal } from "./security/SecuritySettingsModal";
 import { brush, construction, info, key, receipt } from "../../icons";
 import { clickFeedback } from "../../mixins/clickFeedback";
 import { openModal } from "../../view";
-import { AppearanceModal } from "./appearance/AppearanceModal";
-import { AboutModal } from "./about/AboutModal";
 
 @tag("app-settings-modal")
 export class SettingsModal extends HTMLElement {
