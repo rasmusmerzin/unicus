@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2025-04-26
+
 ### Added
 
 - Import selection modal
@@ -37,5 +39,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Show/hide entries' icons
 - Indicate expiring entries
 
-[unreleased]: https://github.com/rasmusmerzin/unicus/compare/v1.0.0...HEAD
+[unreleased]: https://github.com/rasmusmerzin/unicus/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/rasmusmerzin/unicus/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/rasmusmerzin/unicus/releases/tag/v1.0.0
