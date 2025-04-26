@@ -52,7 +52,7 @@ export function entryDisplayName(entry: VaultEntry): string {
 }
 
 export function entryColor(entry: VaultEntry): string {
-  const value = entrySerializedName(entry);
+  const value = `${entry.issuer}:${entry.name}`;
   let hash = 0;
   for (let i = 0; i < value.length; i++)
     hash = value.charCodeAt(i) + ((hash << 5) - hash);
@@ -66,8 +66,4 @@ export function entryFilterPredicate(search: string) {
     const issuer = entry.issuer.toLowerCase();
     return words.every((word) => name.includes(word) || issuer.includes(word));
   };
-}
-
-function entrySerializedName(entry: VaultEntry): string {
-  return `${entry.issuer}:${entry.name}`;
 }

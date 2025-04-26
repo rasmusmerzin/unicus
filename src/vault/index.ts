@@ -3,9 +3,10 @@ import { Subject } from "../Subject";
 import { decryptData, deriveKey, encryptData, Encrypted } from "../crypto";
 import { fingerprint } from "../fingerprint";
 
-export * from "./import";
-export * from "./entry";
 export * from "./accept";
+export * from "./entry";
+export * from "./file";
+export * from "./import";
 
 export interface Vault {
   entries?: VaultEntry[];
