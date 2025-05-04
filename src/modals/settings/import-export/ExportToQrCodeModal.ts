@@ -24,7 +24,7 @@ export class ExportToQrCodeModal extends HTMLElement {
         }),
         createElement("p", {
           innerText:
-            "Included entries are the ones with types TOTP or HOTP, hash algorithms SHA1, SHA256, SHA512 or MD5 and digits 6 or 8.",
+            "Included entries are the ones with types TOTP or HOTP, hash algorithms SHA1, SHA256, SHA512 or MD5 and digits 6 or 8. TOTP entries with a time step other than 30 seconds are ignored.",
         }),
       ]),
       (this.mainElement = createElement("main")),
@@ -58,12 +58,18 @@ export class ExportToQrCodeModal extends HTMLElement {
     this.mainElement.replaceChildren(
       ...entriesToMigrationUris(vault$.current()?.entries || []).map(QrCodeCard)
     );
+    addEventListener("keydown", this.onKeydown.bind(this), this.control);
     this.onScroll();
   }
 
   disconnectedCallback() {
     this.control?.abort();
     delete this.control;
+  }
+
+  private onKeydown(event: KeyboardEvent) {
+    if (event.key === "ArrowLeft") this.scrollBackward();
+    else if (event.key === "ArrowRight") this.scrollForward();
   }
 
   private scrollBackward() {

@@ -2,10 +2,10 @@ import "./MainContentElement.css";
 import { AddDrawerModal } from "./AddDrawerModal";
 import { ButtonElement } from "../../elements/ButtonElement";
 import { MainEntryElement } from "./MainEntryElement";
+import { MainView } from "./MainView";
+import { entryFilterPredicate, vault$, VaultEntry } from "../../vault";
 import { openModal } from "../../view";
 import { splash } from "../../icons";
-import { entryFilterPredicate, vault$, VaultEntry } from "../../vault";
-import { MainView } from "./MainView";
 
 @tag("app-main-content")
 export class MainContentElement extends HTMLElement {

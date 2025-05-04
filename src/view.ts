@@ -153,7 +153,7 @@ function getActiveElements(): HTMLElement[] {
     if (!(entry instanceof HTMLElement)) continue;
     active.push(entry);
     const { backgroundColor } = getComputedStyle(entry);
-    // check if entry is see-through
+    // check if background is without alpha
     if (backgroundColor.split("").filter((c) => c === ",").length < 3)
       return active;
   }

@@ -52,12 +52,18 @@ export class QrCodeModal extends HTMLElement {
       passive: true,
       signal: this.control.signal,
     });
+    addEventListener("keydown", this.onKeydown.bind(this), this.control);
     this.onScroll();
   }
 
   disconnectedCallback() {
     this.control?.abort();
     delete this.control;
+  }
+
+  private onKeydown(event: KeyboardEvent) {
+    if (event.key === "ArrowLeft") this.scrollBackward();
+    else if (event.key === "ArrowRight") this.scrollForward();
   }
 
   private scrollBackward() {
