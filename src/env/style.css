@@ -15,6 +15,7 @@
   @media (prefers-color-scheme: dark) {
     --background: #000;
     --foreground: #fff;
+    color-scheme: dark;
   }
   &[color-scheme="dark"] {
     --background: #000;
