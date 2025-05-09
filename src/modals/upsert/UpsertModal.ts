@@ -37,7 +37,7 @@ export class UpsertModal extends HTMLElement {
     else this.classList.remove("deletable");
   }
 
-  uuid = crypto.randomUUID();
+  uuid: string = crypto.randomUUID();
   get name(): string {
     return this.nameInput.value.trim();
   }
