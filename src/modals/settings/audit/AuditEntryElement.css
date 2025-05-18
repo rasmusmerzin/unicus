@@ -1,0 +1,63 @@
+app-audit-entry-element {
+  display: block;
+  padding: 0 8px 8px;
+  > div {
+    width: 100%;
+    text-align: left;
+    gap: 8px;
+    display: flex;
+    border-radius: 12px;
+    padding: 8px;
+    position: relative;
+    overflow: hidden;
+    &::before {
+      content: "";
+      position: absolute;
+      pointer-events: none;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--foreground);
+      opacity: 0.05;
+    }
+    > .icon {
+      fill: var(--foreground);
+      width: 32px;
+      height: 32px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 8px;
+      position: relative;
+      overflow: hidden;
+      &::before {
+        content: "";
+        position: absolute;
+        pointer-events: none;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: var(--foreground);
+        opacity: 0.05;
+      }
+    }
+    > .content {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      > .title {
+        font-weight: bold;
+      }
+      > .description {
+        font-size: 14px;
+        font-style: italic;
+      }
+      > .date {
+        font-size: 12px;
+        opacity: 0.5;
+      }
+    }
+  }
+}

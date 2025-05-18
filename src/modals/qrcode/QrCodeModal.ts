@@ -5,6 +5,7 @@ import { ModalHeader } from "../../elements/ModalHeader";
 import { VaultEntry, entryToUri } from "../../vault";
 import { chevronLeft, chevronRight } from "../../icons";
 import { clickFeedback } from "../../mixins/clickFeedback";
+import { createAuditEntry } from "../../audit";
 
 @tag("app-qr-code-modal")
 export class QrCodeModal extends HTMLElement {
@@ -16,6 +17,10 @@ export class QrCodeModal extends HTMLElement {
 
   set entries(entries: VaultEntry[]) {
     this.mainElement.replaceChildren(...entries.map(QrCodeCard));
+    createAuditEntry({
+      type: "share",
+      entries: entries.map(({ name, issuer }) => ({ name, issuer })),
+    });
     this.mainElement.scrollTo({ left: 0, behavior: "instant" });
     if (document.contains(this)) this.onScroll();
   }

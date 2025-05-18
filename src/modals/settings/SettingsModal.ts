@@ -1,6 +1,7 @@
 import "./SettingsModal.css";
 import { AboutModal } from "./about/AboutModal";
 import { AppearanceModal } from "./appearance/AppearanceModal";
+import { AuditModal } from "./audit/AuditModal";
 import { ImportExportModal } from "./import-export/ImportExportModal";
 import { ModalHeader } from "../../elements/ModalHeader";
 import { SecuritySettingsModal } from "./security/SecuritySettingsModal";
@@ -39,9 +40,9 @@ export class SettingsModal extends HTMLElement {
         Entry({
           icon: receipt(),
           name: "Audit log",
-          disabled: true,
           description:
             "Find a list of all actions taken in the app, including logins, exports and other sensitive actions.",
+          modalConstructor: AuditModal,
         }),
         Entry({
           icon: info(),

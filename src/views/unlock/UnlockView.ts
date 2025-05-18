@@ -14,6 +14,7 @@ import {
 } from "../../vault";
 import { getInputMode } from "../../env";
 import { ForgotModal } from "../../modals/forgot/ForgotModal";
+import { createAuditEntry } from "../../audit";
 
 @tag("app-unlock")
 export class UnlockView extends HTMLElement implements OnMountedAsFirst {
@@ -72,6 +73,7 @@ export class UnlockView extends HTMLElement implements OnMountedAsFirst {
       this.continueButton.loading = true;
       await openVault();
       await updateView();
+      await createAuditEntry({ type: "unlock" });
     } catch (error) {
       lockVault();
     } finally {
@@ -85,10 +87,12 @@ export class UnlockView extends HTMLElement implements OnMountedAsFirst {
       secret$.next(await deriveKey(this.passcodeInput.value));
       await openVault();
       await updateView();
+      await createAuditEntry({ type: "unlock" });
     } catch (error) {
       lockVault();
       this.continueButton.disabled = true;
       this.passcodeInput.error = "Invalid passcode";
+      createAuditEntry({ type: "failed_unlock" });
     } finally {
       this.continueButton.loading = false;
     }

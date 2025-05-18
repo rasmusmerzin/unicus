@@ -4,6 +4,7 @@ import { ModalHeader } from "../../../elements/ModalHeader";
 import { chevronLeft, chevronRight } from "../../../icons";
 import { clickFeedback } from "../../../mixins/clickFeedback";
 import { entriesToMigrationUris, vault$ } from "../../../vault";
+import { createAuditEntry } from "../../../audit";
 
 @tag("app-export-to-qr-code-modal")
 export class ExportToQrCodeModal extends HTMLElement {
@@ -60,6 +61,13 @@ export class ExportToQrCodeModal extends HTMLElement {
     );
     addEventListener("keydown", this.onKeydown.bind(this), this.control);
     this.onScroll();
+    createAuditEntry({
+      type: "export",
+      entries: vault$.current()?.entries?.map(({ name, issuer }) => ({
+        name,
+        issuer,
+      }))!,
+    });
   }
 
   disconnectedCallback() {

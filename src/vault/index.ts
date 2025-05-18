@@ -2,6 +2,7 @@ import { OtpAlgorithm } from "@merzin/otp";
 import { Subject } from "../Subject";
 import { decryptData, deriveKey, encryptData, Encrypted } from "../crypto";
 import { fingerprint } from "../fingerprint";
+import { createAuditEntry } from "../audit";
 
 export * from "./accept";
 export * from "./entry";
@@ -95,9 +96,15 @@ export async function upsertVaultEntry(
       }
     }
   }
+  const modified = [
+    ...result.created,
+    ...result.overwriten.map(({ current }) => current),
+  ].map(({ name, issuer }) => ({ name, issuer }));
   try {
     vault$.next(updated);
     await saveVault();
+    if (modified.length)
+      await createAuditEntry({ type: "import", entries: modified });
   } catch (error) {
     vault$.next(current);
     throw error;
@@ -123,12 +130,17 @@ export async function deleteVaultEntry(...uuids: string[]) {
   const current = vault$.current();
   const updated: Vault = JSON.parse(JSON.stringify(current));
   if (!updated.entries) return;
+  const deleted = updated.entries
+    .filter((entry) => uuids.includes(entry.uuid))
+    .map(({ name, issuer }) => ({ name, issuer }));
   updated.entries = updated.entries.filter(
     (entry) => !uuids.includes(entry.uuid)
   );
   try {
     vault$.next(updated);
     await saveVault();
+    if (deleted.length)
+      await createAuditEntry({ type: "remove", entries: deleted });
   } catch (error) {
     vault$.next(current);
     throw error;
@@ -206,6 +218,13 @@ export async function exportToFile(encrypted: boolean) {
     "data:application/json," +
     (encrypted ? JSON.stringify(obj) : JSON.stringify(obj, null, 2));
   createElement("a", { href: dataUrl, download: fileName }).click();
+  createAuditEntry({
+    type: "export",
+    entries: vault$.current()?.entries?.map(({ name, issuer }) => ({
+      name,
+      issuer,
+    }))!,
+  });
 }
 
 export function clearVault() {
