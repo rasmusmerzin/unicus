@@ -18,8 +18,8 @@ export class AboutModal extends HTMLElement {
           Entry({
             icon: info(),
             label: "Version",
-            description: "1.2.0",
-            onclick: () => navigator.clipboard.writeText("1.2.0"),
+            description: "1.2.1",
+            onclick: () => navigator.clipboard.writeText("1.2.1"),
           }),
           Entry({
             icon: update(),
