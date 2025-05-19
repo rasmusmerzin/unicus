@@ -1,4 +1,9 @@
-import { UpsertResult, VaultEntry, tryAcceptEntry, upsertVaultEntry } from ".";
+import {
+  UpsertResult,
+  VaultEntry,
+  tryAcceptEntry,
+  upsertVaultEntries,
+} from ".";
 
 export interface ImportResult {
   accepted: VaultEntry[];
@@ -38,7 +43,7 @@ export async function importPartials(
     if (result) accepted.push(result);
     else rejected.push(partial);
   }
-  const upsertResult = await upsertVaultEntry(...accepted);
+  const upsertResult = await upsertVaultEntries(...accepted);
   return { accepted, rejected, upsertResult };
 }
 

@@ -59,7 +59,27 @@ export async function moveVaultEntry(originIndex: number, targetIndex: number) {
   }
 }
 
-export async function upsertVaultEntry(
+export async function updateVaultEntry(entry: VaultEntry): Promise<boolean> {
+  const current = vault$.current();
+  if (!current) throw new Error("Vault is not initialized");
+  const updated: Vault = JSON.parse(JSON.stringify(current));
+  if (!updated.entries) return false;
+  const existingIndex = updated.entries.findIndex((e) => e.uuid == entry.uuid);
+  if (existingIndex < 0) return false;
+  const previous = updated.entries[existingIndex];
+  if (previous.secret !== entry.secret) entry.uuid = crypto.randomUUID();
+  updated.entries[existingIndex] = entry;
+  try {
+    vault$.next(updated);
+    await saveVault();
+    return true;
+  } catch (error) {
+    vault$.next(current);
+    throw error;
+  }
+}
+
+export async function upsertVaultEntries(
   ...entries: VaultEntry[]
 ): Promise<UpsertResult> {
   const result: UpsertResult = {

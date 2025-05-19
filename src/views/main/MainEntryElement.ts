@@ -8,7 +8,7 @@ import {
   entryIconUrl,
   entryToCode,
   saveEntryIcon,
-  upsertVaultEntry,
+  updateVaultEntry,
 } from "../../vault";
 import { check, copy, menu, refresh } from "../../icons";
 import { clickFeedback } from "../../mixins/clickFeedback";
@@ -150,8 +150,8 @@ export class MainEntryElement extends HTMLElement {
     event.stopPropagation();
     if (this.entry?.type !== "HOTP") return;
     const entry = { ...this.entry, counter: this.entry.counter + 1 };
-    await upsertVaultEntry(entry);
-    this.entry = entry;
+    const updated = await updateVaultEntry(entry);
+    if (updated) this.entry = entry;
   }
 
   private updateDraggable() {

@@ -5,7 +5,12 @@ import { ModalHeader } from "../../elements/ModalHeader";
 import { SelectElement } from "../../elements/SelectElement";
 import { check, trash } from "../../icons";
 import { clickFeedback } from "../../mixins/clickFeedback";
-import { deleteVaultEntry, upsertVaultEntry, VaultEntry } from "../../vault";
+import {
+  deleteVaultEntry,
+  updateVaultEntry,
+  upsertVaultEntries,
+  VaultEntry,
+} from "../../vault";
 import { openModal } from "../../view";
 
 const BASE32 = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
@@ -209,11 +214,16 @@ export class UpsertModal extends HTMLElement {
     openModal(modal);
   }
 
-  private submit() {
+  private async submit() {
     if (!this.validate()) return;
-    upsertVaultEntry(this.getVaultEntry())
-      .then(() => history.back())
-      .catch(alert);
+    const entry = this.getVaultEntry();
+    try {
+      const updated = await updateVaultEntry(entry);
+      if (!updated) await upsertVaultEntries(entry);
+      history.back();
+    } catch (error) {
+      alert(error);
+    }
   }
 
   private getVaultEntry(): VaultEntry {
