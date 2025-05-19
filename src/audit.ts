@@ -88,9 +88,3 @@ export function auditEntryDescription(entry: AuditEntry): string | string[] {
       return entry.entries.map(entryDisplayName);
   }
 }
-
-export function auditEntryDate(entry: AuditEntry): string {
-  // TODO: Use a better date format
-  const date = new Date(entry.created);
-  return date.toLocaleString("default");
-}

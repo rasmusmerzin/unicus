@@ -10,5 +10,12 @@ app-audit-modal {
   > main {
     flex: 1;
     overflow: auto;
+    > h3 {
+      padding: 12px;
+      background: var(--background);
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
   }
 }

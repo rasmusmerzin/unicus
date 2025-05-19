@@ -2,6 +2,7 @@ import "./AuditModal.css";
 import { AuditEntry, getAllAuditEntries } from "../../../audit";
 import { AuditEntryElement } from "./AuditEntryElement";
 import { ModalHeader } from "../../../elements/ModalHeader";
+import { formatDate, sameDate } from "../../../date";
 
 @tag("app-audit-modal")
 export class AuditModal extends HTMLElement {
@@ -48,7 +49,12 @@ export class AuditModal extends HTMLElement {
   private renderNext() {
     const entry = this.entries[this.cursor];
     if (!entry) return;
+    const previous = this.entries[this.cursor - 1];
     this.cursor++;
+    if (!sameDate(entry.created, previous?.created))
+      this.mainElement.append(
+        createElement("h3", {}, formatDate(entry.created))
+      );
     this.mainElement.append(createElement(AuditEntryElement, { entry }));
   }
 

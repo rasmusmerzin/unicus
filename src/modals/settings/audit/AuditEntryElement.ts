@@ -1,11 +1,11 @@
 import "./AuditEntryElement.css";
 import {
   AuditEntry,
-  auditEntryDate,
   auditEntryDescription,
   auditEntryIcon,
   auditEntryTitle,
 } from "../../../audit";
+import { formatTime } from "../../../date";
 
 @tag("app-audit-entry-element")
 export class AuditEntryElement extends HTMLElement {
@@ -25,7 +25,7 @@ export class AuditEntryElement extends HTMLElement {
           createElement("div", { innerText: element })
         )
       );
-    this.dateElement.innerText = auditEntryDate(entry);
+    this.dateElement.innerText = formatTime(entry.created);
     this.iconElement.innerHTML = auditEntryIcon(entry);
   }
 
